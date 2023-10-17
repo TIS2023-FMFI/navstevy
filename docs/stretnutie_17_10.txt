@@ -1,0 +1,72 @@
+Mail
+-moznosti pre dovody navstev
+-pictogrami pre prezentaciu
+-model tabletu
+ 
+
+Scenar 
+-vratnik zadava zakladne udaje		
+-vratnik priradeni cipovu kartu		      /kazda ma svoje id
+-potvrdenie mena na tablete navstevnikom
+-spustenie skolenia 			              /moznost znovu prehratia
+-koniec skolenia podpis 		            /realny podpis (ak nie tak checkbox)
+-vstup do arealu
+
+-pri odchode vratnik potvrdi odchod vsetkych osob a prevezme cipovu kartu
+-po prevzati karty na tablete screen na rozlucenie 
+-moznost zadat feedback reprezentovany smajlikmi
+
+
+Zakladne udaje 
+-meno 
+-priezvisko
+-pocet sprievodnych ludi
+-id(obciansky/pas)
+-spz auta				                      /tak ako osoby staci jedno hlavne auto
+-roll up moznosti dovodu navstevy	    /poslat v maily dopyt po moznostiach
+
+
+Tablet
+-stacionarne umiestneny na stene
+-prepojeny kablom 			            /v miestnosti je siet (neodporucana)
+-ukazuje prezentaciu po zadani udajov vratnikom
+-moznost vyberu jazyka sk/en
+
+
+Prezentacia
+-vizualne na urovni
+-Prva cast potvrdenie osoby
+	-zobrazenie mena a poctu ludi
+-Druha cast
+	-Prehranie piktograrmov
+	-posuvanie sa medzi nimi pomocou sipok
+-Tretia cast
+	-odsuhlasenie pozretia instruktaze
+	-podpis
+
+
+Desktop
+-Windows
+-problem s instalovanim aplikacii
+	-potreba odsuhlasenie spravcom
+-podla vyriesenia problemu navrhnut vhodny jazyk na programovanie
+-prehlad ulozenych dat
+-statistika z dat			            /nie je nevyhnutne
+
+
+Udaje z navstevy
+-nieje nutne ich hned posielat
+	-lokalne ulozit do suboru
+-possibly raz za mesiac (posledny tyzden mesiaca) upozornit na export dat
+	-pravdepodobne export robeny manualne
+-udaje ukladat vsetky do toho isteho suboru
+	-raz za rok vytvorit novy         /not sure about that pls check with recording
+
+
+
+
+
+
+
+
+
