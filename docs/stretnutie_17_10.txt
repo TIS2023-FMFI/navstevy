@@ -2,35 +2,36 @@ Mail
 -moznosti pre dovody navstev
 -pictogrami pre prezentaciu
 -model tabletu
- 
+-povolenia dostupné na ich systéme (dostaneme ich?)
+
 
 Scenar 
--vratnik zadava zakladne udaje		
--vratnik priradeni cipovu kartu		      /kazda ma svoje id
--potvrdenie mena na tablete navstevnikom
--spustenie skolenia 			              /moznost znovu prehratia
--koniec skolenia podpis 		            /realny podpis (ak nie tak checkbox)
--vstup do arealu
-
--pri odchode vratnik potvrdi odchod vsetkych osob a prevezme cipovu kartu
--po prevzati karty na tablete screen na rozlucenie 
--moznost zadat feedback reprezentovany smajlikmi
-
+Príchod
+	-vratnik zadava zakladne udaje		
+	-vratnik priradeni cipovu kartu		      /kazda ma svoje id (pravdepodobne to bude stále tá istá karta s rovnakým id)
+	-potvrdenie mena na tablete navstevnikom
+	-spustenie skolenia 			              /moznost znovu prehratia
+	-koniec skolenia podpis 		            /realny podpis (ak nie tak checkbox)
+	-vstup do arealu
+Odchod
+	-pri odchode vratnik potvrdi odchod vsetkych osob a prevezme cipovu kartu
+	-po prevzati karty na tablete screen na rozlucenie 
+	-moznost zadat feedback reprezentovany smajlikmi
 
 Zakladne udaje 
 -meno 
 -priezvisko
 -pocet sprievodnych ludi
--id(obciansky/pas)
--spz auta				                      /tak ako osoby staci jedno hlavne auto
+-id(obciansky/pas)			    /? nepresne povedané či naozaj protrebujú a čo tým myslí
+-spz auta				                      /tak ako osoby staci jedno hlavne auto (viaceré autá -> stačí jedno)
 -roll up moznosti dovodu navstevy	    /poslat v maily dopyt po moznostiach
 
 
 Tablet
 -stacionarne umiestneny na stene
--prepojeny kablom 			            /v miestnosti je siet (neodporucana)
+-prepojeny kablom 			            /v miestnosti je siet (neodporucana) a možné problémy s WiFi
 -ukazuje prezentaciu po zadani udajov vratnikom
--moznost vyberu jazyka sk/en
+-moznost vyberu jazyka sk/en 			/hlavne na prezentáciu (piktogramy)
 
 
 Prezentacia
@@ -53,6 +54,8 @@ Desktop
 -prehlad ulozenych dat
 -statistika z dat			            /nie je nevyhnutne
 
+-možnosť obísť problémy v ich systéme, komunikácia medzi dvomi tabletmi	
+
 
 Udaje z navstevy
 -nieje nutne ich hned posielat
@@ -61,12 +64,3 @@ Udaje z navstevy
 	-pravdepodobne export robeny manualne
 -udaje ukladat vsetky do toho isteho suboru
 	-raz za rok vytvorit novy         /not sure about that pls check with recording
-
-
-
-
-
-
-
-
-
