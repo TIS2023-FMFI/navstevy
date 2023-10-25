@@ -1,5 +1,6 @@
-﻿Požiadavky
+Dátum stretnutia 4.10.2023
 
+Požiadavky
 
 Tablet (Android):
 * jeden vstup s jedným tabletom
