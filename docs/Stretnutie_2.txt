@@ -65,4 +65,4 @@ Udaje z navstevy
 -possibly raz za mesiac (posledny tyzden mesiaca) upozornit na export dat
 	-pravdepodobne export robeny manualne
 -udaje ukladat vsetky do toho isteho suboru
-	-raz za rok vytvorit novy         /not sure about that pls check with recording
+	-raz za rok vytvorit novy         /not sure about that pls check with recording -> z nahrávky to nie je jasné, rozprávali iba  o nepravidelnom exporte dát (raz za mesiac, raz za rok) o mazaní súboru sme sa nerozprávali
