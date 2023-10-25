@@ -3,6 +3,7 @@ Dátum stretnutia 4.10.2023
 Požiadavky
 
 Tablet (Android):
+* Lenovo TB-8704F (tab4 8 plus), verzia androidu 8.1
 * jeden vstup s jedným tabletom
 * zobrazenie: 
    *  prezentácia (preklikávanie alebo loop)
