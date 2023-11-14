@@ -21,5 +21,5 @@ class Zobrazenie:
             self.__visitting = False
     
     def getRoot(self):
-        return self.root
+        return self.__root
 
