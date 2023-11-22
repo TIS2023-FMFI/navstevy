@@ -9,7 +9,8 @@ class MainScreen(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
         self.container = tk.Frame(self)
-
+        tk.Tk.configure(self, width="1000", height="1000")
+        tk.Tk.minsize(200, 200)
         self.container.pack(side="top", fill="both", expand = True)
 
         self.container.grid_rowconfigure(0, weight=1)
@@ -26,7 +27,6 @@ class MainScreen(tk.Tk):
             frame.grid(row=0, column=0, sticky="nsew")
 
         self.show_frame(Uvod)
-
     def show_frame(self, cont):
 
         frame = self.frames[cont]

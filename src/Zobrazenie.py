@@ -2,8 +2,10 @@ import tkinter as tk
 
 class Zobrazenie:
     def __init__(self, width, height):
-        self.__root = tk.Tk(width, height)
-        self.__visitting = False
+        tk.Tk.__init__(self)
+        tk.Tk.configure(self, width=width, height=height)       #width and height is string
+        self.container = tk.Frame(self)
+        self.visitting = False
 
     def show(self, name):
         ...
