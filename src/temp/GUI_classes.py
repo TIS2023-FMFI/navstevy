@@ -9,8 +9,7 @@ class MainScreen(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
         self.container = tk.Frame(self)
-        tk.Tk.configure(self, width="1000", height="1000")
-        tk.Tk.minsize(200, 200)
+        tk.Tk.configure(self, width=1000, height=1000)
         self.container.pack(side="top", fill="both", expand = True)
 
         self.container.grid_rowconfigure(0, weight=1)

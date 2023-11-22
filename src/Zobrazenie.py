@@ -3,7 +3,7 @@ import tkinter as tk
 class Zobrazenie:
     def __init__(self, width, height):
         tk.Tk.__init__(self)
-        tk.Tk.configure(self, width=width, height=height)       #width and height is string
+        tk.Tk.configure(self, width=width, height=height)    
         self.container = tk.Frame(self)
         self.visitting = False
 
@@ -14,14 +14,12 @@ class Zobrazenie:
         ...
 
     def getOngoingVisit(self):
-        return self.__visitting
+        return self.visitting
     
     def setOngoingVisit(self, bollean):
         if bollean:
-            self.__visitting = True
+            self.visitting = True
         else: 
-            self.__visitting = False
-    
-    def getRoot(self):
-        return self.__root
+            self.visitting = False
+
 
