@@ -4,6 +4,10 @@ LARGE_FONT = ("Verdana", 12)
 
 '''using frames in  main class we can add classes of gui as individual frames and change between them
     this can be used with main windows and popups.
+    
+     how to get window info:
+        self.winfo_height() 
+        self.winfo_width()
 '''
 class MainScreen(tk.Tk):
     def __init__(self):
