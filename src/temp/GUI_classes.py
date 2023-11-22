@@ -8,8 +8,10 @@ LARGE_FONT = ("Verdana", 12)
 class MainScreen(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
+        self.geometry("1200x900")
+        self.minsize(500, 500)
+
         self.container = tk.Frame(self)
-        tk.Tk.configure(self, width=1000, height=1000)
         self.container.pack(side="top", fill="both", expand = True)
 
         self.container.grid_rowconfigure(0, weight=1)
@@ -26,9 +28,10 @@ class MainScreen(tk.Tk):
             frame.grid(row=0, column=0, sticky="nsew")
 
         self.show_frame(Uvod)
-    def show_frame(self, cont):
 
+    def show_frame(self, cont):
         frame = self.frames[cont]
+        frame.configure(width=1000, height=1000)
         frame.tkraise()
 
 
@@ -36,6 +39,7 @@ class MainScreen(tk.Tk):
 class Uvod(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
+
         label = tk.Label(self, text="Uvod", font=LARGE_FONT)
         label.pack(pady=10, padx=10)
 

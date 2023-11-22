@@ -3,7 +3,7 @@ import tkinter as tk
 class Zobrazenie:
     def __init__(self, width, height):
         tk.Tk.__init__(self)
-        tk.Tk.configure(self, width=width, height=height)    
+        
         self.container = tk.Frame(self)
         self.visitting = False
 
