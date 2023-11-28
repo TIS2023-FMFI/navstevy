@@ -1,5 +1,3 @@
-import tkinter as tk
-import packaging
 import customtkinter as ctk
 LARGE_FONT = ("Verdana", 12)
 
@@ -52,6 +50,8 @@ class Uvod(ctk.CTkFrame):
 
 class Prichod(ctk.CTkFrame):
     def __init__(self, parent, controller):
+        self.controller = controller
+        self.parent = parent
         ctk.CTkFrame.__init__(self, parent)
         label = ctk.CTkLabel(self, text="Prichod", font=LARGE_FONT)
         label.pack(pady=10, padx=10)
@@ -59,8 +59,40 @@ class Prichod(ctk.CTkFrame):
         button = ctk.CTkButton(self, text="Back", command=lambda: controller.show_frame(Uvod))
         button.pack()
 
-        meno = ctk.CTkEntry(self, placeholder_text="meno")
-        meno.pack()
+        submit = ctk.CTkButton(self, text="Submit", command=lambda: self.getInfo())
+        submit.pack()
+
+        self.meno = ctk.CTkEntry(self, placeholder_text="meno")
+        self.meno.pack()
+
+        self.priezvisko = ctk.CTkEntry(self, placeholder_text="priezvisko")
+        self.priezvisko.pack()
+        self.id = ctk.CTkEntry(self, placeholder_text="id")
+        self.id.pack()
+        self.spz = ctk.CTkEntry(self, placeholder_text="spz")
+        self.spz.pack()
+        self.firma = ctk.CTkEntry(self, placeholder_text="firma")
+        self.firma.pack()
+        self.pocet = ctk.CTkEntry(self, placeholder_text="pocet")
+        self.pocet.pack()
+
+        options = [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday"
+        ]
+
+        # initial menu text
+        self.dovod = ctk.CTkOptionMenu(master=self, values=options)
+        self.dovod.pack()
+
+    def getInfo(self):
+        self.controller.show_frame(Uvod)
+        self.meno.delete(0, 'end')
 
 
 class Prebiehajuce(ctk.CTkFrame):
