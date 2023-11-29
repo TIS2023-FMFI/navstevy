@@ -6,8 +6,8 @@ LARGE_FONT = ("Verdana", 12)
     this can be used with main windows and popups.
     
      how to get window info:
-        self.winfo_height() 
-        self.winfo_width()
+        self.winfo_screenwidth()
+        self.winfo_screenheight()
 '''
 class MainScreen(tk.Tk):
     def __init__(self):
