@@ -29,3 +29,7 @@ CTkOptionMenu - volanie CTkOptionMenu(master=self, values= list)
   .set("")
     -nastavi na nahlad moznost zo zoznamu
   
+
+CTkFrame
+  -skupina ktora funguje ako zoznam okien ktore sa vedia pomocou controllera striedat
+  -jednotlive okno je jeden Frame
