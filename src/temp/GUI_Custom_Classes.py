@@ -1,6 +1,6 @@
 import customtkinter as ctk
 LARGE_FONT = ("Verdana", 12)
-
+BASE_FG_COLOR = '#343638'
 '''
 Tak ako aj v tkinter aj customtkinter pouziva tie iste buttons labels...
 jediny rozdiel ze su nazvate CTkButton, CTkLabel ... 
@@ -96,9 +96,28 @@ class Prichod(ctk.CTkFrame):
         self.dovod = ctk.CTkOptionMenu(master=self, values=options)
         self.dovod.pack()
 
+    def isNumber(self, n):
+        try:
+            int(n)
+            return True
+        except ValueError:
+            return False
+
     def getInfo(self):
-        self.controller.show_frame(Uvod)
-        self.meno.delete(0, 'end')
+        if self.isNumber(self.pocet.get()):
+            self.controller.show_frame(Uvod)
+            self.meno.delete(0, 'end')
+            self.priezvisko.delete(0, 'end')
+            self.id.delete(0, 'end')
+            self.firma.delete(0, 'end')
+            self.spz.delete(0, 'end')
+            self.pocet.delete(0, 'end')
+            self.pocet.configure(fg_color=BASE_FG_COLOR)
+            self.dovod.set("Monday")
+        else:
+            self.pocet.delete(0, 'end')
+            print(self.pocet.cget("fg_color"))
+            self.pocet.configure(fg_color="red")
 
 
 class Prebiehajuce(ctk.CTkFrame):
