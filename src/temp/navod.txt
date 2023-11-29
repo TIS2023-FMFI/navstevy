@@ -1,1 +1,31 @@
+Custom Tkinter
 
+CTkButton - volanie CTkButton(master=self, text="", command= lambda:)  
+  master - objekt na ktory sa viaze (Frame)
+  text - text objektu 
+  command funkcia ktora sa spusti
+    - lambda spusti funkciu ak je stlaceny
+
+  .configure()
+    -nastavovanie atributov tlacidla(pozicia farba velkost)
+  .pack 
+    -jednoduche usporiadanie widgets v okne 
+      -Grid da sa upravovat(mozna cesta)
+CTkEntry - volanie CTkEntry(master=self, placeholder_text="")
+  master - objekt na ktory sa viaze (Frame)
+  placeholder_text - text zobrazeny ak je pole prazdne
+
+  .delete(index0, index1 = False)
+    - mazanie inputu
+    -index0 zaciatocny index
+      -ak je sam tak jediny
+    -index1 posledny index
+      -ak sa da 'end' tak sa vymaze cele
+
+CTkOptionMenu - volanie CTkOptionMenu(master=self, values= list)
+  master - objekt na ktory sa viaze (Frame)
+  values - zoznam ktory sa zobrazi a da sa z neho vyberat
+
+  .set("")
+    -nastavi na nahlad moznost zo zoznamu
+  
