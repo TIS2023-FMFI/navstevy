@@ -1,6 +1,6 @@
 import tkinter as tk
 
-class Zobrazenie:
+class Preview:
     def __init__(self, width, height):
         tk.Tk.__init__(self)
         

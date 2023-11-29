@@ -1,4 +1,4 @@
-class Navstevy:
+class Visitor:
     def __init__(self, id, name, surname, cardId, company, arrival = None, departure = None, signature = None, review = None):
         self.id = id
         self.name = name
@@ -15,3 +15,9 @@ class Navstevy:
 
     def setId(self,id):
         self.id = id
+
+    def odchod(): 
+        ...
+
+    def edit():
+        ... 
