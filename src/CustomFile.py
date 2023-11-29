@@ -3,8 +3,8 @@ class CustomFile:
         self.path = path
         try:
             self.file = open(path, "a+")  # Use "a+" to open the file for both reading and appending
-        except OSError:
-            print("Súbor sa nepodarilo vytvoriť!")  # Later, you might want to raise an error instead of just printing
+        except OSError as e:
+            print(f"Error opening file {path}: {e}")
     
     def writeData(self, data):
         self.file.write(data + ';')  # Add a ; character after each data entry
