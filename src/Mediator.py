@@ -1,5 +1,5 @@
-import Visitor
-import Preview
+import Visitor as vs
+import Preview as pr
 import CustomFile as cf
 
 class Mediator:
