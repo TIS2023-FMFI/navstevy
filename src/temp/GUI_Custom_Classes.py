@@ -1,6 +1,10 @@
 import customtkinter as ctk
 LARGE_FONT = ("Verdana", 12)
 
+'''
+Tak ako aj v tkinter aj customtkinter pouziva tie iste buttons labels...
+jediny rozdiel ze su nazvate CTkButton, CTkLabel ... 
+'''
 class MainScreen(ctk.CTk):
     def __init__(self):
         ctk.CTk.__init__(self)
@@ -62,6 +66,7 @@ class Prichod(ctk.CTkFrame):
         submit = ctk.CTkButton(self, text="Submit", command=lambda: self.getInfo())
         submit.pack()
 
+        '''placeholder_text je inicialny text ktory sa prepise'''
         self.meno = ctk.CTkEntry(self, placeholder_text="meno")
         self.meno.pack()
 
@@ -85,8 +90,9 @@ class Prichod(ctk.CTkFrame):
             "Saturday",
             "Sunday"
         ]
-
-        # initial menu text
+        '''optionmenu je dropdown menu 
+            do value sa vkladaju moznosti ako zoznam
+        '''
         self.dovod = ctk.CTkOptionMenu(master=self, values=options)
         self.dovod.pack()
 
