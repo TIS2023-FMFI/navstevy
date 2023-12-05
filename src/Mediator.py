@@ -4,15 +4,15 @@ import CustomFile as cf
 
 class Mediator:
     def __init__(self):
-        self.vissitors = []
+        self.visitors = []
         self.fileReader = cf.CustomFile('../navstevy/src/files/test_file.txt')  # Add the file extension
     
     def addVisitor(self, visitor):
-        self.vissitors.append(visitor)
+        self.visitors.append(visitor)
         self.fileReader.writeData(str(visitor))  # Write the visitor data to the file
     
     def getVisitors(self):
-        return self.vissitors
+        return self.visitors
 
 # Example
 m = Mediator()

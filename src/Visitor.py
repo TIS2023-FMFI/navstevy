@@ -16,8 +16,8 @@ class Visitor:
     def setId(self,id):
         self.id = id
 
-    def odchod(): 
+    def odchod(self):
         ...
 
-    def edit():
+    def edit(self):
         ... 
