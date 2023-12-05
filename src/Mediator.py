@@ -1,11 +1,11 @@
-import Visitor as vs
-import Preview as pr
+import Visitor as vis
+import Preview as pre
 import CustomFile as cf
 
 class Mediator:
     def __init__(self):
         self.vissitors = []
-        self.fileReader = cf.CustomFile('../navstevy/src/files/test_file.txt')  # Add the file extension
+        self.fileReader = cf.CustomFile('../navstevy/src/files/test_file.csv')  # Add the file extension
     
     def addVisitor(self, visitor):
         self.vissitors.append(visitor)
