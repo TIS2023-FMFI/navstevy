@@ -204,5 +204,5 @@ class Visit_History(ctk.CTkFrame):
         button.pack()
 
 m = M.Mediator()
-app = MainScreen()
+app = MainScreen(m)
 app.mainloop()
