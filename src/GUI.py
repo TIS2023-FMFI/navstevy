@@ -135,7 +135,10 @@ class Entry(ctk.CTkFrame):
             group_size = int(self.group_size.get())
             visit_reason = self.visit_reason.get()
 
-            self.mediator.addVisitor(name, surname, card_id, car_num, company, group_size, visit_reason)
+            self.controller.mediator.addVisitor(name, surname, card_id, car_num, company, group_size, visit_reason)
+
+            '''docasne na reakciu'''
+            self.goBack()
 
     def badEngtry(self,entry):
         entry.configure(fg_color='red')
@@ -204,5 +207,5 @@ class Visit_History(ctk.CTkFrame):
         button.pack()
 
 m = M.Mediator()
-app = MainScreen()
+app = MainScreen(m)
 app.mainloop()
