@@ -1,4 +1,5 @@
 import customtkinter as ctk
+import Mediator
 LARGE_FONT = ("times new roman", 12)
 
 
@@ -69,7 +70,7 @@ class Entry(ctk.CTkFrame):
         label = ctk.CTkLabel(self, text="Zapis Navstevy", font=LARGE_FONT)
         label.pack(pady=10, padx=10)
 
-        button = ctk.CTkButton(self, text="Naspat", command=lambda: controller.show_frame(MainMenu))
+        button = ctk.CTkButton(self, text="Naspat", command=lambda: self.goBack())
         button.pack()
 
         submit = ctk.CTkButton(self, text="Spustit prezentaciu", command=lambda: self.saveInfo())
@@ -81,8 +82,8 @@ class Entry(ctk.CTkFrame):
 
         self.surname= ctk.CTkEntry(self, placeholder_text="priezvisko")
         self.surname.pack()
-        self.id = ctk.CTkEntry(self, placeholder_text="id")
-        self.id.pack()
+        self.card_id = ctk.CTkEntry(self, placeholder_text="id")
+        self.card_id.pack()
         self.car_num = ctk.CTkEntry(self, placeholder_text="spz")
         self.car_num.pack()
         self.company = ctk.CTkEntry(self, placeholder_text="firma")
@@ -92,23 +93,87 @@ class Entry(ctk.CTkFrame):
 
         '''pridat tlacidlo na pridanie moznosti'''
 
-        options = [
-            "navsteva",
-            "inspekcia",
-            "donaska"
+        self.options = [
+            "navsteva manazera",
+            "audit",
+            "instalacia",
+            "oprava zariadeni"
+
+
+
         ]
 
-        self.visit_reason = ctk.CTkOptionMenu(master=self, values=options)
+        self.visit_reason = ctk.CTkOptionMenu(master=self, values=self.options)
         self.visit_reason.pack()
+    def goBack(self):
+        self.clearEntry()
+        self.controller.show_frame(MainMenu)
+
+    def clearEntry(self):
+        self.name.delete(0, 'end')
+        self.name.configure(fg_color='#343638')
+        self.surname.delete(0, 'end')
+        self.surname.configure(fg_color='#343638')
+        self.card_id.delete(0, 'end')
+        self.card_id.configure(fg_color='#343638')
+        self.car_num.delete(0, 'end')
+        self.car_num.configure(fg_color='#343638')
+        self.company.delete(0, 'end')
+        self.company.configure(fg_color='#343638')
+        self.group_size.delete(0, 'end')
+        self.group_size.configure(fg_color='#343638')
+        self.visit_reason.set(self.options[0])
 
     def saveInfo(self):
         if self.checkInfo():
-            ...
+            m.addVisitor(self.name,self.surname, self.card_id, self.car_num,self.company, self.group_size, self.visit_reason)
 
+    def badEngtry(self,entry):
+        entry.configure(fg_color='red')
+
+    def isInt(self,entry):
+        try:
+            int(self.group_size.get())
+            return True
+        except ValueError:
+            return False
 
     def checkInfo(self):
-        ...
+        flag = True
 
+        if(self.name.get() == ''):
+            flag = False
+            self.badEngtry(self.name)
+
+        if (self.surname.get() == ''):
+            flag = False
+            self.badEngtry(self.surname)
+
+        if (self.card_id.get() == ''):
+            flag = False
+            self.badEngtry(self.card_id)
+
+        if not (self.isInt(self.card_id)):
+            flag = False
+            self.badEngtry(self.card_id)
+
+        if (self.car_num.get() == ''):
+            flag = False
+            self.badEngtry(self.car_num)
+
+        if (self.company.get() == ''):
+            flag = False
+            self.badEngtry(self.company)
+
+        if (self.group_size.get() == ''):
+            flag = False
+            self.badEngtry(self.group_size)
+
+        if not(self.isInt(self.group_size)):
+            flag = False
+            self.badEngtry(self.group_size)
+
+        return flag
 
 class Ongoing(ctk.CTkFrame):
     def __init__(self, parent, controller):
@@ -129,5 +194,6 @@ class Visit_History(ctk.CTkFrame):
         button = ctk.CTkButton(self, text="Back", command=lambda: controller.show_frame(MainMenu))
         button.pack()
 
+m = Mediator()
 app = MainScreen()
 app.mainloop()
