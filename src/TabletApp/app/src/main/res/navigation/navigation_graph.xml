@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation_graph"
+    app:startDestination="@id/screenSaverFragment">
+
+    <fragment
+        android:id="@+id/screenSaverFragment"
+        android:name="com.example.safety_presentation.ScreenSaverFragment"
+        android:label="fragment_screen_saver"
+        tools:layout="@layout/fragment_screen_saver" >
+        <action
+            android:id="@+id/action_screenSaverFragment_to_checkingFragment"
+            app:destination="@id/checkingFragment" />
+        <action
+            android:id="@+id/action_screenSaverFragment_to_ratingFragment"
+            app:destination="@id/ratingFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/checkingFragment"
+        android:name="com.example.safety_presentation.CheckingFragment"
+        android:label="fragment_checking"
+        tools:layout="@layout/fragment_checking" >
+        <action
+            android:id="@+id/action_checkingFragment_to_screenSaverFragment"
+            app:destination="@id/screenSaverFragment" />
+        <action
+            android:id="@+id/action_checkingFragment_to_presentationFragment"
+            app:destination="@id/presentationFragment" />
+        <action
+            android:id="@+id/action_checkingFragment_to_textFragment"
+            app:destination="@id/textFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/confirmationFragment"
+        android:name="com.example.safety_presentation.ConfirmationFragment"
+        android:label="fragment_confirmation"
+        tools:layout="@layout/fragment_confirmation" >
+        <action
+            android:id="@+id/action_confirmationFragment_to_screenSaverFragment"
+            app:destination="@id/screenSaverFragment" />
+        <action
+            android:id="@+id/action_confirmationFragment_to_textFragment"
+            app:destination="@id/textFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/presentationFragment"
+        android:name="com.example.safety_presentation.PresentationFragment"
+        android:label="fragment_presentation"
+        tools:layout="@layout/fragment_presentation" >
+        <action
+            android:id="@+id/action_presentationFragment_to_confirmationFragment"
+            app:destination="@id/confirmationFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/ratingFragment"
+        android:name="com.example.safety_presentation.RatingFragment"
+        android:label="fragment_rating"
+        tools:layout="@layout/fragment_rating" >
+        <action
+            android:id="@+id/action_ratingFragment_to_screenSaverFragment"
+            app:destination="@id/screenSaverFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/textFragment"
+        android:name="com.example.safety_presentation.TextFragment"
+        android:label="fragment_text"
+        tools:layout="@layout/fragment_text" >
+        <action
+            android:id="@+id/action_textFragment_to_checkingFragment"
+            app:destination="@id/checkingFragment" />
+        <action
+            android:id="@+id/action_textFragment_to_screenSaverFragment"
+            app:destination="@id/screenSaverFragment" />
+    </fragment>
+</navigation>
