@@ -1,11 +1,12 @@
 import customtkinter as ctk
-import Mediator as med
+import Mediator as M
 LARGE_FONT = ("times new roman", 12)
 
 
 class MainScreen(ctk.CTk):
-    def __init__(self):
+    def __init__(self,mediator):
         ctk.CTk.__init__(self)
+        self.mediator = mediator
         self.geometry("1200x600")
         self.width = 1200
         self.height = 600
@@ -126,7 +127,15 @@ class Entry(ctk.CTkFrame):
 
     def saveInfo(self):
         if self.checkInfo():
-            m.addVisitor(self.name,self.surname, self.card_id, self.car_num,self.company, self.group_size, self.visit_reason)
+            name = self.name.get()
+            surname = self.surname.get()
+            card_id = int(self.card_id.get())
+            car_num = self.car_num.get()
+            company = self.company.get()
+            group_size = int(self.group_size.get())
+            visit_reason = self.visit_reason.get()
+
+            self.mediator.addVisitor(name, surname, card_id, car_num, company, group_size, visit_reason)
 
     def badEngtry(self,entry):
         entry.configure(fg_color='red')
@@ -194,6 +203,6 @@ class Visit_History(ctk.CTkFrame):
         button = ctk.CTkButton(self, text="Back", command=lambda: controller.show_frame(MainMenu))
         button.pack()
 
-m = med.Mediator()
+m = M.Mediator()
 app = MainScreen()
 app.mainloop()
