@@ -5,12 +5,12 @@ LARGE_FONT = ("times new roman", 12)
 
 class MainScreen(ctk.CTk):
     
-    def __init__(self):
+    def __init__(self,mediator):
         ctk.CTk.__init__(self)
         self.geometry("1200x600")
         self.width = 1200
         self.height = 600
-
+        self.mediator = mediator
         self.minsize(500, 500)
 
 
@@ -206,5 +206,5 @@ class Visit_History(ctk.CTkFrame):
         button.pack()
 
 m = med.Mediator()
-app = MainScreen()
+app = MainScreen(m)
 app.mainloop()

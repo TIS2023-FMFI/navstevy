@@ -9,7 +9,7 @@ class Mediator:
     
     def addVisitor(self, name, surname, cardId, carTag, company, count, reason):
         visitor = vis.Visitor(self.generateId(), name, surname, cardId, carTag, company, count, reason)
-        self.file.writeData(visitor.getDataToWrite())  # zapíše visitora do súboru
+        self.file.writeVisitor(visitor.getDataToWrite())  # zapíše visitora do súboru
         self.visitors.append(visitor)
 
     def editVisitor(self, id, name = None, surname = None, cardId = None, carTag = None, company = None, count = None, reason = None):
