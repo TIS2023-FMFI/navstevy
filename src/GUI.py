@@ -129,6 +129,9 @@ class Entry(ctk.CTkFrame):
         if self.checkInfo():
             m.addVisitor(self.name,self.surname, self.card_id, self.car_num,self.company, self.group_size, self.visit_reason)
 
+        '''docasne'''
+        self.goBack()
+
     def badEngtry(self,entry):
         entry.configure(fg_color='red')
 
