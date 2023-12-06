@@ -17,7 +17,7 @@ class CustomFile:
 
     def writeData(self, data):
         self.file.write(data)
-        self.numOfLines += 1    # dôležité pre generovanie ID
+        self.numOfLines += 1    # dôležité pre generovanie správneho ID
     
     def readData(self):
         self.file.seek(0)  # dôležité dať pointer na začiatok ak cheme čiťať celý súbor

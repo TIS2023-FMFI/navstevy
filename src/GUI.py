@@ -1,5 +1,5 @@
 import customtkinter as ctk
-import Mediator
+import Mediator as med
 LARGE_FONT = ("times new roman", 12)
 
 
@@ -194,6 +194,6 @@ class Visit_History(ctk.CTkFrame):
         button = ctk.CTkButton(self, text="Back", command=lambda: controller.show_frame(MainMenu))
         button.pack()
 
-m = Mediator()
+m = med.Mediator()
 app = MainScreen()
 app.mainloop()

@@ -5,7 +5,7 @@ import CustomFile as cf
 class Mediator:
     def __init__(self):
         self.visitors = []      # TODO pridávanie neodhlásených z predošlého dňa
-        self.file = cf.CustomFile('../navstevy/src/files/test_file.csv')  # TODO nastavnie správnej cesty pre ich potreby
+        self.file = cf.CustomFile('../navstevy/src/files/testFile.csv')  # TODO nastavnie správnej cesty pre ich potreby
     
     def addVisitor(self, name, surname, cardId, carTag, company, count, reason):
         visitor = vis.Visitor(self.generateId(), name, surname, cardId, carTag, company, count, reason)
@@ -31,9 +31,9 @@ class Mediator:
         return self.visitors
 
 # Example
-m = Mediator()
-m.addVisitor("Fero", "Malý", 1, "BL123BL", "MatFyz", 4, "nudím sa")
-m.addVisitor("Jana", "Iná", 1, "KE123BL", "FMFI", 1, "skúšam dva")
-m.editVisitor(1, "Nina", None, None, "BL987BL")
-m.file.readData()
-m.file.closeFile() 
+# m = Mediator()
+# m.addVisitor("Fero", "Malý", 1, "BL123BL", "MatFyz", 4, "nudím sa")
+# m.addVisitor("Jana", "Iná", 1, "KE123BL", "FMFI", 1, "skúšam dva")
+# m.editVisitor(1, "Nina", None, None, "BL987BL")
+# m.file.readData()
+# m.file.closeFile() 
