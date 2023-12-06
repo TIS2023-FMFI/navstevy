@@ -127,7 +127,14 @@ class Entry(ctk.CTkFrame):
 
     def saveInfo(self):
         if self.checkInfo():
-            m.addVisitor(self.name,self.surname, self.card_id, self.car_num,self.company, self.group_size, self.visit_reason)
+            name = self.name.get()
+            surname = self.surname.get()
+            card_id = int(self.card_id.get())
+            car_num = self.car_num.get()
+            company = self.company.get()
+            group_size = int(self.group_size.get())
+            visit_reason = self.visit_reason.get()
+            self.controller.mediator.addVisitor( name, surname, card_id, car_num, company, group_size, visit_reason)
 
         '''docasne'''
         self.goBack()
