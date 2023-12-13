@@ -29,6 +29,9 @@ class Mediator:
 
     def getVisitors(self):
         return self.visitors
+    
+    def filter(self): 
+        ...
 
 # Example
 # m = Mediator()
