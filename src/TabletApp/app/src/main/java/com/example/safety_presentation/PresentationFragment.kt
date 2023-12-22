@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -22,8 +21,7 @@ class PresentationFragment : Fragment() {
         bind = FragmentPresentationBinding.inflate(inflater, container, false)
 
         bind.apply {
-            button.setOnClickListener{decrease()
-                Log.d("bruh", index.toString())}
+            button.setOnClickListener{decrease() }
             button2.setOnClickListener{changeLanguage()}
             button3.setOnClickListener{increase()}
         }
@@ -82,6 +80,7 @@ class PresentationFragment : Fragment() {
         if (index != 11){
             index += 1
         }
+
         changeSlide()
     }
 
@@ -103,15 +102,4 @@ class PresentationFragment : Fragment() {
             bind.button2.setImageBitmap(dict[dict.size-1])
         }
     }
-
-//    companion object {
-//        @JvmStatic
-//        fun newInstance(param1: String, param2: String) =
-//            PresentationFragment().apply {
-//                arguments = Bundle().apply {
-//                    putString(ARG_PARAM1, param1)
-//                    putString(ARG_PARAM2, param2)
-//                }
-//            }
-//    }
 }

@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#04103A"
     tools:context=".PresentationFragment">
 
     <LinearLayout
@@ -13,12 +14,11 @@
 
         <ImageView
             android:id="@+id/presentation"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:src="@drawable/sk1"
-            />
+            android:src="@drawable/sk1" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -32,14 +32,26 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="1"
-                android:text="Button" />
+                android:backgroundTint="#616161"
+                android:text="@string/larrow"
+                android:textColor="#FFFFFF"
+                android:textSize="26sp"
+                app:cornerRadius="0dp" />
 
             <ImageButton
                 android:id="@+id/button2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:src="@android:drawable/btn_star" />
+                android:src="@android:drawable/btn_star"
+                android:padding="7dp"
+                android:paddingHorizontal="5dp"
+                android:paddingVertical="5dp"
+                android:paddingStart="5dp"
+                android:paddingLeft="5dp"
+                android:paddingTop="5dp"
+                android:paddingEnd="5dp"
+                android:paddingRight="5dp"
+                android:paddingBottom="5dp" />
 
             <Button
                 android:id="@+id/button3"
@@ -47,7 +59,11 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="1"
-                android:text="Button" />
+                android:backgroundTint="#616161"
+                android:text="@string/rarrow"
+                android:textColor="#FEFEFE"
+                android:textSize="26sp"
+                app:cornerRadius="0dp" />
         </LinearLayout>
     </LinearLayout>
 
