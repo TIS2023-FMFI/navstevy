@@ -2,4 +2,6 @@
     <string name="app_name">Safety_presentation</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="larrow"><![CDATA[<---]]></string>
+    <string name="rarrow"><![CDATA[--->]]></string>
 </resources>
