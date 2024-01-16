@@ -1,59 +1,105 @@
 package com.example.safety_presentation
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.example.safety_presentation.databinding.FragmentPresentationBinding
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [PresentationFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class PresentationFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+    lateinit var bind : FragmentPresentationBinding
+    lateinit var mainActivity: MainActivity
+    var index = 0
+    var dict : MutableMap<Int, Bitmap> = mutableMapOf()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                              savedInstanceState: Bundle?): View {
+        bind = FragmentPresentationBinding.inflate(inflater, container, false)
+
+        bind.apply {
+            button.setOnClickListener{decrease() }
+            button2.setOnClickListener{changeLanguage()}
+            button3.setOnClickListener{increase()}
         }
+
+        changeSlide()
+
+        return bind.root
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_presentation, container, false)
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        mainActivity = context as MainActivity
+        initRes(context)
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment PresentationFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            PresentationFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+    fun initRes(context: Context){
+        val resourceList : List<Int> = listOf(R.drawable.en1, R.drawable.en2, R.drawable.en3,
+                                        R.drawable.en4, R.drawable.en5, R.drawable.en6,
+                                        R.drawable.en7, R.drawable.en8, R.drawable.en9,
+                                        R.drawable.en10, R.drawable.en11, R.drawable.en12,
+                                        R.drawable.sk1, R.drawable.sk2, R.drawable.sk3,
+                                        R.drawable.sk4, R.drawable.sk5, R.drawable.sk6,
+                                        R.drawable.sk7, R.drawable.sk8, R.drawable.sk9,
+                                        R.drawable.sk10, R.drawable.sk11, R.drawable.sk12,
+                                        R.drawable.flagen, R.drawable.flagsk)
+
+        for (i in resourceList.indices){
+            dict[i] = BitmapFactory.decodeResource(
+                context.resources,
+                resourceList[i])
+        }
+
+        dict[dict.size-1] = Bitmap.createScaledBitmap(dict[dict.size-1]!!,
+            (dict[dict.size-1]!!.width/8),
+            (dict[dict.size-1]!!.height/8),
+            false)
+
+        dict[dict.size-2] = Bitmap.createScaledBitmap(dict[dict.size-2]!!,
+            (dict[dict.size-2]!!.width/8),
+            (dict[dict.size-2]!!.height/8),
+            false)
+    }
+
+    fun changeLanguage(){
+        if (mainActivity.languageInUse == "sk"){
+            mainActivity.languageInUse = "en"
+        }
+        else{
+            mainActivity.languageInUse = "sk"
+        }
+
+        changeSlide()
+    }
+
+    fun increase(){
+        if (index != 11){
+            index += 1
+        }
+
+        changeSlide()
+    }
+
+    fun decrease(){
+        if (index != 0){
+            index -= 1
+        }
+        changeSlide()
+    }
+
+    fun changeSlide(){
+        if (mainActivity.languageInUse == "en"){
+            bind.presentation.setImageBitmap(dict[index])
+            bind.button2.setImageBitmap(dict[dict.size-2])
+        }
+
+        else{
+            bind.presentation.setImageBitmap(dict[index+12])
+            bind.button2.setImageBitmap(dict[dict.size-1])
+        }
     }
 }
