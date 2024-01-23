@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.Navigation
 import com.example.safety_presentation.databinding.FragmentPresentationBinding
 
 class PresentationFragment : Fragment() {
@@ -23,7 +24,16 @@ class PresentationFragment : Fragment() {
         bind.apply {
             button.setOnClickListener{decrease() }
             button2.setOnClickListener{changeLanguage()}
-            button3.setOnClickListener{increase()}
+            button3.setOnClickListener{
+                if (index == 11) {
+                    val action = PresentationFragmentDirections.actionPresentationFragmentToConfirmationFragment()
+                    Navigation.findNavController(it).navigate(action)
+                }
+
+                else {
+                    increase()
+                }
+            }
         }
 
         changeSlide()
@@ -77,10 +87,7 @@ class PresentationFragment : Fragment() {
     }
 
     fun increase(){
-        if (index != 11){
-            index += 1
-        }
-
+        index += 1
         changeSlide()
     }
 
