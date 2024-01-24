@@ -1,5 +1,4 @@
 import Visitor as vis
-import Preview as pre
 import CustomFile as cf
 
 class Mediator:
@@ -30,8 +29,38 @@ class Mediator:
     def getVisitors(self):
         return self.visitors
     
-    def filter(self): 
+    def filterOngoing(self, sortBy, sortDesc=False, dateFrom=None, name=None, surname=None, company=None):
+        filteredList = self.visitors
+
+        if dateFrom:
+            filteredList = [visitor for visitor in filteredList if visitor.date >= dateFrom]
+        if name:
+            filteredList = [visitor for visitor in filteredList if visitor.name == name]
+        if surname:
+            filteredList = [visitor for visitor in filteredList if visitor.surname == surname]
+        if company:
+            filteredList = [visitor for visitor in filteredList if visitor.company == company]
+
+        if sortBy == 'name':   
+            filteredList = sorted(filteredList, key=lambda visitor: visitor.name)
+        elif sortBy == 'surname':
+            filteredList = sorted(filteredList, key=lambda visitor: visitor.surname)
+        elif sortBy == 'dateFrom':
+            filteredList = sorted(filteredList, key=lambda visitor: visitor.dateFrom)
+        elif sortBy == 'dateTo':  
+            filteredList = sorted(filteredList, key=lambda visitor: visitor.dateTo)
+        elif sortBy == 'company': 
+            filteredList = sorted(filteredList, key=lambda visitor: visitor.surname)
+
+        if sortDesc:
+            filteredList.reverse()
+
+        return filteredList
+
+    def filterCurrent(self, dateFrom = None, dateTo = None, name = None, surname = None, company = None): 
         ...
+
+        
 
 # Example
 # m = Mediator()
