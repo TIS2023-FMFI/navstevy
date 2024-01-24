@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/navigation_graph"
-    app:startDestination="@id/screenSaverFragment">
+    app:startDestination="@id/checkingFragment">
 
     <fragment
         android:id="@+id/screenSaverFragment"
@@ -71,5 +71,10 @@
         <action
             android:id="@+id/action_textFragment_to_screenSaverFragment"
             app:destination="@id/screenSaverFragment" />
+        <argument
+            android:name="message"
+            app:argType="string"
+            android:defaultValue="empty"
+            />
     </fragment>
 </navigation>

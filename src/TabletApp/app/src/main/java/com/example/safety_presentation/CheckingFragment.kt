@@ -31,6 +31,7 @@ class CheckingFragment : Fragment() {
             }
             button7.setOnClickListener {
                 val action = CheckingFragmentDirections.actionCheckingFragmentToTextFragment()
+                action.message = "che"
                 Navigation.findNavController(it).navigate(action)
             }
         }

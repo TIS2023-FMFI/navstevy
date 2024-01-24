@@ -44,6 +44,7 @@ class ConfirmationFragment : Fragment() {
                 val canvas = Canvas(bitmap)
                 view.draw(canvas)
                 val action = ConfirmationFragmentDirections.actionConfirmationFragmentToTextFragment()
+                action.message = "con"
                 Navigation.findNavController(it).navigate(action)
             }
         }
