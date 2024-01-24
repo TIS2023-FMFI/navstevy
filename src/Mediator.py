@@ -5,7 +5,9 @@ class Mediator:
     def __init__(self):
         self.visitors = []      # TODO pridávanie neodhlásených z predošlého dňa
         self.file = cf.CustomFile('../navstevy/src/files/testFile.csv')  # TODO nastavnie správnej cesty pre ich potreby
-    
+        self.allVisitors = []
+        self.saveAllVisits()
+        
     def addVisitor(self, name, surname, cardId, carTag, company, count, reason):
         visitor = vis.Visitor(self.generateId(), name, surname, cardId, carTag, company, count, reason)
         self.file.writeVisitor(visitor.getDataToWrite())  # zapíše visitora do súboru
@@ -57,15 +59,57 @@ class Mediator:
 
         return filteredList
 
-    def filterCurrent(self, dateFrom = None, dateTo = None, name = None, surname = None, company = None): 
-        ...
+    def filterAll(self, sortBy, sortDesc=False, dateFrom = None, dateTo = None, name = None, surname = None, company = None, reason = None, review=None): 
+        filteredList = self.allVisitors
+
+        if dateFrom:
+            filteredList = [visitor for visitor in filteredList if visitor.arrival >= dateFrom]
+        if dateTo:
+            filteredList = [visitor for visitor in filteredList if visitor.arrival <= dateTo]
+        if name:
+            filteredList = [visitor for visitor in filteredList if visitor.name == name]
+        if surname:
+            filteredList = [visitor for visitor in filteredList if visitor.surname == surname]
+        if company:
+            filteredList = [visitor for visitor in filteredList if visitor.company == company]
+        if reason:
+            filteredList = [visitor for visitor in filteredList if visitor.reason == reason]
+        if review:
+            filteredList = [visitor for visitor in filteredList if visitor.review == review]
+
+        if sortBy == 'name':   
+            filteredList = sorted(filteredList, key=lambda visitor: visitor.name)
+        elif sortBy == 'surname':
+            filteredList = sorted(filteredList, key=lambda visitor: visitor.surname)
+        elif sortBy == 'dateFrom':
+            filteredList = sorted(filteredList, key=lambda visitor: visitor.dateFrom)
+        elif sortBy == 'dateTo':  
+            filteredList = sorted(filteredList, key=lambda visitor: visitor.dateTo)
+        elif sortBy == 'company': 
+            filteredList = sorted(filteredList, key=lambda visitor: visitor.surname)
+        elif sortBy == 'reason': 
+            filteredList = sorted(filteredList, key=lambda visitor: visitor.reason)
+        elif sortBy == 'review': 
+            filteredList = sorted(filteredList, key=lambda visitor: visitor.review)
+
+        if sortDesc:
+            filteredList.reverse()
+
+        return filteredList
+
+    def saveAllVisits(self):
+        temp = self.file.readData()
+        self.allVisitors.clear()
+        for visit in temp:
+            info = visit.strip().split(';')
+            visitor = vis.Visitor(info[0], info[1], info[2], info[3], info[4], info[5], info[6], info[7], info[8], info[9], info[10], info[11])
+            self.allVisitors.append(visitor)
+            
 
         
 
 # Example
-# m = Mediator()
-# m.addVisitor("Fero", "Malý", 1, "BL123BL", "MatFyz", 4, "nudím sa")
-# m.addVisitor("Jana", "Iná", 1, "KE123BL", "FMFI", 1, "skúšam dva")
-# m.editVisitor(1, "Nina", None, None, "BL987BL")
-# m.file.readData()
-# m.file.closeFile() 
+m = Mediator()
+fList = m.filterAll('surname')
+for v in fList:
+    print(v.getDataToWrite())
