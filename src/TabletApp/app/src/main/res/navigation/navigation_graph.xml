@@ -39,11 +39,11 @@
         android:label="fragment_confirmation"
         tools:layout="@layout/fragment_confirmation" >
         <action
-            android:id="@+id/action_confirmationFragment_to_screenSaverFragment"
-            app:destination="@id/screenSaverFragment" />
-        <action
             android:id="@+id/action_confirmationFragment_to_textFragment"
             app:destination="@id/textFragment" />
+        <action
+            android:id="@+id/action_confirmationFragment_to_presentationFragment"
+            app:destination="@id/presentationFragment" />
     </fragment>
     <fragment
         android:id="@+id/presentationFragment"
