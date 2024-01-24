@@ -36,8 +36,9 @@ class Visitor:
             data_string += ";\n"
         return data_string
 
-    def registerDeparture(self):
-        ...
+    def registerDeparture(self, review):
+        self.departure = datetime.now()
+        self.review = review
 
     def edit(self, name = None, surname = None, cardId = None, carTag = None, company = None, count = None, reason = None):
         if name is not None:
