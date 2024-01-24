@@ -9,6 +9,7 @@ import android.os.Bundle
 class MainActivity : AppCompatActivity() {
     var languageInUse = "sk"
     var imagesDict : MutableMap<Int, Bitmap> = mutableMapOf()
+    var ratingImages : MutableList<Bitmap> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +42,15 @@ class MainActivity : AppCompatActivity() {
             (imagesDict[imagesDict.size-2]!!.width/8),
             (imagesDict[imagesDict.size-2]!!.height/8),
             false)
+
+
+        val smiles : List<Int> = listOf(R.drawable.i, R.drawable.m, R.drawable.a, R.drawable.g,
+            R.drawable.e)
+
+        for (i in smiles){
+            val curr = BitmapFactory.decodeResource(this.resources, i)
+            ratingImages.add(Bitmap.createScaledBitmap(curr, (curr.width/4), (curr.height/4), false))
+        }
     }
 
 }
