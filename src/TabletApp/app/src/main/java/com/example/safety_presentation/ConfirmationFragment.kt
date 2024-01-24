@@ -20,6 +20,19 @@ class ConfirmationFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         bind = FragmentConfirmationBinding.inflate(inflater, container, false)
+
+        if (mainActivity.languageInUse == "sk"){
+            bind.textView.text = "S podpisom potvrdzujem, že som pochopil bezpečnostnými pokynmy"
+            bind.button4.text = "Prezentácia"
+            bind.button5.text = "Súhlasím"
+        }
+
+        else{
+            bind.textView.text = "With my signature I acknowledge that I have understood the safety instructions"
+            bind.button4.text = "Presentation"
+            bind.button5.text = "Agree"
+        }
+
         bind.apply {
             button4.setOnClickListener {
                 val action = ConfirmationFragmentDirections.actionConfirmationFragmentToPresentationFragment()
