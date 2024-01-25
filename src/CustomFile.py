@@ -47,4 +47,18 @@ class CustomFile:
                 print("Invalid line number.")
         file.close()
 
-
+    def removeVisitor(self, id):
+        with open(self.path, "a+") as file:
+            file.seek(0)
+            lines = file.readlines()
+            if 1 <= id <= len(lines):
+                lines[id] = ""      #id je zatiaľ rovnaké ako pozícia riadku v texte
+                self.numOfLines -= 1
+                with open(self.path, 'w') as file:
+                    file.seek(0)
+                    file.writelines(lines)
+                file.close()
+                print(f"Line {id} deleted successfully.")
+            else:
+                print("Invalid line number.")
+        file.close()
