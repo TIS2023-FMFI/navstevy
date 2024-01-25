@@ -47,7 +47,7 @@ class CustomFile:
                 print("Invalid line number.")
         file.close()
 
-    def removeVisitor(self, id):
+    def removeVisitor(self, id):            #ak chceme aby fungovalo treba zmeniť systém ID
         with open(self.path, "a+") as file:
             file.seek(0)
             lines = file.readlines()

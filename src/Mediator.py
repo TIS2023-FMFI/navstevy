@@ -29,7 +29,7 @@ class Mediator:
         for vis in self.visitors:
             if vis.id == id:
                 self.visitors.remove(vis)
-        self.file.removeVisitor(id)
+        # self.file.removeVisitor(id)        #ak chceme aby fungovalo treba zmeniť systém ID
 
     def leftVisitor(self, id):
         for vis in self.visitors[:]:
@@ -122,6 +122,7 @@ class Mediator:
 
 # Example
 m = Mediator()
-fList = m.filterAll('surname')
-for v in fList:
-    print(v.getDataToWrite())
+m.addVisitor('Nina', 'Mrkvickova', 1, 'BL000BS', 'Nic', 2, 'AAAAAA')
+m.addVisitor('Laura', 'Zemiakova', 1, 'KE999BS', 'Nieco', 1, '111111')
+m.addVisitor('Peter', 'Zemiak', 1, 'DS111SD', 'StaleNic', 200,'2222222')
+m.removeVisitor(1)
