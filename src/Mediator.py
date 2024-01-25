@@ -25,6 +25,12 @@ class Mediator:
         else:
             self.file.edit(id, changedVisiotor)
     
+    def removeVisitor(self, id):
+        for vis in self.visitors:
+            if vis.id == id:
+                self.visitors.remove(vis)
+        self.file.removeVisitor(id)
+
     def departureVisitor(self, id):
         for vis in self.visitors[:]:
             if vis.id == id:
@@ -36,37 +42,9 @@ class Mediator:
 
     def getVisitors(self):
         return self.visitors
-    
-    def filterOngoing(self, sortBy, sortDesc=False, dateFrom=None, name=None, surname=None, company=None):
-        filteredList = self.visitors
 
-        if dateFrom:
-            filteredList = [visitor for visitor in filteredList if visitor.date >= dateFrom]
-        if name:
-            filteredList = [visitor for visitor in filteredList if visitor.name == name]
-        if surname:
-            filteredList = [visitor for visitor in filteredList if visitor.surname == surname]
-        if company:
-            filteredList = [visitor for visitor in filteredList if visitor.company == company]
-
-        if sortBy == 'name':   
-            filteredList = sorted(filteredList, key=lambda visitor: visitor.name)
-        elif sortBy == 'surname':
-            filteredList = sorted(filteredList, key=lambda visitor: visitor.surname)
-        elif sortBy == 'dateFrom':
-            filteredList = sorted(filteredList, key=lambda visitor: visitor.dateFrom)
-        elif sortBy == 'dateTo':  
-            filteredList = sorted(filteredList, key=lambda visitor: visitor.dateTo)
-        elif sortBy == 'company': 
-            filteredList = sorted(filteredList, key=lambda visitor: visitor.surname)
-
-        if sortDesc:
-            filteredList.reverse()
-
-        return filteredList
-
-    def filterAll(self, sortBy, sortDesc=False, dateFrom = None, dateTo = None, name = None, surname = None, company = None, review=None): 
-        filteredList = self.allVisitors
+    def filter(self, sortBy, sortDesc=False, dateFrom = None, dateTo = None, name = None, surname = None, company = None, review=None): 
+        filteredList = self.allVisitors.copy()
 
         if dateFrom:
             filteredList = [visitor for visitor in filteredList if visitor.arrival >= dateFrom]
@@ -83,25 +61,29 @@ class Mediator:
         if review:
             filteredList = [visitor for visitor in filteredList if visitor.review == review]
 
+        return filteredList
+
+    def sort(self, sortBy, sortDesc=False):
+        sortedList = self.allVisitors.copy()
         if sortBy == 'name':   
-            filteredList = sorted(filteredList, key=lambda visitor: visitor.name)
+            filteredList = sorted(sortedList, key=lambda visitor: visitor.name)
         elif sortBy == 'surname':
-            filteredList = sorted(filteredList, key=lambda visitor: visitor.surname)
+            filteredList = sorted(sortedList, key=lambda visitor: visitor.surname)
         elif sortBy == 'dateFrom':
-            filteredList = sorted(filteredList, key=lambda visitor: visitor.dateFrom)
+            filteredList = sorted(sortedList, key=lambda visitor: visitor.dateFrom)
         elif sortBy == 'dateTo':  
-            filteredList = sorted(filteredList, key=lambda visitor: visitor.dateTo)
+            filteredList = sorted(sortedList, key=lambda visitor: visitor.dateTo)
         elif sortBy == 'company': 
-            filteredList = sorted(filteredList, key=lambda visitor: visitor.surname)
+            filteredList = sorted(sortedList, key=lambda visitor: visitor.surname)
         elif sortBy == 'reason': 
-            filteredList = sorted(filteredList, key=lambda visitor: visitor.reason)
-        elif sortBy == 'review': 
-            filteredList = sorted(filteredList, key=lambda visitor: visitor.review)
+            filteredList = sorted(sortedList, key=lambda visitor: visitor.reason)
+        elif sortBy == 'cardId': 
+            filteredList = sorted(sortedList, key=lambda visitor: visitor.cardId)
+        elif sortBy == 'carId': 
+            filteredList = sorted(sortedList, key=lambda visitor: visitor.cardId)
 
         if sortDesc:
             filteredList.reverse()
-
-        return filteredList
 
     def saveAllVisits(self):
         temp = self.file.readData()
@@ -116,6 +98,6 @@ class Mediator:
 
 # Example
 m = Mediator()
-fList = m.filterAll('surname')
-for v in fList:
-    print(v.getDataToWrite())
+m.addVisitor('Nina', 'Mrkvickova', 1, 'BL000BS', 'Nic', 2)
+m.addVisitor('Laura', 'Zemiakova', 1, 'KE999BS', 'Nieco', 1)
+m.addVisitor('Peter', 'Zemiak', 1, 'DS111SD', 'StaleNic', 200)
