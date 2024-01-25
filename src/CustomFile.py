@@ -7,7 +7,7 @@ class CustomFile:
             print(f"Error opening file {path}: {e}")
         self.numOfLines = self.getNumOfLines()
         file.close()
-    
+
     def getNumOfLines(self): 
         with open(self.path, "r") as file:
             file.seek(0)
@@ -15,18 +15,22 @@ class CustomFile:
             num = len(data)
             if num == 1 and data[0] == "": 
                 return 0
+        file.close()
         return num
 
     def writeVisitor(self, data):
         with open(self.path, "a+") as file:
             file.write(data)
             self.numOfLines += 1    # dôležité pre generovanie správneho ID
+        file.close()
     
     def readData(self):
-        with open(self.path, "a+") as file:
+        dataInStrings = []
+        with open(self.path, "r") as file:
             file.seek(0)  # dôležité dať pointer na začiatok ak cheme čiťať celý súbor
-            data = file.read()
-            print(data)
+            dataInStrings = file.readlines()
+        file.close()
+        return dataInStrings
 
     def edit(self, id, visitor):
         with open(self.path, "a+") as file:
@@ -41,6 +45,6 @@ class CustomFile:
                 print(f"Line {id} replaced successfully.")
             else:
                 print("Invalid line number.")
-
+        file.close()
 
 

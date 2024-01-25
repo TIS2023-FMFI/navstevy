@@ -1,7 +1,7 @@
 from datetime import datetime
 
 class Visitor:
-    def __init__(self, id, name, surname, cardId, carTag, company, count, reason):
+    def __init__(self, id, name, surname, cardId, carTag, company, count, reason, arrival=None, departure=None, signature=None, review=None):
         self.id = id
         self.name = name
         self.surname = surname
@@ -10,10 +10,10 @@ class Visitor:
         self.company = company
         self.count = count
         self.reasonOfVisit = reason
-        self.arrival = datetime.now()
-        self.departure = None
-        self.signature = None
-        self.review = None
+        self.arrival = arrival if arrival is not None else datetime.now()
+        self.departure = departure
+        self.signature = signature
+        self.review = review
 
     def getId(self):
         return self.id
@@ -36,8 +36,9 @@ class Visitor:
             data_string += ";\n"
         return data_string
 
-    def registerDeparture(self):
-        ...
+    def registerDeparture(self, review):
+        self.departure = datetime.now()
+        self.review = review
 
     def edit(self, name = None, surname = None, cardId = None, carTag = None, company = None, count = None, reason = None):
         if name is not None:
@@ -54,3 +55,4 @@ class Visitor:
             self.count = count
         if reason is not None:
             self.reasonOfVisit = reason
+    
