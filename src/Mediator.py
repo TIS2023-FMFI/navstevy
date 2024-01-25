@@ -24,12 +24,6 @@ class Mediator:
             print("We do not have this visitor right now!")
         else:
             self.file.edit(id, changedVisiotor)
-    
-    def removeVisitor(self, id):
-        for vis in self.visitors:
-            if vis.id == id:
-                self.visitors.remove(vis)
-        self.file.removeVisitor(id)
 
     def departureVisitor(self, id):
         for vis in self.visitors[:]:
