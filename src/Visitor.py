@@ -10,7 +10,7 @@ class Visitor:
         self.company = company
         self.count = count
         self.reasonOfVisit = reason
-        self.arrival = arrival if arrival is not None else datetime.now()
+        self.arrival = arrival if arrival is not None else datetime.now().strftime("%d-%m-%Y %H:%M")
         self.departure = departure
         self.signature = signature
         self.review = review
