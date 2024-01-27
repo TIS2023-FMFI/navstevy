@@ -1,5 +1,8 @@
 import Visitor as vis
 import CustomFile as cf
+import difflib
+import string
+
 
 class Mediator:
     def __init__(self):
@@ -37,7 +40,17 @@ class Mediator:
     def getVisitors(self):
         return self.visitors
 
-    def filter(self, sortBy, sortDesc=False, dateFrom = None, dateTo = None, name = None, surname = None, company = None, review=None): 
+    def isSimillar(partialString, correctString):
+        partialStringCleaned = partialString.lower().translate(str.maketrans("", "", string.punctuation))
+        correctStringCleaned = correctString.lower().translate(str.maketrans("", "", string.punctuation))
+        close_matches = difflib.get_close_matches(partialStringCleaned, [correctStringCleaned], n=1, cutoff=0.8)
+        if close_matches:
+            return close_matches[0]
+        else:
+            return None
+
+
+    def filter(self, dateFrom = None, dateTo = None, name = None, surname = None, company = None): 
         filteredList = self.allVisitors.copy()
 
         if dateFrom:
@@ -45,15 +58,11 @@ class Mediator:
         if dateTo:
             filteredList = [visitor for visitor in filteredList if visitor.arrival <= dateTo]
         if name:
-            filteredList = [visitor for visitor in filteredList if visitor.name == name]
+            filteredList = [visitor for visitor in filteredList if self.isSimillar(name, visitor.name) != None]
         if surname:
-            filteredList = [visitor for visitor in filteredList if visitor.surname == surname]
+            filteredList = [visitor for visitor in filteredList if self.isSimillar(surname, visitor.surname) != None]
         if company:
-            filteredList = [visitor for visitor in filteredList if visitor.company == company]
-        # if reason:
-        #     filteredList = [visitor for visitor in filteredList if visitor.reason == reason]
-        if review:
-            filteredList = [visitor for visitor in filteredList if visitor.review == review]
+            filteredList = [visitor for visitor in filteredList if self.isSimillar(company, visitor.company) != None]
 
         return filteredList
 
