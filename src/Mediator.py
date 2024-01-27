@@ -40,7 +40,7 @@ class Mediator:
     def getVisitors(self):
         return self.visitors
 
-    def isSimillar(partialString, correctString):
+    def isSimillar(self, partialString, correctString):
         partialStringCleaned = partialString.lower().translate(str.maketrans("", "", string.punctuation))
         correctStringCleaned = correctString.lower().translate(str.maketrans("", "", string.punctuation))
         close_matches = difflib.get_close_matches(partialStringCleaned, [correctStringCleaned], n=1, cutoff=0.8)
@@ -66,27 +66,6 @@ class Mediator:
 
         return filteredList
 
-    def sort(self, sortBy, sortDesc=False):
-        sortedList = self.allVisitors.copy()
-        if sortBy == 'name':   
-            filteredList = sorted(sortedList, key=lambda visitor: visitor.name)
-        elif sortBy == 'surname':
-            filteredList = sorted(sortedList, key=lambda visitor: visitor.surname)
-        elif sortBy == 'dateFrom':
-            filteredList = sorted(sortedList, key=lambda visitor: visitor.dateFrom)
-        elif sortBy == 'dateTo':  
-            filteredList = sorted(sortedList, key=lambda visitor: visitor.dateTo)
-        elif sortBy == 'company': 
-            filteredList = sorted(sortedList, key=lambda visitor: visitor.surname)
-        elif sortBy == 'reason': 
-            filteredList = sorted(sortedList, key=lambda visitor: visitor.reason)
-        elif sortBy == 'cardId': 
-            filteredList = sorted(sortedList, key=lambda visitor: visitor.cardId)
-        elif sortBy == 'carId': 
-            filteredList = sorted(sortedList, key=lambda visitor: visitor.cardId)
-
-        if sortDesc:
-            filteredList.reverse()
 
     def saveAllVisits(self):
         temp = self.file.readData()
@@ -101,6 +80,9 @@ class Mediator:
 
 # Example
 m = Mediator()
-m.addVisitor('Nina', 'Mrkvickova', 1, 'BL000BS', 'Nic', 2)
-m.addVisitor('Laura', 'Zemiakova', 1, 'KE999BS', 'Nieco', 1)
-m.addVisitor('Peter', 'Zemiak', 1, 'DS111SD', 'StaleNic', 200)
+# m.addVisitor('Nina', 'Mrkvickova', 1, 'BL000BS', 'Nic', 2, 2)
+# m.addVisitor('Laura', 'Zemiakova', 1, 'KE999BS', 'Nieco', 1, 1)
+# m.addVisitor('Peter', 'Zemiak', 1, 'DS111SD', 'StaleNic', 200, 3)
+zoz = m.filter(None, None, None, "Zemiak")
+for i in zoz:
+    print(i.getDataToWrite())
