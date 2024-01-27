@@ -109,7 +109,7 @@ class Mediator:
 
         return filteredList
 
-    def saveAllVisits(self):                    #sem bude treba pridať kontrolovanie neodhlásených s predošlého dňa
+    def saveAllVisits(self):                   
             temp = self.file.readData()
             self.allVisitors.clear()
             for visit in temp:
