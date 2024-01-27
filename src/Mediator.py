@@ -109,13 +109,14 @@ class Mediator:
 
         return filteredList
 
-    def saveAllVisits(self):
+def saveAllVisits(self):                    #sem bude treba pridať kontrolovanie neodhlásených s predošlého dňa
         temp = self.file.readData()
         self.allVisitors.clear()
         for visit in temp:
             info = visit.strip().split(';')
-            visitor = vis.Visitor(info[0], info[1], info[2], info[3], info[4], info[5], info[6], info[7], info[8], info[9], info[10], info[11])
-            self.allVisitors.append(visitor)
+            cleanedInfo = [value if value != '' else None for value in info]
+            visitor = vis.Visitor(*cleanedInfo)
+        self.allVisitors.append(visitor)
             
 
         
