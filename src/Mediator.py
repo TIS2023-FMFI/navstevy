@@ -27,12 +27,12 @@ class Mediator:
             print("We do not have this visitor right now!")
         else:
             self.file.edit(id, changedVisiotor)
-    
-    def leftVisitor(self, id):
+
+    def departureVisitor(self, id):
         for vis in self.visitors[:]:
             if vis.id == id:
                 self.visitors.remove(vis)
-                #vis.registerDeparture()        # zaznamenať odchod vo visitorovi tu alebo v GUI
+                #vis.registerDeparture()        # zaznamenať odchod visitora tu alebo v GUI?  
 
     def generateId(self):  # TODO vygenerovanie unikátneho id pre každý zápis. Zatiaľ takto:
         return self.file.numOfLines
@@ -66,6 +66,7 @@ class Mediator:
 
         return filteredList
 
+
     def saveAllVisits(self):
         temp = self.file.readData()
         self.allVisitors.clear()
@@ -73,12 +74,12 @@ class Mediator:
             info = visit.strip().split(';')
             visitor = vis.Visitor(info[0], info[1], info[2], info[3], info[4], info[5], info[6], info[7], info[8], info[9], info[10], info[11])
             self.allVisitors.append(visitor)
-            
-
-        
 
 # Example
 m = Mediator()
-fList = m.filterAll('surname')
-for v in fList:
-    print(v.getDataToWrite())
+# m.addVisitor('Nina', 'Mrkvickova', 1, 'BL000BS', 'Nic', 2, 2)
+# m.addVisitor('Laura', 'Zemiakova', 1, 'KE999BS', 'Nieco', 1, 1)
+# m.addVisitor('Peter', 'Zemiak', 1, 'DS111SD', 'StaleNic', 200, 3)
+zoz = m.filter(None, None, None, "Zemiak")
+for i in zoz:
+    print(i.getDataToWrite())
