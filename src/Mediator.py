@@ -2,7 +2,7 @@ import Visitor as vis
 import CustomFile as cf
 import difflib
 import string
-
+import unidecode
 
 class Mediator:
     def __init__(self):
@@ -40,7 +40,7 @@ class Mediator:
     def getVisitors(self):
         return self.visitors
 
-    def isSimillar(self, partialString, correctString):
+    def isSimillar(self, partialString, correctString):             #not using
         partialStringCleaned = partialString.lower().translate(str.maketrans("", "", string.punctuation))
         correctStringCleaned = correctString.lower().translate(str.maketrans("", "", string.punctuation))
         close_matches = difflib.get_close_matches(partialStringCleaned, [correctStringCleaned], n=1, cutoff=0.8)
@@ -48,6 +48,13 @@ class Mediator:
             return close_matches[0]
         else:
             return None
+
+    def contains(self, partialString, correctString):
+        partialStringCleaned = unidecode.unidecode(partialString.lower().translate(str.maketrans("", "", string.punctuation)))
+        correctStringCleaned = unidecode.unidecode(correctString.lower().translate(str.maketrans("", "", string.punctuation)))
+        if partialStringCleaned in correctStringCleaned:
+            return True
+        return False
 
 
     def filter(self, dateFrom = None, dateTo = None, name = None, surname = None, company = None): 
@@ -66,17 +73,17 @@ class Mediator:
             name = name.strip()
             if name == "":
                 name = None
-            filteredList = [visitor for visitor in filteredList if self.isSimillar(name, visitor.name) != None]
+            filteredList = [visitor for visitor in filteredList if self.contains(name, visitor.name) == True]
         if surname:
             surname = surname.strip()
             if surname == "":
                 surname = None
-            filteredList = [visitor for visitor in filteredList if self.isSimillar(surname, visitor.surname) != None]
+            filteredList = [visitor for visitor in filteredList if self.contains(surname, visitor.surname) == True]
         if company:
             company = company.strip()
             if company == "":
                 company = None
-            filteredList = [visitor for visitor in filteredList if self.isSimillar(company, visitor.company) != None]
+            filteredList = [visitor for visitor in filteredList if self.contains(company, visitor.company) == True]
         return filteredList
 
 
@@ -96,6 +103,6 @@ m = Mediator()
 # m.addVisitor('Nina', 'Mrkvickova', 1, 'BL000BS', 'Nic', 2, 2)
 # m.addVisitor('Laura', 'Zemiakova', 1, 'KE999BS', 'Nieco', 1, 1)
 # m.addVisitor('Peter', 'Zemiak', 1, 'DS111SD', 'StaleNic', 200, 3)
-# zoz = m.filter(None, None, "Nina")
-# for i in zoz:
-#     print(i.getDataToWrite())
+zoz = m.filter(None, None, "ó")
+for i in zoz:
+    print(i.getDataToWrite())
