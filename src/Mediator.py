@@ -51,35 +51,32 @@ class Mediator:
 
 
     def filter(self, dateFrom = None, dateTo = None, name = None, surname = None, company = None): 
-        filteredList = self.allVisitors.copy()
-        dateFrom = dateFrom.strip()
-        dateTo = dateTo.strip()
-        name = name.strip()
-        surname = surname.strip()
-        company = company.strip()
-
-        if dateFrom == "":
-            dateFrom = None
-        if dateTo == "":
-            dateTo = None
-        if name == "":
-            name = None
-        if surname == "":
-            surname = None
-        if company == "":
-            company = None
-
+        filteredList = self.allVisitors.copy()        
         if dateFrom:
+            dateFrom = dateFrom.strip()
+            if dateFrom == "":
+                dateFrom = None
             filteredList = [visitor for visitor in filteredList if visitor.arrival >= dateFrom]
         if dateTo:
+            dateTo = dateTo.strip()
+            if dateTo == "":
+                dateTo = None
             filteredList = [visitor for visitor in filteredList if visitor.arrival <= dateTo]
         if name:
+            name = name.strip()
+            if name == "":
+                name = None
             filteredList = [visitor for visitor in filteredList if self.isSimillar(name, visitor.name) != None]
         if surname:
+            surname = surname.strip()
+            if surname == "":
+                surname = None
             filteredList = [visitor for visitor in filteredList if self.isSimillar(surname, visitor.surname) != None]
         if company:
+            company = company.strip()
+            if company == "":
+                company = None
             filteredList = [visitor for visitor in filteredList if self.isSimillar(company, visitor.company) != None]
-
         return filteredList
 
 
@@ -99,6 +96,6 @@ m = Mediator()
 # m.addVisitor('Nina', 'Mrkvickova', 1, 'BL000BS', 'Nic', 2, 2)
 # m.addVisitor('Laura', 'Zemiakova', 1, 'KE999BS', 'Nieco', 1, 1)
 # m.addVisitor('Peter', 'Zemiak', 1, 'DS111SD', 'StaleNic', 200, 3)
-zoz = m.filter(None, None, "Nina")
-for i in zoz:
-    print(i.getDataToWrite())
+# zoz = m.filter(None, None, "Nina")
+# for i in zoz:
+#     print(i.getDataToWrite())
