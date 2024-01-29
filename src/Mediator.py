@@ -28,11 +28,11 @@ class Mediator:
         else:
             self.file.edit(id, changedVisiotor)
 
-    def departureVisitor(self, id):
+    def departureVisitor(self, id, review):
         for vis in self.visitors[:]:
             if vis.id == id:
                 self.visitors.remove(vis)
-                #vis.registerDeparture()        # zaznamenať odchod visitora tu alebo v GUI?  
+                vis.registerDeparture(vis, review)      
 
     def generateId(self):  # TODO vygenerovanie unikátneho id pre každý zápis. Zatiaľ takto:
         return self.file.numOfLines
@@ -51,19 +51,32 @@ class Mediator:
 
 
     def filter(self, dateFrom = None, dateTo = None, name = None, surname = None, company = None): 
-        filteredList = self.allVisitors.copy()
-
+        filteredList = self.allVisitors.copy()        
         if dateFrom:
+            dateFrom = dateFrom.strip()
+            if dateFrom == "":
+                dateFrom = None
             filteredList = [visitor for visitor in filteredList if visitor.arrival >= dateFrom]
         if dateTo:
+            dateTo = dateTo.strip()
+            if dateTo == "":
+                dateTo = None
             filteredList = [visitor for visitor in filteredList if visitor.arrival <= dateTo]
         if name:
+            name = name.strip()
+            if name == "":
+                name = None
             filteredList = [visitor for visitor in filteredList if self.isSimillar(name, visitor.name) != None]
         if surname:
+            surname = surname.strip()
+            if surname == "":
+                surname = None
             filteredList = [visitor for visitor in filteredList if self.isSimillar(surname, visitor.surname) != None]
         if company:
+            company = company.strip()
+            if company == "":
+                company = None
             filteredList = [visitor for visitor in filteredList if self.isSimillar(company, visitor.company) != None]
-
         return filteredList
 
 
@@ -72,7 +85,10 @@ class Mediator:
         self.allVisitors.clear()
         for visit in temp:
             info = visit.strip().split(';')
-            visitor = vis.Visitor(info[0], info[1], info[2], info[3], info[4], info[5], info[6], info[7], info[8], info[9], info[10], info[11])
+            infoCleaned = [value if value != '' else None for value in info]
+            visitor = vis.Visitor(*infoCleaned)
+            if (visitor.departure == None):
+                self.visitors.append(visitor)
             self.allVisitors.append(visitor)
 
 # Example
@@ -80,6 +96,6 @@ m = Mediator()
 # m.addVisitor('Nina', 'Mrkvickova', 1, 'BL000BS', 'Nic', 2, 2)
 # m.addVisitor('Laura', 'Zemiakova', 1, 'KE999BS', 'Nieco', 1, 1)
 # m.addVisitor('Peter', 'Zemiak', 1, 'DS111SD', 'StaleNic', 200, 3)
-zoz = m.filter(None, None, None, "Zemiak")
-for i in zoz:
-    print(i.getDataToWrite())
+# zoz = m.filter(None, None, "Nina")
+# for i in zoz:
+#     print(i.getDataToWrite())
