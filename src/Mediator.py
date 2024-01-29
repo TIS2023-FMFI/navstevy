@@ -32,7 +32,7 @@ class Mediator:
         for vis in self.visitors[:]:
             if vis.id == id:
                 self.visitors.remove(vis)
-                #vis.registerDeparture()        # zaznamenať odchod visitora tu alebo v GUI?  
+                # vis.registerDeparture()        # zaznamenať odchod visitora tu alebo v GUI?  
 
     def generateId(self):  # TODO vygenerovanie unikátneho id pre každý zápis. Zatiaľ takto:
         return self.file.numOfLines
@@ -52,6 +52,22 @@ class Mediator:
 
     def filter(self, dateFrom = None, dateTo = None, name = None, surname = None, company = None): 
         filteredList = self.allVisitors.copy()
+        dateFrom = dateFrom.strip()
+        dateTo = dateTo.strip()
+        name = name.strip()
+        surname = surname.strip()
+        company = company.strip()
+        
+        if dateFrom == "":
+            dateFrom = None
+        if dateTo == "":
+            dateTo = None
+        if name == "":
+            name = None
+        if surname == "":
+            surname = None
+        if company == "":
+            company = None
 
         if dateFrom:
             filteredList = [visitor for visitor in filteredList if visitor.arrival >= dateFrom]
