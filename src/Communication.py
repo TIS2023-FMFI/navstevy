@@ -64,11 +64,11 @@ class Communication:
 
     def recieve(self):
         ...
-  
 
-    
-    
-    
+
+
+
+
 
 if __name__ == "__main__":
     communication = Communication()
