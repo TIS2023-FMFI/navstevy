@@ -2,12 +2,12 @@ package com.example.safety_presentation
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.Navigation
 import com.example.safety_presentation.databinding.FragmentPresentationBinding
 
 class PresentationFragment : Fragment() {
@@ -23,7 +23,16 @@ class PresentationFragment : Fragment() {
         bind.apply {
             button.setOnClickListener{decrease() }
             button2.setOnClickListener{changeLanguage()}
-            button3.setOnClickListener{increase()}
+            button3.setOnClickListener{
+                if (index == 11) {
+                    val action = PresentationFragmentDirections.actionPresentationFragmentToConfirmationFragment()
+                    Navigation.findNavController(it).navigate(action)
+                }
+
+                else {
+                    increase()
+                }
+            }
         }
 
         changeSlide()
@@ -34,35 +43,7 @@ class PresentationFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mainActivity = context as MainActivity
-        initRes(context)
-    }
-
-    fun initRes(context: Context){
-        val resourceList : List<Int> = listOf(R.drawable.en1, R.drawable.en2, R.drawable.en3,
-                                        R.drawable.en4, R.drawable.en5, R.drawable.en6,
-                                        R.drawable.en7, R.drawable.en8, R.drawable.en9,
-                                        R.drawable.en10, R.drawable.en11, R.drawable.en12,
-                                        R.drawable.sk1, R.drawable.sk2, R.drawable.sk3,
-                                        R.drawable.sk4, R.drawable.sk5, R.drawable.sk6,
-                                        R.drawable.sk7, R.drawable.sk8, R.drawable.sk9,
-                                        R.drawable.sk10, R.drawable.sk11, R.drawable.sk12,
-                                        R.drawable.flagen, R.drawable.flagsk)
-
-        for (i in resourceList.indices){
-            dict[i] = BitmapFactory.decodeResource(
-                context.resources,
-                resourceList[i])
-        }
-
-        dict[dict.size-1] = Bitmap.createScaledBitmap(dict[dict.size-1]!!,
-            (dict[dict.size-1]!!.width/8),
-            (dict[dict.size-1]!!.height/8),
-            false)
-
-        dict[dict.size-2] = Bitmap.createScaledBitmap(dict[dict.size-2]!!,
-            (dict[dict.size-2]!!.width/8),
-            (dict[dict.size-2]!!.height/8),
-            false)
+        dict = mainActivity.imagesDict
     }
 
     fun changeLanguage(){
@@ -77,10 +58,7 @@ class PresentationFragment : Fragment() {
     }
 
     fun increase(){
-        if (index != 11){
-            index += 1
-        }
-
+        index += 1
         changeSlide()
     }
 
