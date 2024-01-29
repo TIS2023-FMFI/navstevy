@@ -90,6 +90,8 @@ class Mediator:
             info = visit.strip().split(';')
             infoCleaned = [value if value != '' else None for value in info]
             visitor = vis.Visitor(*infoCleaned)
+            if (visitor.departure == None):
+                self.visitors.append(visitor)
             self.allVisitors.append(visitor)
 
 # Example
