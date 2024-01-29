@@ -72,7 +72,8 @@ class Mediator:
         self.allVisitors.clear()
         for visit in temp:
             info = visit.strip().split(';')
-            visitor = vis.Visitor(info[0], info[1], info[2], info[3], info[4], info[5], info[6], info[7], info[8], info[9], info[10], info[11])
+            infoCleaned = [value if value != '' else None for value in info]
+            visitor = vis.Visitor(*infoCleaned)
             self.allVisitors.append(visitor)
 
 # Example
@@ -80,6 +81,6 @@ m = Mediator()
 # m.addVisitor('Nina', 'Mrkvickova', 1, 'BL000BS', 'Nic', 2, 2)
 # m.addVisitor('Laura', 'Zemiakova', 1, 'KE999BS', 'Nieco', 1, 1)
 # m.addVisitor('Peter', 'Zemiak', 1, 'DS111SD', 'StaleNic', 200, 3)
-zoz = m.filter(None, None, None, "Zemiak")
+zoz = m.filter(None, None, "Nina")
 for i in zoz:
     print(i.getDataToWrite())
