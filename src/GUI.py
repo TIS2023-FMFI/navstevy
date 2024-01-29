@@ -80,7 +80,20 @@ class Entry(ctk.CTkFrame):
         submit = ctk.CTkButton(self, text="Spustit prezentaciu", command=lambda: self.saveInfo())
         submit.pack()
 
-        # TODO prirobit labels k Entry
+        # TODO umiestnit labels k entry
+        self.lname = ctk.CTkLabel(self, text="meno")
+        self.lname.pack()
+        self.lsurname = ctk.CTkLabel(self, text="priezvisko")
+        self.lsurname.pack()
+        self.lcard_id = ctk.CTkLabel(self, text="id")
+        self.lcard_id.pack()
+        self.lcar_num = ctk.CTkLabel(self, text="spz")
+        self.lcar_num.pack()
+        self.lcompany = ctk.CTkLabel(self, text="firma")
+        self.lcompany.pack()
+        self.lgroup_size = ctk.CTkLabel(self, text="pocet ludi v skupine")
+        self.lgroup_size.pack()
+
         self.name = ctk.CTkEntry(self, placeholder_text="meno")
         self.name.pack()
         self.surname = ctk.CTkEntry(self, placeholder_text="priezvisko")
@@ -265,12 +278,13 @@ class Ongoing(ctk.CTkFrame):
         if self.chosenVisitor:
             ...
             # TODO popup na review a zapisanie review pre vybrateho visitora
+
         else:
             self.notify()
 
     def submit(self):
         if self.chosenVisitor:
-            # TODO pridat odchod visitora
+            self.controller.mediator.departureVisitor(self.controller.ongoingVisitors[self.chosenVisitor])
             self.goBack()
         else:
             self.notify()
@@ -282,7 +296,6 @@ class Ongoing(ctk.CTkFrame):
         return filtered
 
     def notify(self):
-        # TODO upozorni aby vybral visitora
         popup = ctk.CTkToplevel(self.controller)
         popup.geometry('300x200')
 
@@ -304,16 +317,27 @@ class Visit_History(ctk.CTkFrame):
 
         self.visitors = self.controller.visitors
 
-        # TODO prirobit labels k Entry
+        # TODO priradit sort na labels
+        self.lname = ctk.CTkLabel(self, text="meno")
+        self.lname.pack()
+        self.lsurname = ctk.CTkLabel(self, text="priezvisko")
+        self.lsurname.pack()
+        self.lcompany = ctk.CTkLabel(self, text="firma")
+        self.lcompany.pack()
+        self.larrival = ctk.CTkLabel(self, text="prichod")
+        self.larrival.pack()
+        self.ldeparture = ctk.CTkLabel(self, text="odchod")
+        self.ldeparture.pack()
+
         self.name = ctk.CTkEntry(self, placeholder_text="meno")
         self.name.pack()
         self.surname = ctk.CTkEntry(self, placeholder_text="priezvisko")
         self.surname.pack()
         self.company = ctk.CTkEntry(self, placeholder_text="firma")
         self.company.pack()
-        self.arrival = ctk.CTkEntry(self, placeholder_text="priezvisko")
+        self.arrival = ctk.CTkEntry(self, placeholder_text="prichod")
         self.arrival.pack()
-        self.departure = ctk.CTkEntry(self, placeholder_text="firma")
+        self.departure = ctk.CTkEntry(self, placeholder_text="odchod")
         self.departure.pack()
 
         # TODO upravit vzhladom na velkost obrazovky
@@ -341,7 +365,8 @@ class Visit_History(ctk.CTkFrame):
         self.controller.show_frame(MainMenu)
 
     def filterVisitors(self):
-        visitors = self.listVisitors(m.filterAll('company'))
+        visitors = self.listVisitors(m.filter(name=self.name.get(), surname=self.surname.get(), company=self.company.get(), dateFrom=self.arrival.get(), dateTo=self.departure.get()))
+
         self.table.update_values(visitors)
         self.controller.show_frame(Visit_History)
 
