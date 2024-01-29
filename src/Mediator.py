@@ -32,7 +32,7 @@ class Mediator:
         for vis in self.visitors[:]:
             if vis.id == id:
                 self.visitors.remove(vis)
-                vis.registerDeparture(vis, review)      
+                vis.registerDeparture(vis)      
 
     def generateId(self):  # TODO vygenerovanie unikátneho id pre každý zápis. Zatiaľ takto:
         return self.file.numOfLines
