@@ -11,7 +11,6 @@ class MainScreen(ctk.CTk):
 
     def __init__(self, mediator):
         ctk.CTk.__init__(self)
-
         self.geometry("1200x600")
         self.width = 1200
         self.height = 600
@@ -26,8 +25,6 @@ class MainScreen(ctk.CTk):
 
         self.container.grid_rowconfigure(0, weight=1)
         self.container.grid_columnconfigure(0, weight=1)
-
-        #todo dorobit moznosti vyberu pre reason of visit
 
         self.frames = {}
 
@@ -158,16 +155,7 @@ class Entry(ctk.CTkFrame):
             company = self.company.get()
             group_size = int(self.group_size.get())
             visit_reason = self.visit_reason.get()
-<<<<<<< HEAD
             # self.controller.mediator.addVisitor(name, surname, card_id, car_num, company, group_size, visit_reason)
-=======
-
-
-            self.controller.mediator.addVisitor(name, surname, card_id, car_num, company, group_size, visit_reason)
-            # todo dorobit aby sa refreshli tables
-
-
->>>>>>> 0d9c38520853600713d61dd4c8707a994ac92b40
             # TODO dorobit POPUP visitor sa prida az po odkontrolovani
             '''if checked():
                     self.goBack()
@@ -244,13 +232,13 @@ class Ongoing(ctk.CTkFrame):
         label.pack(pady=10, padx=10)
         self.controller = controller
 
+        # TODO ked lubos dorobi aj len pre prebiehajucich zmenit
+        #self.controller.ongoingVisitors = self.listOngoing(self.controller.mediator.visitors)
         self.chosenVisitor = [None,None]
 
         # TODO upravit vzhladom na velkost obrazovky
-        scrollable_frame = ctk.CTkScrollableFrame(self, width=600)
-        scrollable_frame.pack()
-        #todo dorobit farby table aby sedeli
-        self.table = t.CTkTable(scrollable_frame, row=len(self.controller.ongoingVisitors),
+
+        self.table = t.CTkTable(self, row=len(self.controller.ongoingVisitors),
                                 column=4, values=self.listOngoing(),
                                 command=self.on_row_clicked)
         self.table.pack()
@@ -288,6 +276,7 @@ class Ongoing(ctk.CTkFrame):
 
     def edit(self):
         if self.chosenVisitor[0]:
+            # TODO uprava vybrateho visitora
             self.controller.frames[Edit].chosenVisitor = self.chosenVisitor
             self.controller.show_frame(Edit)
         else:
@@ -310,7 +299,7 @@ class Ongoing(ctk.CTkFrame):
     def submit(self):
         if self.chosenVisitor[0]:
             visitorx = self.chosenVisitor
-            self.controller.mediator.departureVisitor(visitorx)
+            #self.controller.mediator.departureVisitor(visitorx)
             self.goBack()
         else:
             self.notify()
@@ -373,11 +362,8 @@ class Visit_History(ctk.CTkFrame):
         self.departure = ctk.CTkEntry(self, placeholder_text="odchod")
         self.departure.pack()
 
-
-        #todo relative height na table
-        scrollable_frame = ctk.CTkScrollableFrame(self,width=800)
-        scrollable_frame.pack()
-        self.table = t.CTkTable(scrollable_frame, row=len(self.controller.visitors), column=9, values=self.listVisitors())
+        # TODO upravit vzhladom na velkost obrazovky
+        self.table = t.CTkTable(self, row=len(self.controller.visitors), column=9, values=self.listVisitors())
         self.table.pack()
 
         #TODO spravit na enter???
@@ -388,7 +374,7 @@ class Visit_History(ctk.CTkFrame):
         refresh.pack()
         button = ctk.CTkButton(self, text="Back", command=lambda: self.goBack())
         button.pack()
-        # todo buttons na prepinanie table
+
 
     def clearEntry(self):
         self.name.delete(0, 'end')
@@ -495,8 +481,6 @@ class Edit(ctk.CTkFrame):
         ]
         # TODO pridat moznost Pomocou popup / remove moznost
 
-
-
         self.visit_reason = ctk.CTkOptionMenu(master=self, values=self.options)
         self.visit_reason.pack()
 
@@ -530,8 +514,6 @@ class Edit(ctk.CTkFrame):
             visit_reason = self.visit_reason.get()
             self.controller.mediator.editVisitor(int(self.chosenVisitor[0].id),name, surname, card_id, car_num, company, group_size, visit_reason)
             #Todo urobit aby sa to ulozilo a zobrazilo
-
-            #todo dorobit aby sa refreshli tables
 
             self.chosenVisitor = [None,None]
             self.controller.frames[Ongoing].chosenVisitor  = [None,None]
@@ -606,7 +588,6 @@ class Edit(ctk.CTkFrame):
         self.car_num.insert(0,self.chosenVisitor[0].carTag)
         self.card_id.insert(0,self.chosenVisitor[0].cardId)
         self.group_size.insert(0,self.chosenVisitor[0].count)
-<<<<<<< HEAD
         #self.visit_reason.set(0,self.chosenVisitor[0].reason)
 
 class Control(ctk.CTkFrame):
@@ -617,11 +598,7 @@ class Control(ctk.CTkFrame):
         label.pack(expand=True, fill='both', anchor='center')
 
 
-=======
-        self.visit_reason.set(0,self.chosenVisitor[0].reason)
->>>>>>> 0d9c38520853600713d61dd4c8707a994ac92b40
 
-ctk.set_appearance_mode('dark')
 m = med.Mediator()
 app = MainScreen(m)
 app.mainloop()
