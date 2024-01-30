@@ -94,6 +94,7 @@ class Mediator:
             info = visit.strip().split(';')
             infoCleaned = [value if value != '' else None for value in info]
             visitor = vis.Visitor(*infoCleaned)
+            infoCleaned[0] = int(infoCleaned[0])
             if (visitor.departure == None):
                 self.visitors.append(visitor)
             self.allVisitors.append(visitor)
@@ -103,6 +104,6 @@ m = Mediator()
 # m.addVisitor('Nina', 'Mrkvickova', 1, 'BL000BS', 'Nic', 2, 2)
 # m.addVisitor('Laura', 'Zemiakova', 1, 'KE999BS', 'Nieco', 1, 1)
 # m.addVisitor('Peter', 'Zemiak', 1, 'DS111SD', 'StaleNic', 200, 3)
-zoz = m.filter(None, None, "ó")
-for i in zoz:
-    print(i.getDataToWrite())
+# zoz = m.filter(None, None, "ó")
+# for i in zoz:
+#     print(i.getDataToWrite())
