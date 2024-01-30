@@ -68,10 +68,6 @@ class MainMenu(ctk.CTkFrame):
             button.place(x=window_width/2 - button.winfo_width()/2, y=window_height*0.4)
             button2.place(x=window_width/2 - button2.winfo_width()/2, y=window_height*0.5)
             button3.place(x=window_width/2 - button3.winfo_width()/2, y=window_height*0.6)
-
-
-
-
         self.bind('<Configure>', update_position)
         
 class Entry(ctk.CTkFrame):
