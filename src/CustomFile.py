@@ -36,7 +36,7 @@ class CustomFile:
         with open(self.path, "a+") as file:
             file.seek(0)
             lines = file.readlines()
-            if 1 <= id <= len(lines):
+            if 0 <= id <= len(lines):
                 lines[id] = visitor.getDataToWrite()      #id je zatiaľ rovnaké ako pozícia riadku v texte
                 with open(self.path, 'w') as file:
                     file.seek(0)
