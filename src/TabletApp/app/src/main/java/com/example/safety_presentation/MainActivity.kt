@@ -1,19 +1,26 @@
 package com.example.safety_presentation
 
+import Communication
+import Visitor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.StrictMode
 
 
 class MainActivity : AppCompatActivity() {
     var languageInUse = "sk"
     var imagesDict : MutableMap<Int, Bitmap> = mutableMapOf()
     var ratingImages : MutableList<Bitmap> = mutableListOf()
+    val communication: Communication = Communication(this)
+    public var visitor: Visitor? = null;
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.Builder().permitNetwork().build())
+
     }
 
     fun imageCreation(){

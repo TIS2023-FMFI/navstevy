@@ -22,16 +22,22 @@ class CheckingFragment : Fragment() {
         bind = FragmentCheckingBinding.inflate(inflater, container, false)
 
         bind.apply {
+            textView2.text = mainActivity.visitor.toString()
+
+            // yes_button
             button6.setOnClickListener {
                 val action = CheckingFragmentDirections.actionCheckingFragmentToPresentationFragment()
+                mainActivity.communication.send_progress(0)
                 Navigation.findNavController(it).navigate(action)
             }
             imageButton.setOnClickListener {
                 changeLanguage()
             }
+            // no_button
             button7.setOnClickListener {
                 val action = CheckingFragmentDirections.actionCheckingFragmentToTextFragment()
                 action.message = "che"
+                mainActivity.communication.send_wrong_data()
                 Navigation.findNavController(it).navigate(action)
             }
         }
