@@ -1,6 +1,10 @@
 import customtkinter as ctk
 import Mediator as med
 import CTkTable as t
+import Visitor
+from Communication import Communication
+import asyncio
+from threading import Thread
 
 BASE_FG_COLOR = '#343638'
 LARGE_FONT = ("times new roman", 12)
@@ -151,8 +155,38 @@ class Entry(ctk.CTkFrame):
             company = self.company.get()
             group_size = int(self.group_size.get())
             visit_reason = self.visit_reason.get()
+            
+            """
+            ## komunikacia 
+            mediator:med.Mediator = self.controller.mediator
+
+            ## Posli start prezentacia
+            temporary_visitor = Visitor.Visitor(0, name, surname, card_id, car_num, company, group_size, visit_reason)
+            
+            ## Cakaj odpovede z prezentacia a reaguj na to 
+            state, data = mediator.communication.send_start_presentation(temporary_visitor)
+            thread = Thread(target=mediator.communication.recieve()).start()
+    
+    
+            
+            while state == Communication.message_code["progress"]:
+                ## TODO update progress bar
+                state, data = mediator.communication.recieve()
+            
+            
+
+            if state == Communication.message_code["wrong_data"]:
+                ## TODO treba upravit udaje Visitora
+                ...
+
+            elif state == Communication.message_code["signature"]:
+                ## TODO treba cosi spravit s obrazkom
+                ## data == obrazok podpisu
+                ...
+            """
 
 
+            ## Toto az po prezentacii
             self.controller.mediator.addVisitor(name, surname, card_id, car_num, company, group_size, visit_reason)
             # todo dorobit aby sa refreshli tables
 
@@ -288,7 +322,7 @@ class Ongoing(ctk.CTkFrame):
             # TODO popup na review a zapisanie review pre vybrateho visitora
             popup = ctk.CTkToplevel(self.controller)
             popup.geometry('300x200')
-
+            popup.grab_set()
             label = ctk.CTkLabel(popup, text="Odoslane review", font=LARGE_FONT)
             label.pack()
             popup.mainloop()
