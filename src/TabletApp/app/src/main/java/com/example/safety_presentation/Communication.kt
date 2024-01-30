@@ -7,25 +7,30 @@ import java.net.ServerSocket
 import java.net.Socket
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.media.Rating
 import android.os.AsyncTask
 import androidx.core.graphics.toColor
+import java.nio.ByteBuffer
 import java.security.Signature
+import kotlin.math.sign
 
 
-val IP_ADDRESS = "localhost"
-val PORT_IN = 5555
-val PORT_OUT = 5556
+var IP_ADDRESS = "localhost"
+val PORT_IN = 5013
+val PORT_OUT = 5014
 
 enum class MessageType(val message_code: Int) {
     // receiving message
-    START(1),
-    END(2),
+    PRESENTATION_START(1),
+    PRESENTATION_END(2),
+    RATING_START(3),
 
     // sending message
-    WRONG_DATA(3),
-    PROGRESS(4),
-    SIGNATURE(5),
-    ERROR(6)
+    WRONG_DATA(4),
+    PROGRESS(5),
+    SIGNATURE(6),
+    RATING(7),
+    ERROR(8)
 }
 
 class Communication(val mainActivity: MainActivity) {
@@ -44,7 +49,6 @@ class Communication(val mainActivity: MainActivity) {
             // Close the socket
             socket.close()
             println("Sending wrong data")
-            sleep(100)
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -65,11 +69,33 @@ class Communication(val mainActivity: MainActivity) {
             // Close the socket
             socket.close()
             println("Sending progress")
-            sleep(100)
         } catch (e: Exception) {
-            e.printStackTrace()
+            println(e.toString())
         }
     }
+
+    fun send_rating(rating: Int) {
+        try {
+            println("Trying send rating")
+            val socket = Socket(IP_ADDRESS, PORT_OUT)
+            socket.reuseAddress = true
+
+            // Get the output stream from the socket
+            val outputStream: OutputStream = socket.getOutputStream()
+
+            // Write raw bytes to the output stream
+            outputStream.write(MessageType.RATING.message_code)
+            outputStream.write(rating)
+
+            // Close the socket
+            socket.close()
+            println("Sending rating")
+        } catch (e: Exception) {
+            println(e.toString())
+        }
+    }
+
+
 
     fun send_signature(signature: Bitmap) {
         try {
@@ -78,11 +104,14 @@ class Communication(val mainActivity: MainActivity) {
 
             // Get the output stream from the socket
             val outputStream: OutputStream = socket.getOutputStream()
-
+            println("Posielam podpis")
+            println(signature.width)
+            println(signature.height)
             // Write raw bytes to the output stream
             outputStream.write(MessageType.SIGNATURE.message_code)
-            outputStream.write(signature.width)
-            outputStream.write(signature.height)
+
+            outputStream.write(intToByteArray(signature.width))
+            outputStream.write(intToByteArray(signature.height))
             (0 until signature.height).forEach {y ->
                 (0 until signature.width).forEach { x ->
                     val color = signature.getColor(x, y)
@@ -98,9 +127,9 @@ class Communication(val mainActivity: MainActivity) {
             // Close the socket
             socket.close()
             println("Sending signature")
-            sleep(100)
+
         } catch (e: Exception) {
-            e.printStackTrace()
+            println(e.toString())
         }
     }
 
@@ -120,11 +149,12 @@ class Communication(val mainActivity: MainActivity) {
             // Close the socket
             socket.close()
             println("Sending error")
-            sleep(100)
         } catch (e: Exception) {
-            e.printStackTrace()
+            println(e.toString())
         }
     }
+
+
 
     fun recieve_message(): Visitor? {
         println("---- Waiting for some message ---- ")
@@ -132,20 +162,35 @@ class Communication(val mainActivity: MainActivity) {
         try {
             val serverSocket = ServerSocket(PORT_IN)
             val socket: Socket = serverSocket.accept()
+            IP_ADDRESS = socket.inetAddress.toString().drop(1)
+
 
             val input_stream = socket.getInputStream()
             val message_code = input_stream.read()
+            println("Message code: " + message_code)
 
             // Start presentation
-            if (message_code == MessageType.START.message_code) {
+            if (message_code == MessageType.PRESENTATION_START.message_code) {
                 val data_lenght = input_stream.read()
                 val visitor_string = input_stream.readNBytes(data_lenght).decodeToString()
-                val visitor = Visitor(visitor_string)
+                val visitor = Visitor("true;" + visitor_string)
+                println("Visitor prišiel")
+                return visitor
+            }
+
+            // Start rating
+            if (message_code == MessageType.RATING_START.message_code) {
+                println("Spustam review")
+                val data_lenght = input_stream.read()
+                val visitor_string = input_stream.readNBytes(data_lenght).decodeToString()
+                println(visitor_string)
+                val visitor = Visitor("false;" + visitor_string)
+                println("Visitor odchadza")
                 return visitor
             }
 
             // End presentation
-            else if (message_code == MessageType.END.message_code) {
+            else if (message_code == MessageType.PRESENTATION_END.message_code) {
                 println("Ukonči prezentáciu")
                 return null
             }
@@ -154,6 +199,13 @@ class Communication(val mainActivity: MainActivity) {
         } catch (e: Exception) {
             println(e.toString())
         }
+        println("Tu returnujem")
         return null
+    }
+
+    private fun intToByteArray(value: Int): ByteArray {
+        val buffer = ByteBuffer.allocate(4)
+        buffer.putInt(value)
+        return buffer.array()
     }
 }
