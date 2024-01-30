@@ -4,6 +4,7 @@ import CTkTable as t
 
 BASE_FG_COLOR = '#343638'
 LARGE_FONT = ("times new roman", 12)
+VERY_LARGE_FONT = ("times new roman", 20)
 
 
 class MainScreen(ctk.CTk):
@@ -27,7 +28,7 @@ class MainScreen(ctk.CTk):
 
         self.frames = {}
 
-        for F in (MainMenu, Entry, Ongoing, Visit_History, Edit):
+        for F in (MainMenu, Entry, Ongoing, Visit_History, Edit, Control):
             frame = F(self.container, self)
 
             self.frames[F] = frame
@@ -53,20 +54,26 @@ class MainScreen(ctk.CTk):
 class MainMenu(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
-
-        label = ctk.CTkLabel(self, text="Uvod", font=LARGE_FONT)
-        label.place(relx=0.5, rely=0.1)
-
+        label = ctk.CTkLabel(self, text="Uvod", font=VERY_LARGE_FONT)
         button = ctk.CTkButton(self, text="Prichod", command=lambda: controller.show_frame(Entry))
-        button.place(relx=0.5, rely=0.3)
-
         button2 = ctk.CTkButton(self, text="Prebiehajuce", command=lambda: controller.show_frame(Ongoing))
-        button2.place(relx=0.5, rely=0.4)
-
         button3 = ctk.CTkButton(self, text="Historia", command=lambda: controller.show_frame(Visit_History))
-        button3.place(relx=0.5, rely=0.5, )
+
+        def update_position(event):
+            # Get the current size of the window
+            window_width = self.winfo_width()
+            window_height = self.winfo_height()
+            
+            label.place(x=window_width/2 - label.winfo_width()/2, y=window_height*0.1)
+            button.place(x=window_width/2 - button.winfo_width()/2, y=window_height*0.4)
+            button2.place(x=window_width/2 - button2.winfo_width()/2, y=window_height*0.5)
+            button3.place(x=window_width/2 - button3.winfo_width()/2, y=window_height*0.6)
 
 
+
+
+        self.bind('<Configure>', update_position)
+        
 class Entry(ctk.CTkFrame):
     def __init__(self, parent, controller):
         self.controller = controller
@@ -148,15 +155,14 @@ class Entry(ctk.CTkFrame):
             company = self.company.get()
             group_size = int(self.group_size.get())
             visit_reason = self.visit_reason.get()
-            self.controller.mediator.addVisitor(name, surname, card_id, car_num, company, group_size, visit_reason)
-
+            # self.controller.mediator.addVisitor(name, surname, card_id, car_num, company, group_size, visit_reason)
             # TODO dorobit POPUP visitor sa prida az po odkontrolovani
             '''if checked():
                     self.goBack()
             '''
-
+            self.controller.show_frame(Control)
             # temporary
-            self.goBack()
+            #self.goBack()
 
     def badEntry(self, entry):
         entry.configure(fg_color='red')
@@ -583,6 +589,14 @@ class Edit(ctk.CTkFrame):
         self.card_id.insert(0,self.chosenVisitor[0].cardId)
         self.group_size.insert(0,self.chosenVisitor[0].count)
         #self.visit_reason.set(0,self.chosenVisitor[0].reason)
+
+class Control(ctk.CTkFrame):
+    def __init__(self, parent, controller):
+        self.controller = controller
+        ctk.CTkFrame.__init__(self, parent)
+        label = ctk.CTkLabel(self, text="Prebieha kontrola zadaných údajov.", font=VERY_LARGE_FONT)
+        label.pack(expand=True, fill='both', anchor='center')
+
 
 
 m = med.Mediator()
