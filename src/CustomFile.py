@@ -2,14 +2,14 @@ class CustomFile:
     def __init__(self, path):   
         self.path = path
         try:
-            file = open(path, "a+")  # Use "a+" to open the file for both reading and appending
+            file = open(path, "a+", encoding="utf-8")  # Use "a+" to open the file for both reading and appending
         except OSError as e:
             print(f"Error opening file {path}: {e}")
         self.numOfLines = self.getNumOfLines()
         file.close()
 
     def getNumOfLines(self): 
-        with open(self.path, "r") as file:
+        with open(self.path, "r",encoding="utf-8") as file:
             file.seek(0)
             data = file.readlines()
             num = len(data)
@@ -19,26 +19,26 @@ class CustomFile:
         return num
 
     def writeVisitor(self, data):
-        with open(self.path, "a+") as file:
+        with open(self.path, "a+",encoding="utf-8") as file:
             file.write(data)
             self.numOfLines += 1    # dôležité pre generovanie správneho ID
         file.close()
     
     def readData(self):
         dataInStrings = []
-        with open(self.path, "r") as file:
+        with open(self.path, "r",encoding="utf-8") as file:
             file.seek(0)  # dôležité dať pointer na začiatok ak cheme čiťať celý súbor
             dataInStrings = file.readlines()
         file.close()
         return dataInStrings
 
     def edit(self, id, visitor):
-        with open(self.path, "a+") as file:
+        with open(self.path, "a+",encoding="utf-8") as file:
             file.seek(0)
             lines = file.readlines()
-            if 1 <= id <= len(lines):
+            if 0 <= id <= len(lines):
                 lines[id] = visitor.getDataToWrite()      #id je zatiaľ rovnaké ako pozícia riadku v texte
-                with open(self.path, 'w') as file:
+                with open(self.path, 'w',encoding="utf-8") as file:
                     file.seek(0)
                     file.writelines(lines)
                 file.close()
@@ -47,14 +47,14 @@ class CustomFile:
                 print("Invalid line number.")
         file.close()
 
-    def removeVisitor(self, id):
-        with open(self.path, "a+") as file:
+    def removeVisitor(self, id):            #ak chceme aby fungovalo treba zmeniť systém ID
+        with open(self.path, "a+",encoding="utf-8") as file:
             file.seek(0)
             lines = file.readlines()
             if 1 <= id <= len(lines):
                 lines[id] = ""      #id je zatiaľ rovnaké ako pozícia riadku v texte
                 self.numOfLines -= 1
-                with open(self.path, 'w') as file:
+                with open(self.path, 'w',encoding="utf-8") as file:
                     file.seek(0)
                     file.writelines(lines)
                 file.close()
@@ -62,3 +62,4 @@ class CustomFile:
             else:
                 print("Invalid line number.")
         file.close()
+

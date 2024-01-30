@@ -13,7 +13,7 @@ class Visitor:
         self.arrival = arrival if arrival is not None else datetime.now().strftime("%d-%m-%Y %H:%M")    #formátovanie času deň-mesiac-rok hodina:minúta
         self.departure = departure
         self.signature = signature
-        self.review = review
+        self.review = review                    #zmení sa po prijatí spravy od komunikácie
 
     def getId(self):
         return self.id
@@ -36,9 +36,8 @@ class Visitor:
             data_string += ";\n"
         return data_string
 
-    def registerDeparture(self, review):
+    def registerDeparture(self):
         self.departure = datetime.now().strftime("%d-%m-%Y %H:%M")
-        self.review = review
 
     def edit(self, name = None, surname = None, cardId = None, carTag = None, company = None, count = None, reason = None):
         if name is not None:
@@ -56,3 +55,18 @@ class Visitor:
         if reason is not None:
             self.reasonOfVisit = reason
     
+    def removeVisitor(self, id):
+        with open(self.path, "a+") as file:
+            file.seek(0)
+            lines = file.readlines()
+            if 1 <= id <= len(lines):
+                lines[id] = ""      #id je zatiaľ rovnaké ako pozícia riadku v texte
+                self.numOfLines -= 1
+                with open(self.path, 'w') as file:
+                    file.seek(0)
+                    file.writelines(lines)
+                file.close()
+                print(f"Line {id} deleted successfully.")
+            else:
+                print("Invalid line number.")
+        file.close()
