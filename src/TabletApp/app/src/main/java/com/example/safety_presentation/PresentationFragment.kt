@@ -1,20 +1,25 @@
 package com.example.safety_presentation
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.Navigation
 import com.example.safety_presentation.databinding.FragmentPresentationBinding
+import kotlin.math.abs
 
 class PresentationFragment : Fragment() {
     lateinit var bind : FragmentPresentationBinding
     lateinit var mainActivity: MainActivity
     var index = 0
     var dict : MutableMap<Int, Bitmap> = mutableMapOf()
+    var x1 = 0f
+    var x2 = 0f
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
@@ -60,13 +65,18 @@ class PresentationFragment : Fragment() {
     fun increase(){
         index += 1
         changeSlide()
+        update_progres()
     }
 
     fun decrease(){
-        if (index != 0){
-            index -= 1
-        }
+        if (index == 0) return
+        index -= 1
         changeSlide()
+        update_progres()
+    }
+
+    fun update_progres() {
+        mainActivity.communication.send_progress(((index / 12.0) * 100).toInt())
     }
 
     fun changeSlide(){

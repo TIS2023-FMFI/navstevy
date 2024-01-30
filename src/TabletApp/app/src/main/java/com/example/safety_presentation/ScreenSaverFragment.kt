@@ -30,12 +30,21 @@ class ScreenSaverFragment : Fragment() {
             // Wait for presentation start on IO thread
             val visitor = mainActivity.communication.recieve_message()
             mainActivity.visitor = visitor
+            if (visitor == null){
+                return@launch
+            }
 
             // update UI on main thread
             withContext(Dispatchers.Main) {
-                val action = ScreenSaverFragmentDirections.actionScreenSaverFragmentToCheckingFragment()
+
+                val action =
+                    if (visitor.is_new)
+                        ScreenSaverFragmentDirections.actionScreenSaverFragmentToCheckingFragment()
+                    else
+                        ScreenSaverFragmentDirections.actionScreenSaverFragmentToRatingFragment()
                 val controller = NavHostFragment.findNavController(this@ScreenSaverFragment)
                 controller.navigate(action)
+
             }
         }
 
