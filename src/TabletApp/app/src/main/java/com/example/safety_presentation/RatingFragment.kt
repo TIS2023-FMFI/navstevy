@@ -54,7 +54,8 @@ class RatingFragment : Fragment() {
         }
 
         bind.imageButton2.setImageBitmap(sk)
-        bind.textView3.text = "Prosím ohodnotte nás!"
+        bind.textView3.text = "Prosím ohodnotte nás "+ mainActivity.visitor!!.name + " " +
+                mainActivity.visitor!!.surname + "!"
 
         return bind.root
     }
@@ -72,13 +73,15 @@ class RatingFragment : Fragment() {
         if (mainActivity.languageInUse == "sk"){
             mainActivity.languageInUse = "en"
             bind.imageButton2.setImageBitmap(en)
-            bind.textView3.text = "Please rate your experience!"
+            bind.textView3.text = "Please rate your experience " + mainActivity.visitor!!.name +
+            mainActivity.visitor!!.surname + "!"
 
         }
         else{
             mainActivity.languageInUse = "sk"
             bind.imageButton2.setImageBitmap(sk)
-            bind.textView3.text = "Prosím ohodnotte nás!"
+            bind.textView3.text = "Prosím ohodnotte nás"+ mainActivity.visitor!!.name +
+                    mainActivity.visitor!!.surname + "!"
 
         }
 

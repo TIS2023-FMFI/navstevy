@@ -23,8 +23,10 @@ class CheckingFragment : Fragment() {
 
         bind.apply {
             textView2.text = "Prosím skontrolujte správnosť zadaných dát: \nmeno: "+
-                    mainActivity.visitor!!.name + "\npriezvisko: " + mainActivity.visitor!!.surname +
-                    "\nfirma: " + mainActivity.visitor!!.company
+            mainActivity.visitor!!.name + "\npriezvisko: " + mainActivity.visitor!!.surname +
+                    "\nfirma: " + mainActivity.visitor!!.company + "\nŠPZ: " +
+                    mainActivity.visitor!!.cardId + "\npočet vo Vašej skupine: " +
+                    mainActivity.visitor!!.count
 
             // yes_button
             button6.setOnClickListener {
@@ -53,10 +55,11 @@ class CheckingFragment : Fragment() {
         super.onAttach(context)
         mainActivity = context as MainActivity
 
+        mainActivity.imageCreation()
         en = mainActivity.imagesDict[mainActivity.imagesDict.size - 2]!!
         sk = mainActivity.imagesDict[mainActivity.imagesDict.size - 1]!!
     }
-    //TODO text overhaul, swipe, rating imagebuttons
+
     fun changeLanguage(){
         if (mainActivity.languageInUse == "sk"){
             mainActivity.languageInUse = "en"
@@ -65,7 +68,9 @@ class CheckingFragment : Fragment() {
             bind.button7.text = "No"
             bind.textView2.text = "Please check, if the following data is correct: \nname: "+
                     mainActivity.visitor!!.name + "\nsurname: " + mainActivity.visitor!!.surname +
-                    "\ncompany: " + mainActivity.visitor!!.company
+                    "\ncompany: " + mainActivity.visitor!!.company + "\nŠPZ: " +
+                    mainActivity.visitor!!.cardId + "\namount in your party: " +
+                    mainActivity.visitor!!.count
         }
         else{
             mainActivity.languageInUse = "sk"
@@ -74,7 +79,9 @@ class CheckingFragment : Fragment() {
             bind.button7.text = "Nie"
             bind.textView2.text = "Prosím skontrolujte správnosť zadaných dát: \nmeno: "+
                     mainActivity.visitor!!.name + "\npriezvisko: " + mainActivity.visitor!!.surname +
-                    "\nfirma: " + mainActivity.visitor!!.company
+                    "\nfirma: " + mainActivity.visitor!!.company + "\nŠPZ: " +
+                    mainActivity.visitor!!.cardId + "\npočet vo Vašej skupine: " +
+                    mainActivity.visitor!!.count
         }
 
     }
