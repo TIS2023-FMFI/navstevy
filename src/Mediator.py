@@ -3,13 +3,18 @@ import CustomFile as cf
 import difflib
 import string
 import unidecode
+from Communication import Communication
 
 class Mediator:
     def __init__(self):
         self.visitors = []      # TODO pridávanie neodhlásených z predošlého dňa
-        self.file = cf.CustomFile('../navstevy/src/files/testFile.csv')  # TODO nastavnie správnej cesty pre ich potreby
+        self.file = cf.CustomFile('../src/files/testFile.csv')  # TODO nastavnie správnej cesty pre ich potreby
         self.allVisitors = []
         self.saveAllVisits()
+        try:
+            self.communication = Communication()
+        except:
+            self.communication = None
         
     def addVisitor(self, name, surname, cardId, carTag, company, count, reason):
         visitor = vis.Visitor(self.generateId(), name, surname, cardId, carTag, company, count, reason)

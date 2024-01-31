@@ -3,7 +3,6 @@ import Mediator as med
 import CTkTable as t
 import Visitor
 from Communication import Communication
-import asyncio
 from threading import Thread
 
 BASE_FG_COLOR = '#343638'
@@ -156,34 +155,50 @@ class Entry(ctk.CTkFrame):
             group_size = int(self.group_size.get())
             visit_reason = self.visit_reason.get()
             
-            """
-            ## komunikacia 
+        
+            # komunikacia 
             mediator:med.Mediator = self.controller.mediator
 
-            ## Posli start prezentacia
+            # kontrola funkcnosti konunikacie
+            if mediator.communication is None:
+                # TODO dať informáciu o nepripojenom zariadení
+                ...
+
+
+            # Vytvor visitora
             temporary_visitor = Visitor.Visitor(0, name, surname, card_id, car_num, company, group_size, visit_reason)
             
-            ## Cakaj odpovede z prezentacia a reaguj na to 
+            # Cakaj odpovede z prezentacia a reaguj na to, ked je koniec tak toto cele skonci
+            # v state, data budu ulezene vsetky info
             state, data = mediator.communication.send_start_presentation(temporary_visitor)
-            thread = Thread(target=mediator.communication.recieve()).start()
-    
-    
-            
             while state == Communication.message_code["progress"]:
-                ## TODO update progress bar
-                state, data = mediator.communication.recieve()
-            
-            
+                state_data_result = []
+                thread = Thread(target=mediator.communication.recieve, args=(state_data_result,))
+                thread.start()
+                while not state_data_result:
+                    self.update()
+                     
+                state, data = tuple(state_data_result)
+                print(state, data)
+                thread.join()
+                
+
 
             if state == Communication.message_code["wrong_data"]:
-                ## TODO treba upravit udaje Visitora
+                ## TODO treba upravit udaje Visitora, pretoze boli zaslané zlé údaje
                 ...
 
             elif state == Communication.message_code["signature"]:
-                ## TODO treba cosi spravit s obrazkom
-                ## data == obrazok podpisu
+                ## TODO prezentacia prebehla v poriadku
+                ## data je PIL obrazok podpisu
+
                 ...
-            """
+            elif state == Communication.message_code["error"]:
+                ## TODO nastala nejaká chyba
+                ## data je dôvod chyby, ktorý stačí niekde vypísať
+                ## Bud chyba spojenia
+                ## alebo timout 60s 
+                ...
 
 
             ## Toto az po prezentacii
