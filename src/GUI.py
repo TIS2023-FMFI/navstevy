@@ -7,13 +7,13 @@ from threading import Thread
 
 BASE_FG_COLOR = '#343638'
 LARGE_FONT = ("times new roman", 12)
+VERY_LARGE_FONT = ("times new roman", 20)
 
 
 class MainScreen(ctk.CTk):
 
     def __init__(self, mediator):
         ctk.CTk.__init__(self)
-
         self.geometry("1200x600")
         self.width = 1200
         self.height = 600
@@ -29,11 +29,9 @@ class MainScreen(ctk.CTk):
         self.container.grid_rowconfigure(0, weight=1)
         self.container.grid_columnconfigure(0, weight=1)
 
-        #todo dorobit moznosti vyberu pre reason of visit
-
         self.frames = {}
 
-        for F in (MainMenu, Entry, Ongoing, Visit_History, Edit):
+        for F in (MainMenu, Entry, Ongoing, Visit_History, Edit, Control):
             frame = F(self.container, self)
 
             self.frames[F] = frame
@@ -59,20 +57,22 @@ class MainScreen(ctk.CTk):
 class MainMenu(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
-
-        label = ctk.CTkLabel(self, text="Uvod", font=LARGE_FONT)
-        label.place(relx=0.5, rely=0.1)
-
+        label = ctk.CTkLabel(self, text="Uvod", font=VERY_LARGE_FONT)
         button = ctk.CTkButton(self, text="Prichod", command=lambda: controller.show_frame(Entry))
-        button.place(relx=0.5, rely=0.3)
-
         button2 = ctk.CTkButton(self, text="Prebiehajuce", command=lambda: controller.show_frame(Ongoing))
-        button2.place(relx=0.5, rely=0.4)
-
         button3 = ctk.CTkButton(self, text="Historia", command=lambda: controller.show_frame(Visit_History))
-        button3.place(relx=0.5, rely=0.5, )
 
-
+        def update_position(event):
+            # Get the current size of the window
+            window_width = self.winfo_width()
+            window_height = self.winfo_height()
+            
+            label.place(x=window_width/2 - label.winfo_width()/2, y=window_height*0.1)
+            button.place(x=window_width/2 - button.winfo_width()/2, y=window_height*0.1 + 200)
+            button2.place(x=window_width/2 - button2.winfo_width()/2, y=window_height*0.1 + 250)
+            button3.place(x=window_width/2 - button3.winfo_width()/2, y=window_height*0.1 + 300)
+        self.bind('<Configure>', update_position)
+        
 class Entry(ctk.CTkFrame):
     def __init__(self, parent, controller):
         self.controller = controller
@@ -154,6 +154,7 @@ class Entry(ctk.CTkFrame):
             company = self.company.get()
             group_size = int(self.group_size.get())
             visit_reason = self.visit_reason.get()
+
             
         
             # komunikacia 
@@ -206,13 +207,15 @@ class Entry(ctk.CTkFrame):
             # todo dorobit aby sa refreshli tables
 
 
+
+
             # TODO dorobit POPUP visitor sa prida az po odkontrolovani
             '''if checked():
                     self.goBack()
             '''
-
+            self.controller.show_frame(Control)
             # temporary
-            self.goBack()
+            #self.goBack()
 
     def badEntry(self, entry):
         entry.configure(fg_color='red')
@@ -282,13 +285,13 @@ class Ongoing(ctk.CTkFrame):
         label.pack(pady=10, padx=10)
         self.controller = controller
 
+        # TODO ked lubos dorobi aj len pre prebiehajucich zmenit
+        #self.controller.ongoingVisitors = self.listOngoing(self.controller.mediator.visitors)
         self.chosenVisitor = [None,None]
 
         # TODO upravit vzhladom na velkost obrazovky
-        scrollable_frame = ctk.CTkScrollableFrame(self, width=600)
-        scrollable_frame.pack()
-        #todo dorobit farby table aby sedeli
-        self.table = t.CTkTable(scrollable_frame, row=len(self.controller.ongoingVisitors),
+
+        self.table = t.CTkTable(self, row=len(self.controller.ongoingVisitors),
                                 column=4, values=self.listOngoing(),
                                 command=self.on_row_clicked)
         self.table.pack()
@@ -326,6 +329,7 @@ class Ongoing(ctk.CTkFrame):
 
     def edit(self):
         if self.chosenVisitor[0]:
+            # TODO uprava vybrateho visitora
             self.controller.frames[Edit].chosenVisitor = self.chosenVisitor
             self.controller.show_frame(Edit)
         else:
@@ -348,7 +352,7 @@ class Ongoing(ctk.CTkFrame):
     def submit(self):
         if self.chosenVisitor[0]:
             visitorx = self.chosenVisitor
-            self.controller.mediator.departureVisitor(visitorx)
+            #self.controller.mediator.departureVisitor(visitorx)
             self.goBack()
         else:
             self.notify()
@@ -411,11 +415,8 @@ class Visit_History(ctk.CTkFrame):
         self.departure = ctk.CTkEntry(self, placeholder_text="odchod")
         self.departure.pack()
 
-
-        #todo relative height na table
-        scrollable_frame = ctk.CTkScrollableFrame(self,width=800)
-        scrollable_frame.pack()
-        self.table = t.CTkTable(scrollable_frame, row=len(self.controller.visitors), column=9, values=self.listVisitors())
+        # TODO upravit vzhladom na velkost obrazovky
+        self.table = t.CTkTable(self, row=len(self.controller.visitors), column=9, values=self.listVisitors())
         self.table.pack()
 
         #TODO spravit na enter???
@@ -426,7 +427,7 @@ class Visit_History(ctk.CTkFrame):
         refresh.pack()
         button = ctk.CTkButton(self, text="Back", command=lambda: self.goBack())
         button.pack()
-        # todo buttons na prepinanie table
+
 
     def clearEntry(self):
         self.name.delete(0, 'end')
@@ -533,8 +534,6 @@ class Edit(ctk.CTkFrame):
         ]
         # TODO pridat moznost Pomocou popup / remove moznost
 
-
-
         self.visit_reason = ctk.CTkOptionMenu(master=self, values=self.options)
         self.visit_reason.pack()
 
@@ -568,8 +567,6 @@ class Edit(ctk.CTkFrame):
             visit_reason = self.visit_reason.get()
             self.controller.mediator.editVisitor(int(self.chosenVisitor[0].id),name, surname, card_id, car_num, company, group_size, visit_reason)
             #Todo urobit aby sa to ulozilo a zobrazilo
-
-            #todo dorobit aby sa refreshli tables
 
             self.chosenVisitor = [None,None]
             self.controller.frames[Ongoing].chosenVisitor  = [None,None]
@@ -644,9 +641,17 @@ class Edit(ctk.CTkFrame):
         self.car_num.insert(0,self.chosenVisitor[0].carTag)
         self.card_id.insert(0,self.chosenVisitor[0].cardId)
         self.group_size.insert(0,self.chosenVisitor[0].count)
-        self.visit_reason.set(0,self.chosenVisitor[0].reason)
+        #self.visit_reason.set(0,self.chosenVisitor[0].reason)
 
-ctk.set_appearance_mode('dark')
+class Control(ctk.CTkFrame):
+    def __init__(self, parent, controller):
+        self.controller = controller
+        ctk.CTkFrame.__init__(self, parent)
+        label = ctk.CTkLabel(self, text="Prebieha kontrola zadaných údajov.", font=VERY_LARGE_FONT)
+        label.pack(expand=True, fill='both', anchor='center')
+
+
+
 m = med.Mediator()
 app = MainScreen(m)
 app.mainloop()
