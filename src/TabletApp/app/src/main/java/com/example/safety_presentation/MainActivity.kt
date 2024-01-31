@@ -19,8 +19,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        imageCreation()
         StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.Builder().permitNetwork().build())
-
     }
 
     fun imageCreation(){

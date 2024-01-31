@@ -43,7 +43,7 @@ class TextFragment : Fragment() {
                 bind.tv.text = "We have notified the employee of the wrongly inputed data"
             }
             else{
-                bind.tv.text = "Informovali sme zamestnanca ohladom zle zadaných dát"
+                bind.tv.text = "Informovali sme zamestnanca ohľadom zle zadaných dát"
             }
         }
         val timer = Timer()

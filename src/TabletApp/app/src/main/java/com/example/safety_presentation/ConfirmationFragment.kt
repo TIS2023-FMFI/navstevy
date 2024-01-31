@@ -47,7 +47,6 @@ class ConfirmationFragment : Fragment() {
                 val action = ConfirmationFragmentDirections.actionConfirmationFragmentToTextFragment()
                 action.message = "con"
                 mainActivity.communication.send_signature(resizeBitmap(bitmap, 0.25f))
-                imageButton3.setImageBitmap(bitmap)
                 Navigation.findNavController(it).navigate(action)
             }
         }

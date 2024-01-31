@@ -22,7 +22,11 @@ class CheckingFragment : Fragment() {
         bind = FragmentCheckingBinding.inflate(inflater, container, false)
 
         bind.apply {
-            textView2.text = mainActivity.visitor.toString()
+            textView2.text = "Prosím skontrolujte správnosť zadaných dát: \nmeno: "+
+            mainActivity.visitor!!.name + "\npriezvisko: " + mainActivity.visitor!!.surname +
+                    "\nfirma: " + mainActivity.visitor!!.company + "\nŠPZ: " +
+                    mainActivity.visitor!!.cardId + "\npočet vo Vašej skupine: " +
+                    mainActivity.visitor!!.count
 
             // yes_button
             button6.setOnClickListener {
@@ -62,12 +66,22 @@ class CheckingFragment : Fragment() {
             bind.imageButton.setImageBitmap(en)
             bind.button6.text = "Yes"
             bind.button7.text = "No"
+            bind.textView2.text = "Please check, if the following data is correct: \nname: "+
+                    mainActivity.visitor!!.name + "\nsurname: " + mainActivity.visitor!!.surname +
+                    "\ncompany: " + mainActivity.visitor!!.company + "\nŠPZ: " +
+                    mainActivity.visitor!!.cardId + "\namount in your party: " +
+                    mainActivity.visitor!!.count
         }
         else{
             mainActivity.languageInUse = "sk"
             bind.imageButton.setImageBitmap(sk)
             bind.button6.text = "Áno"
             bind.button7.text = "Nie"
+            bind.textView2.text = "Prosím skontrolujte správnosť zadaných dát: \nmeno: "+
+                    mainActivity.visitor!!.name + "\npriezvisko: " + mainActivity.visitor!!.surname +
+                    "\nfirma: " + mainActivity.visitor!!.company + "\nŠPZ: " +
+                    mainActivity.visitor!!.cardId + "\npočet vo Vašej skupine: " +
+                    mainActivity.visitor!!.count
         }
 
     }
