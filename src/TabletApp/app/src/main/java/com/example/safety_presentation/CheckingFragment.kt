@@ -22,7 +22,9 @@ class CheckingFragment : Fragment() {
         bind = FragmentCheckingBinding.inflate(inflater, container, false)
 
         bind.apply {
-            textView2.text = mainActivity.visitor.toString()
+            textView2.text = "Prosím skontrolujte správnosť zadaných dát: \nmeno: "+
+                    mainActivity.visitor!!.name + "\npriezvisko: " + mainActivity.visitor!!.surname +
+                    "\nfirma: " + mainActivity.visitor!!.company
 
             // yes_button
             button6.setOnClickListener {
@@ -51,23 +53,28 @@ class CheckingFragment : Fragment() {
         super.onAttach(context)
         mainActivity = context as MainActivity
 
-        mainActivity.imageCreation()
         en = mainActivity.imagesDict[mainActivity.imagesDict.size - 2]!!
         sk = mainActivity.imagesDict[mainActivity.imagesDict.size - 1]!!
     }
-
+    //TODO text overhaul, swipe, rating imagebuttons
     fun changeLanguage(){
         if (mainActivity.languageInUse == "sk"){
             mainActivity.languageInUse = "en"
             bind.imageButton.setImageBitmap(en)
             bind.button6.text = "Yes"
             bind.button7.text = "No"
+            bind.textView2.text = "Please check, if the following data is correct: \nname: "+
+                    mainActivity.visitor!!.name + "\nsurname: " + mainActivity.visitor!!.surname +
+                    "\ncompany: " + mainActivity.visitor!!.company
         }
         else{
             mainActivity.languageInUse = "sk"
             bind.imageButton.setImageBitmap(sk)
             bind.button6.text = "Áno"
             bind.button7.text = "Nie"
+            bind.textView2.text = "Prosím skontrolujte správnosť zadaných dát: \nmeno: "+
+                    mainActivity.visitor!!.name + "\npriezvisko: " + mainActivity.visitor!!.surname +
+                    "\nfirma: " + mainActivity.visitor!!.company
         }
 
     }

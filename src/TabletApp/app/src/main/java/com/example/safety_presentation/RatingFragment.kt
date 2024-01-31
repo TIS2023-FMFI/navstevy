@@ -72,7 +72,7 @@ class RatingFragment : Fragment() {
         if (mainActivity.languageInUse == "sk"){
             mainActivity.languageInUse = "en"
             bind.imageButton2.setImageBitmap(en)
-            bind.textView3.text = "Please rate us!"
+            bind.textView3.text = "Please rate your experience!"
 
         }
         else{
