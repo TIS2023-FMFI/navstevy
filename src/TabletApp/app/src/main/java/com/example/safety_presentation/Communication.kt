@@ -1,18 +1,13 @@
-import android.os.Build
-import androidx.annotation.RequiresApi
 import com.example.safety_presentation.MainActivity
 import java.io.OutputStream
-import java.lang.Thread.sleep
 import java.net.ServerSocket
 import java.net.Socket
 import android.graphics.Bitmap
 import android.graphics.Color
-import android.media.Rating
-import android.os.AsyncTask
+import androidx.core.graphics.get
 import androidx.core.graphics.toColor
+import java.io.InputStream
 import java.nio.ByteBuffer
-import java.security.Signature
-import kotlin.math.sign
 
 
 var IP_ADDRESS = "localhost"
@@ -110,11 +105,11 @@ class Communication(val mainActivity: MainActivity) {
             // Write raw bytes to the output stream
             outputStream.write(MessageType.SIGNATURE.message_code)
 
-            outputStream.write(intToByteArray(signature.width))
-            outputStream.write(intToByteArray(signature.height))
+            outputStream.write(int_to_byte_array(signature.width))
+            outputStream.write(int_to_byte_array(signature.height))
             (0 until signature.height).forEach {y ->
                 (0 until signature.width).forEach { x ->
-                    val color = signature.getColor(x, y)
+                    val color = Color.valueOf(signature.get(x, y))
                     if (color == Color.BLACK.toColor()) {
                         outputStream.write(0)
                     }
@@ -172,7 +167,7 @@ class Communication(val mainActivity: MainActivity) {
             // Start presentation
             if (message_code == MessageType.PRESENTATION_START.message_code) {
                 val data_lenght = input_stream.read()
-                val visitor_string = input_stream.readNBytes(data_lenght).decodeToString()
+                val visitor_string = read_n_bytes(input_stream, data_lenght).decodeToString()
                 val visitor = Visitor("true;" + visitor_string)
                 println("Visitor prišiel")
                 return visitor
@@ -182,7 +177,7 @@ class Communication(val mainActivity: MainActivity) {
             if (message_code == MessageType.RATING_START.message_code) {
                 println("Spustam review")
                 val data_lenght = input_stream.read()
-                val visitor_string = input_stream.readNBytes(data_lenght).decodeToString()
+                val visitor_string = read_n_bytes(input_stream, data_lenght).decodeToString()
                 println(visitor_string)
                 val visitor = Visitor("false;" + visitor_string)
                 println("Visitor odchadza")
@@ -203,9 +198,17 @@ class Communication(val mainActivity: MainActivity) {
         return null
     }
 
-    private fun intToByteArray(value: Int): ByteArray {
+    private fun int_to_byte_array(value: Int): ByteArray {
         val buffer = ByteBuffer.allocate(4)
         buffer.putInt(value)
         return buffer.array()
+    }
+
+    private fun read_n_bytes(input_stream: InputStream, n: Int): ByteArray {
+        val byte_array = ByteArray(n)
+        (0 until n).forEach {
+            byte_array[it] = input_stream.read().toByte()
+        }
+        return byte_array
     }
 }
