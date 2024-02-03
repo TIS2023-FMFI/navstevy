@@ -1,7 +1,7 @@
-from ppadb.client import Client
 import socket
 from PIL import Image
 from Visitor import Visitor
+from IpConfigParser import ipconfig_all
 
 class Communication:
     TIMEOUT_SECONDS = 60
@@ -19,51 +19,24 @@ class Communication:
         "error": 8,
     }
 
-
     def __init__(self):
-        ##self.device_ip_adress = "127.0.0.1"
-        self.device_ip_adress =self.get_android_device_ip()
+        self.device_ip_adress = self.get_android_device_ip()
         self.port_out = 5013
         self.port_in = 5014
-        ##self.initialize_android_debbuging_connection()
 
     def get_android_device_ip(self):
-        # Create a connection to the ADB server
-        adb = Client(host='127.0.0.1', port=5037)
-        
-        # Get the list of connected devices
-        devices = adb.devices()
-        if not devices:
-            raise Exception("No Android devices connected to computer.")
-        
-        # Assuming only one device is connected, you can access it directly
-        device = devices[0]
+        ip_config_result = ipconfig_all()
 
-        # Run 'adb shell ip route' command to get the device IP addresss
-        result = device.shell('ip route')
-    
-        # Extract the IP address from the result
-        ip_address = result.split('src ')[1].split(' ')[0]
-
-        return ip_address
-
-    def initialize_android_debbuging_connection(self):
-        # Create a connection to the ADB server
-        adb = Client(host='127.0.0.1', port=5037)
-        
-        # Get the list of connected devices
-        devices = adb.devices()
-        if not devices:
-            raise Exception("No Android devices connected to computer.")
-        
-        # Assuming only one device is connected, you can access it directly
-        device = devices[0]
-
-        # Run 'adb shell ip route' command to get the device IP addresss
-        result = device.shell(f"forward tcp:{self.port_out} tcp:{self.port_out}")
-        print(result)
-        result = device.shell(f"reverse tcp:{self.port_in} tcp:{self.port_in}")
-        print(result)
+        for adapter_name, atributes in ip_config_result.items():
+            if "Ethernet adapter Ethernet" not in adapter_name:
+                continue
+            if "Description" not in atributes:
+                continue
+            if atributes["Description"] == "UsbNcm Host Device":
+                print("Device connected...")
+                return atributes["Default Gateway"]
+        print("Device not found...")
+        raise Exception("Android device not found")
         
     def send_start_presentation(self, visitor: Visitor):
         try:
@@ -77,10 +50,10 @@ class Communication:
                 s.connect((self.device_ip_adress, self.port_out))
                 s.sendall(message)
                 s.close()
-                print("Presentation started...")
+                print("---> Presentation started...")
             return Communication.message_code["progress"], None
         except:
-            return Communication.message_code["error"], "Device not connected properly"
+            return Communication.message_code["error"], "Device not connected properly or application not running"
 
     
     def send_start_review(self, visitor: Visitor):
@@ -95,10 +68,10 @@ class Communication:
                 s.connect((self.device_ip_adress, self.port_out))
                 s.sendall(message)
                 s.close()
-                print("Review started...")
+                print("---> Review started...")
             return Communication.message_code["progress"], None
         except:
-            return Communication.message_code["error"], "Device not connected properly"
+            return Communication.message_code["error"], "Device not connected properly or application not running"
 
     def send_end_presentation(self):
         try:
@@ -107,9 +80,10 @@ class Communication:
                 message = Communication.message_code["presentation_end"].to_bytes(1)
                 s.connect((self.device_ip_adress, self.port_out))
                 s.sendall(message)
+                print("---> Presentation ended")
             return Communication.message_code["presentation_end"]
         except:
-            return Communication.message_code["error"], "Device not connected properly"
+            return Communication.message_code["error"], "Device not connected properly or application not running"
             
 
     def recieve(self, array_to_write: list):
@@ -122,8 +96,7 @@ class Communication:
             
             try:
                 # Accept a single incoming connection
-                print("---- Waiting for connection ---- ")
-                ## TODO wait only 60 seconds, then give up
+                print("---- Waiting for some respond ---- ")
                 client_socket, client_address = s.accept()
 
                 # Receive data from the client
@@ -131,7 +104,7 @@ class Communication:
                 
                 if message_code == Communication.message_code["wrong_data"]:
                     client_socket.close()
-                    print("Zle data")
+                    print("<--- Zle zadané dáta")
                     array_to_write.append(message_code)
                     array_to_write.append(None)
                     return message_code, None
@@ -139,7 +112,7 @@ class Communication:
                 if message_code == Communication.message_code["progress"]:
                     progres_percentage = int.from_bytes(client_socket.recv(4))
                     client_socket.close()
-                    print(f"Progress ... {progres_percentage}")
+                    print(f"<--- Progress ... {progres_percentage}")
                     array_to_write.append(message_code)
                     array_to_write.append(progres_percentage)
                     return message_code, progres_percentage
@@ -148,8 +121,6 @@ class Communication:
                     width = int.from_bytes(client_socket.recv(4))
                     height = int.from_bytes(client_socket.recv(4))
 
-                    print(width)
-                    print(height)
                     signature = Image.new('RGB', (width, height), color='white')
                     for y in range(height):
                         for x in range(width):
@@ -158,7 +129,7 @@ class Communication:
                                 signature.putpixel((x, y), (0, 0, 0))
                     
                     client_socket.close()
-                    print("Signature")
+                    print("<--- Signature")
                     array_to_write.append(message_code)
                     array_to_write.append(signature)
                     return message_code, signature
@@ -167,7 +138,7 @@ class Communication:
                     message_lenght = int.from_bytes(client_socket.recv(4))
                     error_message = client_socket.recv(message_lenght).decode('utf-8')
                     client_socket.close()
-                    print(f"Error: {error_message}")
+                    print(f"<--- Error: {error_message}")
                     array_to_write.append(message_code)
                     array_to_write.append(error_message)
                     return message_code, error_message
@@ -175,12 +146,12 @@ class Communication:
                 if message_code == Communication.message_code["rating"]:
                     rating = int.from_bytes(client_socket.recv(4))
                     client_socket.close()
-                    print(f"Rating ... {rating}")
+                    print(f"<--- Rating ... {rating}")
                     array_to_write.append(message_code)
                     array_to_write.append(rating)
                     return message_code, rating
 
-
+                print("<--- Zle formatovaná správa")
                 array_to_write.append(Communication.message_code["error"])
                 array_to_write.append("Wrong message type")
                 client_socket.close()
@@ -199,7 +170,7 @@ class Communication:
 if __name__ == "__main__":
     communication = Communication()
     visitor = Visitor(15, "Jožko", "Mrkvička", 1, "AB-123-CD", "Matfyz", 0, "Musim")
-    
+
     state, data = communication.send_start_presentation(visitor)
     ##state, data = communication.send_start_review(visitor)
     while state == Communication.message_code["progress"]:

@@ -43,7 +43,7 @@ class Communication(val mainActivity: MainActivity) {
 
             // Close the socket
             socket.close()
-            println("Sending wrong data")
+            println("---> Sending wrong data")
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -63,7 +63,7 @@ class Communication(val mainActivity: MainActivity) {
 
             // Close the socket
             socket.close()
-            println("Sending progress")
+            println("---> Sending progress")
         } catch (e: Exception) {
             println(e.toString())
         }
@@ -84,7 +84,7 @@ class Communication(val mainActivity: MainActivity) {
 
             // Close the socket
             socket.close()
-            println("Sending rating")
+            println("---> Sending rating")
         } catch (e: Exception) {
             println(e.toString())
         }
@@ -99,7 +99,6 @@ class Communication(val mainActivity: MainActivity) {
 
             // Get the output stream from the socket
             val outputStream: OutputStream = socket.getOutputStream()
-            println("Posielam podpis")
             println(signature.width)
             println(signature.height)
             // Write raw bytes to the output stream
@@ -121,7 +120,7 @@ class Communication(val mainActivity: MainActivity) {
 
             // Close the socket
             socket.close()
-            println("Sending signature")
+            println("---> signature")
 
         } catch (e: Exception) {
             println(e.toString())
@@ -143,7 +142,7 @@ class Communication(val mainActivity: MainActivity) {
 
             // Close the socket
             socket.close()
-            println("Sending error")
+            println("---> Sending error")
         } catch (e: Exception) {
             println(e.toString())
         }
@@ -169,24 +168,23 @@ class Communication(val mainActivity: MainActivity) {
                 val data_lenght = input_stream.read()
                 val visitor_string = read_n_bytes(input_stream, data_lenght).decodeToString()
                 val visitor = Visitor("true;" + visitor_string)
-                println("Visitor prišiel")
+                println("<--- Visitor prišiel")
                 return visitor
             }
 
             // Start rating
             if (message_code == MessageType.RATING_START.message_code) {
-                println("Spustam review")
                 val data_lenght = input_stream.read()
                 val visitor_string = read_n_bytes(input_stream, data_lenght).decodeToString()
                 println(visitor_string)
                 val visitor = Visitor("false;" + visitor_string)
-                println("Visitor odchadza")
+                println("<--- Visitor odchadza")
                 return visitor
             }
 
             // End presentation
             else if (message_code == MessageType.PRESENTATION_END.message_code) {
-                println("Ukonči prezentáciu")
+                println("<--- Ukonči prezentáciu")
                 return null
             }
             socket.close()
