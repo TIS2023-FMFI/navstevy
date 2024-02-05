@@ -10,6 +10,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.NavHostFragment
 import com.example.safety_presentation.databinding.FragmentPresentationBinding
 import kotlin.math.abs
 
@@ -21,9 +22,12 @@ class PresentationFragment : Fragment() {
     var x1 = 0f
     var x2 = 0f
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         bind = FragmentPresentationBinding.inflate(inflater, container, false)
+
+        changeSlide()
 
         bind.apply {
             button.setOnClickListener{decrease() }
@@ -40,7 +44,32 @@ class PresentationFragment : Fragment() {
             }
         }
 
-        changeSlide()
+        bind.root.setOnTouchListener { v, event ->
+            if (event != null) {
+                if (event.action == MotionEvent.ACTION_DOWN) {
+                    x1 = event.x
+                }
+
+                if (event.action == MotionEvent.ACTION_UP) {
+                    x2 = event.x
+
+                    if (abs(x2 - x1) > 100f) {
+                        if (x2 < x1 && index != 11) {
+                            increase()
+                        }
+                        else if (index != 11){
+                            decrease()
+                        }
+                        else{
+                            val action = PresentationFragmentDirections.actionPresentationFragmentToConfirmationFragment()
+                            val controller = NavHostFragment.findNavController(this@PresentationFragment)
+                            controller.navigate(action)
+                        }
+                    }
+                }
+            }
+            true
+        }
 
         return bind.root
     }

@@ -1,6 +1,9 @@
 import customtkinter as ctk
 import Mediator as med
 import CTkTable as t
+import Visitor
+from Communication import Communication
+from threading import Thread
 
 BASE_FG_COLOR = '#343638'
 LARGE_FONT = ("times new roman", 12)
@@ -151,7 +154,61 @@ class Entry(ctk.CTkFrame):
             company = self.company.get()
             group_size = int(self.group_size.get())
             visit_reason = self.visit_reason.get()
-            # self.controller.mediator.addVisitor(name, surname, card_id, car_num, company, group_size, visit_reason)
+
+            
+        
+            # komunikacia 
+            mediator:med.Mediator = self.controller.mediator
+
+            # kontrola funkcnosti konunikacie
+            if mediator.communication is None:
+                # TODO dať informáciu o nepripojenom zariadení
+                ...
+
+
+            # Vytvor visitora
+            temporary_visitor = Visitor.Visitor(0, name, surname, card_id, car_num, company, group_size, visit_reason)
+            
+            # Cakaj odpovede z prezentacia a reaguj na to, ked je koniec tak toto cele skonci
+            # v state, data budu ulezene vsetky info
+            state, data = mediator.communication.send_start_presentation(temporary_visitor)
+            while state == Communication.message_code["progress"]:
+                state_data_result = []
+                thread = Thread(target=mediator.communication.recieve, args=(state_data_result,))
+                thread.start()
+                while not state_data_result:
+                    self.update()
+                     
+                state, data = tuple(state_data_result)
+                print(state, data)
+                thread.join()
+                
+
+
+            if state == Communication.message_code["wrong_data"]:
+                ## TODO treba upravit udaje Visitora, pretoze boli zaslané zlé údaje
+                ...
+
+            elif state == Communication.message_code["signature"]:
+                ## TODO prezentacia prebehla v poriadku
+                ## data je PIL obrazok podpisu
+
+                ...
+            elif state == Communication.message_code["error"]:
+                ## TODO nastala nejaká chyba
+                ## data je dôvod chyby, ktorý stačí niekde vypísať
+                ## Bud chyba spojenia
+                ## alebo timout 60s 
+                ...
+
+
+            ## Toto az po prezentacii
+            self.controller.mediator.addVisitor(name, surname, card_id, car_num, company, group_size, visit_reason)
+            # todo dorobit aby sa refreshli tables
+
+
+
+
             # TODO dorobit POPUP visitor sa prida az po odkontrolovani
             '''if checked():
                     self.goBack()
@@ -284,7 +341,7 @@ class Ongoing(ctk.CTkFrame):
             # TODO popup na review a zapisanie review pre vybrateho visitora
             popup = ctk.CTkToplevel(self.controller)
             popup.geometry('300x200')
-
+            popup.grab_set()
             label = ctk.CTkLabel(popup, text="Odoslane review", font=LARGE_FONT)
             label.pack()
             popup.mainloop()
