@@ -2,7 +2,16 @@ from datetime import datetime
 
 class Visitor:
     def __init__(self, id, name, surname, cardId, carTag, company, count, reason, arrival=None, departure=None, signature=None, review=None):
-        self.id = id
+        date = datetime.now()
+        date.year
+        date.month
+        date.day
+        date.minute
+        date.second
+        if id is None:
+            self.id = self.generateId(date)
+        else: 
+            self.id = id
         self.name = name
         self.surname = surname
         self.cardId = cardId
@@ -10,17 +19,20 @@ class Visitor:
         self.company = company
         self.count = count
         self.reasonOfVisit = reason
-        self.arrival = arrival if arrival is not None else datetime.now().strftime("%d-%m-%Y %H:%M")    #formátovanie času deň-mesiac-rok hodina:minúta
+        self.arrival = arrival if arrival is not None else date.strftime("%d-%m-%Y %H:%M")    #formátovanie času deň-mesiac-rok hodina:minúta
         self.departure = departure
         self.signature = signature
         self.review = review                    #zmení sa po prijatí spravy od komunikácie
+
+    def generateId(self, date):
+        id = str(date.year)[2:] + str(date.month) + str(date.day) + str(date.minute) + str(date.second)
+        return int(id)
 
     def getId(self):
         return self.id
     
     def getDataToWrite(self):
         data_string = f"{self.id};{self.name};{self.surname};{self.cardId};{self.carTag};{self.company};{self.count};{self.reasonOfVisit};{self.arrival}"
-        
         # pridaj departure, signature, and review ak bude dostupné
         if self.departure:
             data_string += f";{self.departure}"
@@ -55,18 +67,3 @@ class Visitor:
         if reason is not None:
             self.reasonOfVisit = reason
     
-    def removeVisitor(self, id):
-        with open(self.path, "a+") as file:
-            file.seek(0)
-            lines = file.readlines()
-            if 1 <= id <= len(lines):
-                lines[id] = ""      #id je zatiaľ rovnaké ako pozícia riadku v texte
-                self.numOfLines -= 1
-                with open(self.path, 'w') as file:
-                    file.seek(0)
-                    file.writelines(lines)
-                file.close()
-                print(f"Line {id} deleted successfully.")
-            else:
-                print("Invalid line number.")
-        file.close()
