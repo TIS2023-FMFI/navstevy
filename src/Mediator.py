@@ -102,10 +102,10 @@ class Mediator:
             self.allVisitors.append(visitor)
 
 # Example
-m = Mediator()
-m.addVisitor('Lara', 'Taka', 1, 'BL000BS', 'Nic', 2, 2)
-findId = m.getVisitors()[5].getId()
-m.editVisitor(findId, "Sarah")
+#m = Mediator()
+#m.addVisitor('Lara', 'Taka', 1, 'BL000BS', 'Nic', 2, 2)
+#findId = m.getVisitors()[5].getId()
+#m.editVisitor(findId, "Sarah")
 # m.addVisitor('Laura', 'Zemiakova', 1, 'KE999BS', 'Nieco', 1, 1)
 # m.addVisitor('Peter', 'Zemiak', 1, 'DS111SD', 'StaleNic', 200, 3)
 # zoz = m.filter(None, None, "ó")
