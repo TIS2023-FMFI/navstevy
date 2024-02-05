@@ -15,7 +15,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.safety_presentation"
-        minSdk = 33
+        minSdk = 26
         targetSdk = 33
         versionCode = 1
         versionName = "1.0"

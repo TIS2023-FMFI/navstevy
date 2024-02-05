@@ -36,6 +36,7 @@ class ConfirmationFragment : Fragment() {
         bind.apply {
             button4.setOnClickListener {
                 val action = ConfirmationFragmentDirections.actionConfirmationFragmentToPresentationFragment()
+                mainActivity.communication.send_progress(0)
                 Navigation.findNavController(it).navigate(action)
             }
 
@@ -45,6 +46,7 @@ class ConfirmationFragment : Fragment() {
                 view.draw(canvas)
                 val action = ConfirmationFragmentDirections.actionConfirmationFragmentToTextFragment()
                 action.message = "con"
+                mainActivity.communication.send_signature(resizeBitmap(bitmap, 0.25f))
                 Navigation.findNavController(it).navigate(action)
             }
         }
@@ -58,5 +60,15 @@ class ConfirmationFragment : Fragment() {
         super.onAttach(context)
         mainActivity = context as MainActivity
 
+    }
+
+    fun resizeBitmap(originalBitmap: Bitmap, k: Float): Bitmap {
+        val originalWidth = originalBitmap.width
+        val originalHeight = originalBitmap.height
+
+        val newWidth = (originalWidth * k).toInt()
+        val newHeight = (originalHeight * k).toInt()
+
+        return Bitmap.createScaledBitmap(originalBitmap, newWidth, newHeight, true)
     }
 }

@@ -7,8 +7,11 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.fragment.NavHostFragment
 import com.example.safety_presentation.databinding.FragmentConfirmationBinding
 import com.example.safety_presentation.databinding.FragmentTextBinding
+import java.util.Timer
+import kotlin.concurrent.schedule
 
 class TextFragment : Fragment() {
     lateinit var bind : FragmentTextBinding
@@ -40,7 +43,18 @@ class TextFragment : Fragment() {
                 bind.tv.text = "We have notified the employee of the wrongly inputed data"
             }
             else{
-                bind.tv.text = "Informovali sme zamestnanca ohladom zle zadaných dát"
+                bind.tv.text = "Informovali sme zamestnanca ohľadom zle zadaných dát"
+            }
+        }
+        val timer = Timer()
+        println("Prisiel som na text fragment")
+        timer.schedule(1000 * 5) {
+
+            mainActivity.runOnUiThread(){
+                println("Vraciam saaaa")
+                val action = TextFragmentDirections.actionTextFragmentToScreenSaverFragment()
+                val controller = NavHostFragment.findNavController(this@TextFragment)
+                controller.navigate(action)
             }
         }
     }
