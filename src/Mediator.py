@@ -10,6 +10,7 @@ class Mediator:
         self.visitors = []      # TODO pridávanie neodhlásených z predošlého dňa
         self.file = cf.CustomFile('../src/files/testFile.csv')  # TODO nastavnie správnej cesty pre ich potreby
         self.allVisitors = []
+        self.leftWaitingForReview = []
         self.saveAllVisits()
         try:
             self.communication = Communication()
@@ -17,7 +18,7 @@ class Mediator:
             self.communication = None
         
     def addVisitor(self, name, surname, cardId, carTag, company, count, reason):
-        visitor = vis.Visitor(self.generateId(), name, surname, cardId, carTag, company, count, reason)
+        visitor = vis.Visitor(None, name, surname, cardId, carTag, company, count, reason)
         self.file.writeVisitor(visitor.getDataToWrite())  # zapíše visitora do súboru
         self.visitors.append(visitor)
 
@@ -33,26 +34,24 @@ class Mediator:
         else:
             self.file.edit(id, changedVisiotor)
 
-    def departureVisitor(self, id, review):
+    def departureVisitor(self, id):
         for vis in self.visitors[:]:
             if vis.id == id:
                 self.visitors.remove(vis)
+                self.leftWaitingForReview.append(vis)
                 vis.registerDeparture(vis)      
-
-    def generateId(self):  # TODO vygenerovanie unikátneho id pre každý zápis. Zatiaľ takto:
-        return self.file.numOfLines
 
     def getVisitors(self):
         return self.visitors
 
-    def isSimillar(self, partialString, correctString):             #not using
-        partialStringCleaned = partialString.lower().translate(str.maketrans("", "", string.punctuation))
-        correctStringCleaned = correctString.lower().translate(str.maketrans("", "", string.punctuation))
-        close_matches = difflib.get_close_matches(partialStringCleaned, [correctStringCleaned], n=1, cutoff=0.8)
-        if close_matches:
-            return close_matches[0]
-        else:
-            return None
+    # def isSimillar(self, partialString, correctString):             #not using
+    #     partialStringCleaned = partialString.lower().translate(str.maketrans("", "", string.punctuation))
+    #     correctStringCleaned = correctString.lower().translate(str.maketrans("", "", string.punctuation))
+    #     close_matches = difflib.get_close_matches(partialStringCleaned, [correctStringCleaned], n=1, cutoff=0.8)
+    #     if close_matches:
+    #         return close_matches[0]
+    #     else:
+    #         return None
 
     def contains(self, partialString, correctString):
         partialStringCleaned = unidecode.unidecode(partialString.lower().translate(str.maketrans("", "", string.punctuation)))
@@ -60,7 +59,6 @@ class Mediator:
         if partialStringCleaned in correctStringCleaned:
             return True
         return False
-
 
     def filter(self, dateFrom = None, dateTo = None, name = None, surname = None, company = None): 
         filteredList = self.allVisitors.copy()        
@@ -91,7 +89,6 @@ class Mediator:
             filteredList = [visitor for visitor in filteredList if self.contains(company, visitor.company) == True]
         return filteredList
 
-
     def saveAllVisits(self):
         temp = self.file.readData()
         self.allVisitors.clear()
@@ -105,8 +102,10 @@ class Mediator:
             self.allVisitors.append(visitor)
 
 # Example
-# m = Mediator()
-# m.addVisitor('Nina', 'Mrkvickova', 1, 'BL000BS', 'Nic', 2, 2)
+m = Mediator()
+m.addVisitor('Lara', 'Taka', 1, 'BL000BS', 'Nic', 2, 2)
+findId = m.getVisitors()[5].getId()
+m.editVisitor(findId, "Sarah")
 # m.addVisitor('Laura', 'Zemiakova', 1, 'KE999BS', 'Nieco', 1, 1)
 # m.addVisitor('Peter', 'Zemiak', 1, 'DS111SD', 'StaleNic', 200, 3)
 # zoz = m.filter(None, None, "ó")

@@ -2,26 +2,14 @@ class CustomFile:
     def __init__(self, path):   
         self.path = path
         try:
-            file = open(path, "a+", encoding="utf-8")  # Use "a+" to open the file for both reading and appending
+            file = open(path, "r", encoding="utf-8")  # Use "a+" to open the file for both reading and appending
         except OSError as e:
             print(f"Error opening file {path}: {e}")
-        self.numOfLines = self.getNumOfLines()
         file.close()
-
-    def getNumOfLines(self): 
-        with open(self.path, "r",encoding="utf-8") as file:
-            file.seek(0)
-            data = file.readlines()
-            num = len(data)
-            if num == 1 and data[0] == "": 
-                return 0
-        file.close()
-        return num
 
     def writeVisitor(self, data):
         with open(self.path, "a+",encoding="utf-8") as file:
             file.write(data)
-            self.numOfLines += 1    # dôležité pre generovanie správneho ID
         file.close()
     
     def readData(self):
@@ -33,33 +21,45 @@ class CustomFile:
         return dataInStrings
 
     def edit(self, id, visitor):
-        with open(self.path, "a+",encoding="utf-8") as file:
+        with open(self.path, "r",encoding="utf-8") as file:
             file.seek(0)
             lines = file.readlines()
-            if 0 <= id <= len(lines):
-                lines[id] = visitor.getDataToWrite()      #id je zatiaľ rovnaké ako pozícia riadku v texte
-                with open(self.path, 'w',encoding="utf-8") as file:
-                    file.seek(0)
-                    file.writelines(lines)
-                file.close()
-                print(f"Line {id} replaced successfully.")
+            lineCount = 0
+            lineToChange = -1
+            for line in lines:
+                foundId = int(line.strip().split(';')[0])
+                if foundId == id:
+                    lineToChange = lineCount
+                    break
+                lineCount += 1
+            if lineToChange == -1: 
+                 print("Invalid ID.")
             else:
-                print("Invalid line number.")
+                with open(self.path, "w",encoding="utf-8") as file2:
+                    lines[lineToChange] = visitor.getDataToWrite()
+                    file.seek(0)
+                    file2.writelines(lines)
+                    file2.close()
         file.close()
 
-    def removeVisitor(self, id):            #ak chceme aby fungovalo treba zmeniť systém ID
-        with open(self.path, "a+",encoding="utf-8") as file:
+    def removeVisitor(self, id):
+        with open(self.path, "r",encoding="utf-8") as file:
             file.seek(0)
             lines = file.readlines()
-            if 1 <= id <= len(lines):
-                lines[id] = ""      #id je zatiaľ rovnaké ako pozícia riadku v texte
-                self.numOfLines -= 1
-                with open(self.path, 'w',encoding="utf-8") as file:
-                    file.seek(0)
-                    file.writelines(lines)
-                file.close()
-                print(f"Line {id} deleted successfully.")
+            lineCount = 0
+            lineToChange = -1
+            for line in lines:
+                foundId = int(line.strip().split()[0])
+                if foundId == id:
+                    lineToChange = lineCount
+                    break
+                lineCount += 1
+            if lineToChange == -1: 
+                 print("Invalid ID.")
             else:
-                print("Invalid line number.")
+                with open(self.path, "w",encoding="utf-8") as file2:
+                    lines[lineToChange] = ""
+                    file.seek(0)
+                    file2.writelines(lines)
+                    file2.close()
         file.close()
-
