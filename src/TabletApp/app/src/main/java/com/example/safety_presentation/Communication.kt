@@ -1,18 +1,13 @@
-import android.os.Build
-import androidx.annotation.RequiresApi
 import com.example.safety_presentation.MainActivity
 import java.io.OutputStream
-import java.lang.Thread.sleep
 import java.net.ServerSocket
 import java.net.Socket
 import android.graphics.Bitmap
 import android.graphics.Color
-import android.media.Rating
-import android.os.AsyncTask
+import androidx.core.graphics.get
 import androidx.core.graphics.toColor
+import java.io.InputStream
 import java.nio.ByteBuffer
-import java.security.Signature
-import kotlin.math.sign
 
 
 var IP_ADDRESS = "localhost"
@@ -48,7 +43,7 @@ class Communication(val mainActivity: MainActivity) {
 
             // Close the socket
             socket.close()
-            println("Sending wrong data")
+            println("---> Sending wrong data")
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -68,7 +63,7 @@ class Communication(val mainActivity: MainActivity) {
 
             // Close the socket
             socket.close()
-            println("Sending progress")
+            println("---> Sending progress")
         } catch (e: Exception) {
             println(e.toString())
         }
@@ -89,7 +84,7 @@ class Communication(val mainActivity: MainActivity) {
 
             // Close the socket
             socket.close()
-            println("Sending rating")
+            println("---> Sending rating")
         } catch (e: Exception) {
             println(e.toString())
         }
@@ -104,17 +99,16 @@ class Communication(val mainActivity: MainActivity) {
 
             // Get the output stream from the socket
             val outputStream: OutputStream = socket.getOutputStream()
-            println("Posielam podpis")
             println(signature.width)
             println(signature.height)
             // Write raw bytes to the output stream
             outputStream.write(MessageType.SIGNATURE.message_code)
 
-            outputStream.write(intToByteArray(signature.width))
-            outputStream.write(intToByteArray(signature.height))
+            outputStream.write(int_to_byte_array(signature.width))
+            outputStream.write(int_to_byte_array(signature.height))
             (0 until signature.height).forEach {y ->
                 (0 until signature.width).forEach { x ->
-                    val color = signature.getColor(x, y)
+                    val color = Color.valueOf(signature.get(x, y))
                     if (color == Color.BLACK.toColor()) {
                         outputStream.write(0)
                     }
@@ -126,7 +120,7 @@ class Communication(val mainActivity: MainActivity) {
 
             // Close the socket
             socket.close()
-            println("Sending signature")
+            println("---> signature")
 
         } catch (e: Exception) {
             println(e.toString())
@@ -148,7 +142,7 @@ class Communication(val mainActivity: MainActivity) {
 
             // Close the socket
             socket.close()
-            println("Sending error")
+            println("---> Sending error")
         } catch (e: Exception) {
             println(e.toString())
         }
@@ -172,26 +166,25 @@ class Communication(val mainActivity: MainActivity) {
             // Start presentation
             if (message_code == MessageType.PRESENTATION_START.message_code) {
                 val data_lenght = input_stream.read()
-                val visitor_string = input_stream.readNBytes(data_lenght).decodeToString()
+                val visitor_string = read_n_bytes(input_stream, data_lenght).decodeToString()
                 val visitor = Visitor("true;" + visitor_string)
-                println("Visitor prišiel")
+                println("<--- Visitor prišiel")
                 return visitor
             }
 
             // Start rating
             if (message_code == MessageType.RATING_START.message_code) {
-                println("Spustam review")
                 val data_lenght = input_stream.read()
-                val visitor_string = input_stream.readNBytes(data_lenght).decodeToString()
+                val visitor_string = read_n_bytes(input_stream, data_lenght).decodeToString()
                 println(visitor_string)
                 val visitor = Visitor("false;" + visitor_string)
-                println("Visitor odchadza")
+                println("<--- Visitor odchadza")
                 return visitor
             }
 
             // End presentation
             else if (message_code == MessageType.PRESENTATION_END.message_code) {
-                println("Ukonči prezentáciu")
+                println("<--- Ukonči prezentáciu")
                 return null
             }
             socket.close()
@@ -203,9 +196,17 @@ class Communication(val mainActivity: MainActivity) {
         return null
     }
 
-    private fun intToByteArray(value: Int): ByteArray {
+    private fun int_to_byte_array(value: Int): ByteArray {
         val buffer = ByteBuffer.allocate(4)
         buffer.putInt(value)
         return buffer.array()
+    }
+
+    private fun read_n_bytes(input_stream: InputStream, n: Int): ByteArray {
+        val byte_array = ByteArray(n)
+        (0 until n).forEach {
+            byte_array[it] = input_stream.read().toByte()
+        }
+        return byte_array
     }
 }
