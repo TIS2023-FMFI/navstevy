@@ -1,9 +1,6 @@
 import customtkinter as ctk
 import Mediator as med
 import CTkTable as t
-import Visitor
-from Communication import Communication
-from threading import Thread
 
 BASE_FG_COLOR = '#343638'
 LARGE_FONT = ("times new roman", 12)
@@ -71,6 +68,7 @@ class MainMenu(ctk.CTkFrame):
             button.place(x=window_width/2 - button.winfo_width()/2, y=window_height*0.1 + 200)
             button2.place(x=window_width/2 - button2.winfo_width()/2, y=window_height*0.1 + 250)
             button3.place(x=window_width/2 - button3.winfo_width()/2, y=window_height*0.1 + 300)
+
         self.bind('<Configure>', update_position)
         
 class Entry(ctk.CTkFrame):
@@ -154,61 +152,20 @@ class Entry(ctk.CTkFrame):
             company = self.company.get()
             group_size = int(self.group_size.get())
             visit_reason = self.visit_reason.get()
-
-            
-        
-            # komunikacia 
-            mediator:med.Mediator = self.controller.mediator
-
-            # kontrola funkcnosti konunikacie
-            if mediator.communication is None:
-                # TODO dať informáciu o nepripojenom zariadení
-                ...
-
-
-            # Vytvor visitora
-            temporary_visitor = Visitor.Visitor(0, name, surname, card_id, car_num, company, group_size, visit_reason)
-            
-            # Cakaj odpovede z prezentacia a reaguj na to, ked je koniec tak toto cele skonci
-            # v state, data budu ulezene vsetky info
-            state, data = mediator.communication.send_start_presentation(temporary_visitor)
-            while state == Communication.message_code["progress"]:
-                state_data_result = []
-                thread = Thread(target=mediator.communication.recieve, args=(state_data_result,))
-                thread.start()
-                while not state_data_result:
-                    self.update()
-                     
-                state, data = tuple(state_data_result)
-                print(state, data)
-                thread.join()
-                
-
-
-            if state == Communication.message_code["wrong_data"]:
-                ## TODO treba upravit udaje Visitora, pretoze boli zaslané zlé údaje
-                ...
-
-            elif state == Communication.message_code["signature"]:
-                ## TODO prezentacia prebehla v poriadku
-                ## data je PIL obrazok podpisu
-
-                ...
-            elif state == Communication.message_code["error"]:
-                ## TODO nastala nejaká chyba
-                ## data je dôvod chyby, ktorý stačí niekde vypísať
-                ## Bud chyba spojenia
-                ## alebo timout 60s 
-                ...
-
-
-            ## Toto az po prezentacii
-            self.controller.mediator.addVisitor(name, surname, card_id, car_num, company, group_size, visit_reason)
-            # todo dorobit aby sa refreshli tables
-
-
-
-
+            state = self.controller.mediator.addVisitor(name, surname, card_id, car_num, company, group_size, visit_reason)
+            # visitor je úspešne pridaný 
+            if state == "signature":
+                print("Visitor and signature saved.")
+            # visitor sa nepridal
+            elif state == "error":
+                # TODO nastala nejaká chyba
+                # data je dôvod chyby, ktorý stačí niekde vypísať
+                # Bud chyba spojenia
+                # alebo timout 60s  
+                print("Error...")
+            elif state == "wrong_data":
+                # TODO treba upraviť zadané info a znova poslať na kontrolu
+                print("Wrong data...")
             # TODO dorobit POPUP visitor sa prida az po odkontrolovani
             '''if checked():
                     self.goBack()
