@@ -29,8 +29,6 @@ def atributes_to_dictionary(atributes: list[str]):
         output_dictionary[atribute] = value
     
     return output_dictionary
-        
-
 
 if __name__ == "__main__":
     ipconfig_all()

@@ -33,13 +33,14 @@ class CustomFile:
                     break
                 lineCount += 1
             if lineToChange == -1: 
-                 print("Invalid ID.")
+                print(f"There is no visitor with {id} ID curently on site.")
             else:
                 with open(self.path, "w",encoding="utf-8") as file2:
                     lines[lineToChange] = visitor.getDataToWrite()
                     file.seek(0)
                     file2.writelines(lines)
                     file2.close()
+                    f"Visitor {id} changed successfully!"
         file.close()
 
     def removeVisitor(self, id):
@@ -55,11 +56,12 @@ class CustomFile:
                     break
                 lineCount += 1
             if lineToChange == -1: 
-                 print("Invalid ID.")
+                print(f"There is no visitor with {id} ID curently on site.")
             else:
                 with open(self.path, "w",encoding="utf-8") as file2:
                     lines[lineToChange] = ""
                     file.seek(0)
                     file2.writelines(lines)
                     file2.close()
+                    print(f"Visitor {id} removed successfully!")
         file.close()
