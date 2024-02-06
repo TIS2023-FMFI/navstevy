@@ -1,6 +1,5 @@
 import Visitor as vis
 import CustomFile as cf
-import difflib
 import string
 import unidecode
 from Communication import Communication
@@ -24,12 +23,12 @@ class Mediator:
         
     def addVisitor(self, name, surname, cardId, carTag, company, count, reason):
         visitor = vis.Visitor(None, name, surname, cardId, carTag, company, count, reason)
-        # state = self.startPresentation(visitor)
-        # if state == "signature":
-        self.file.writeVisitor(visitor.getDataToWrite())  # zapíše visitora do súboru
-        self.visitors.append(visitor)
-        #     return state
-        # return state
+        state = self.startPresentation(visitor)
+        if state == "signature":
+            self.file.writeVisitor(visitor.getDataToWrite())  # zapíše visitora do súboru
+            self.allVisitors.append(visitor)
+            self.visitors.append(visitor)
+        return state
         
     def editVisitor(self, id, name = None, surname = None, cardId = None, carTag = None, company = None, count = None, reason = None):
         changedVisiotor = None
@@ -42,12 +41,24 @@ class Mediator:
             print("We do not have this visitor right now!")
         else:
             self.file.edit(id, changedVisiotor)
+            for vis in self.allVisitors:
+                if vis.getId() == id:
+                    vis.edit(name, surname, cardId, carTag, company, count, reason)
 
     def departureVisitor(self, id):
         for vis in self.visitors[:]:
             if vis.id == id:
                 self.visitors.remove(vis)
-                vis.registerDeparture(vis)      
+                vis.registerDeparture(vis)
+                self.startReview(vis)      
+                self.updateAllVisitors(id)
+                break
+    
+    def updateAllVisitors(self, id):
+        for vis in self.allVisitors:
+            if vis.getId() == id:
+                vis.setDepartureInfo(*vis.getDepartureInfo())
+                break
 
     def getVisitors(self):
         return self.visitors
@@ -135,6 +146,7 @@ class Mediator:
 
         if state == Communication.message_code["review"]:
             visitor.addReview(data)
+            self.updateAllVisitors()
         elif state == Communication.message_code["error"]:
             print(state)
         return state
