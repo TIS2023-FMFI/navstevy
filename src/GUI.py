@@ -396,10 +396,6 @@ class Visit_History(ctk.CTkFrame):
         self.table.configure(rows=len(self.controller.visitors))
         self.table.update_values(self.listVisitors())
 
-
-
-
-
     def goBack(self):
         self.controller.show_frame(MainMenu)
 
