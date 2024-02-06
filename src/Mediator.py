@@ -3,18 +3,32 @@ import CustomFile as cf
 import difflib
 import string
 import unidecode
+from Communication import Communication
+from threading import Thread
+from PIL import Image
 
 class Mediator:
+    OUTPUT_PATH = 'src/files/signatures' # TODO nastavnie správnej cesty pre ich potreby
     def __init__(self):
         self.visitors = []      # TODO pridávanie neodhlásených z predošlého dňa
-        self.file = cf.CustomFile('../navstevy/src/files/testFile.csv')  # TODO nastavnie správnej cesty pre ich potreby
+        self.file = cf.CustomFile('src/files/testFile.csv')  # TODO nastavnie správnej cesty pre ich potreby
         self.allVisitors = []
         self.saveAllVisits()
+        try:
+            self.communication = Communication()
+        except:
+            self.communication = None
+             # TODO dať informáciu o nepripojenom zariadení
         
     def addVisitor(self, name, surname, cardId, carTag, company, count, reason):
-        visitor = vis.Visitor(self.generateId(), name, surname, cardId, carTag, company, count, reason)
-        self.file.writeVisitor(visitor.getDataToWrite())  # zapíše visitora do súboru
-        self.visitors.append(visitor)
+        visitor = vis.Visitor(None, name, surname, cardId, carTag, company, count, reason)
+        state = self.startPresentation(visitor)
+        if state == "signature":
+            self.file.writeVisitor(visitor.getDataToWrite())  # zapíše visitora do súboru
+            self.visitors.append(visitor)
+            return state
+        return state
+        
 
     def editVisitor(self, id, name = None, surname = None, cardId = None, carTag = None, company = None, count = None, reason = None):
         changedVisiotor = None
@@ -28,26 +42,14 @@ class Mediator:
         else:
             self.file.edit(id, changedVisiotor)
 
-    def departureVisitor(self, id, review):
+    def departureVisitor(self, id):
         for vis in self.visitors[:]:
             if vis.id == id:
                 self.visitors.remove(vis)
                 vis.registerDeparture(vis)      
 
-    def generateId(self):  # TODO vygenerovanie unikátneho id pre každý zápis. Zatiaľ takto:
-        return self.file.numOfLines
-
     def getVisitors(self):
         return self.visitors
-
-    def isSimillar(self, partialString, correctString):             #not using
-        partialStringCleaned = partialString.lower().translate(str.maketrans("", "", string.punctuation))
-        correctStringCleaned = correctString.lower().translate(str.maketrans("", "", string.punctuation))
-        close_matches = difflib.get_close_matches(partialStringCleaned, [correctStringCleaned], n=1, cutoff=0.8)
-        if close_matches:
-            return close_matches[0]
-        else:
-            return None
 
     def contains(self, partialString, correctString):
         partialStringCleaned = unidecode.unidecode(partialString.lower().translate(str.maketrans("", "", string.punctuation)))
@@ -55,7 +57,6 @@ class Mediator:
         if partialStringCleaned in correctStringCleaned:
             return True
         return False
-
 
     def filter(self, dateFrom = None, dateTo = None, name = None, surname = None, company = None): 
         filteredList = self.allVisitors.copy()        
@@ -86,7 +87,6 @@ class Mediator:
             filteredList = [visitor for visitor in filteredList if self.contains(company, visitor.company) == True]
         return filteredList
 
-
     def saveAllVisits(self):
         temp = self.file.readData()
         self.allVisitors.clear()
@@ -99,9 +99,50 @@ class Mediator:
                 self.visitors.append(visitor)
             self.allVisitors.append(visitor)
 
+    def startPresentation(self, temporaryVisitor):
+        # Cakaj odpovede z prezentacia a reaguj na to, ked je koniec tak toto cele skonci
+        # v state, data budu ulezene vsetky info
+        state, data = self.communication.send_start_presentation(temporaryVisitor)
+        while state == Communication.message_code["progress"]:
+            state_data_result = []
+            thread = Thread(target=self.communication.recieve, args=(state_data_result,))
+            thread.start()
+            while not state_data_result:
+                self.update()
+            state, data = tuple(state_data_result)
+            print(state, data)
+            thread.join()
+        
+        if state == Communication.message_code["signature"]:
+            ## data je PIL obrazok podpisu
+            data.save(self.OUTPUT_PATH + str(temporaryVisitor.getID()) + '.jpg')        #zapíše obrázok do súboru s ID visitora ako názov
+        elif state == Communication.message_code["error"]:
+            print(state)
+        return state
+    
+    def startReview(self, visitor):
+        state, data = self.communication.send_start_review(visitor)
+        while state == Communication.message_code["progress"]:
+            state_data_result = []
+            thread = Thread(target=self.communication.recieve, args=(state_data_result,))
+            thread.start()
+            while not state_data_result:
+                self.update()
+            state, data = tuple(state_data_result)
+            print(state, data)
+            thread.join()
+
+        if state == Communication.message_code["review"]:
+            visitor.addReview(data)
+        elif state == Communication.message_code["error"]:
+            print(state)
+        return state
+
 # Example
 # m = Mediator()
-# m.addVisitor('Nina', 'Mrkvickova', 1, 'BL000BS', 'Nic', 2, 2)
+# m.addVisitor('Lara', 'Taka', 1, 'BL000BS', 'Nic', 2, 2)
+# findId = m.getVisitors()[5].getId()
+# m.editVisitor(findId, "Sarah")
 # m.addVisitor('Laura', 'Zemiakova', 1, 'KE999BS', 'Nieco', 1, 1)
 # m.addVisitor('Peter', 'Zemiak', 1, 'DS111SD', 'StaleNic', 200, 3)
 # zoz = m.filter(None, None, "ó")

@@ -50,6 +50,9 @@
         <action
             android:id="@+id/action_presentationFragment_to_confirmationFragment"
             app:destination="@id/confirmationFragment" />
+        <action
+            android:id="@+id/action_presentationFragment_to_screenSaverFragment"
+            app:destination="@id/screenSaverFragment" />
     </fragment>
     <fragment
         android:id="@+id/ratingFragment"
