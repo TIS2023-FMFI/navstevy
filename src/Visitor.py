@@ -66,4 +66,6 @@ class Visitor:
             self.count = count
         if reason is not None:
             self.reasonOfVisit = reason
-    
+
+    def addReview(self, review):
+        self.review = review
