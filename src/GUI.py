@@ -15,7 +15,7 @@ class MainScreen(ctk.CTk):
         self.width = 1200
         self.height = 600
         self.mediator = mediator
-        self.minsize(500, 500)
+        self.minsize(620, 620)
 
         self.visitors = mediator.allVisitors
         self.ongoingVisitors = mediator.visitors
@@ -87,41 +87,41 @@ class Entry(ctk.CTkFrame):
 
         frame = ctk.CTkFrame(self,width=400,height=400)
 
-        label = ctk.CTkLabel(frame, text="Zapis Navstevy", font=VERY_LARGE_FONT)
+        label = ctk.CTkLabel(frame, text="Zápis Návštevy", font=VERY_LARGE_FONT)
         label.place(relx=0.3,y=10)
 
-        self.lname = ctk.CTkLabel(frame, text="Meno:")
-        self.lname.place(x=160,y=75)
+        lname = ctk.CTkLabel(frame, text="Meno:")
+        lname.place(x=160,y=75)
         self.name = ctk.CTkEntry(frame, placeholder_text="meno")
         self.name.place(x=200,y=75)
 
-        self.lsurname = ctk.CTkLabel(frame, text="Priezvisko:")
-        self.lsurname.place(x=135,y=110)
+        lsurname = ctk.CTkLabel(frame, text="Priezvisko:")
+        lsurname.place(x=135,y=110)
         self.surname = ctk.CTkEntry(frame, placeholder_text="priezvisko")
         self.surname.place(x=200,y=110)
 
-        self.lcard_id = ctk.CTkLabel(frame, text="Id karty:")
-        self.lcard_id.place(x=150,y=145)
+        lcard_id = ctk.CTkLabel(frame, text="Id karty:")
+        lcard_id.place(x=150,y=145)
         self.card_id = ctk.CTkEntry(frame, placeholder_text="id karty")
         self.card_id.place(x=200,y=145)
 
-        self.lcar_num = ctk.CTkLabel(frame, text="Spz:")
-        self.lcar_num.place(x=170,y=180)
+        lcar_num = ctk.CTkLabel(frame, text="Spz:")
+        lcar_num.place(x=170,y=180)
         self.car_num = ctk.CTkEntry(frame, placeholder_text="spz")
         self.car_num.place(x=200,y=180)
 
-        self.lcompany = ctk.CTkLabel(frame, text="Firma:")
-        self.lcompany.place(x=160,y=215)
+        lcompany = ctk.CTkLabel(frame, text="Firma:")
+        lcompany.place(x=160,y=215)
         self.company = ctk.CTkEntry(frame, placeholder_text="firma")
         self.company.place(x=200,y=215)
 
-        self.lgroup_size = ctk.CTkLabel(frame, text="Počet ľudí v skupine:")
-        self.lgroup_size.place(x=80,y=250)
+        lgroup_size = ctk.CTkLabel(frame, text="Počet ľudí v skupine:")
+        lgroup_size.place(x=80,y=250)
         self.group_size = ctk.CTkEntry(frame, placeholder_text="počet ľudí v skupine")
         self.group_size.place(x=200,y=250)
 
-        self.lvisit_reason = ctk.CTkLabel(frame, text="Dôvod návštevy:")
-        self.lvisit_reason.place(x=103, y=285)
+        lvisit_reason = ctk.CTkLabel(frame, text="Dôvod návštevy:")
+        lvisit_reason.place(x=103, y=285)
         self.visit_reason = ctk.CTkOptionMenu(frame, values=self.controller.options)
         self.visit_reason.place(x=200,y=285)
 
@@ -166,6 +166,8 @@ class Entry(ctk.CTkFrame):
             company = self.company.get()
             group_size = int(self.group_size.get())
             visit_reason = self.visit_reason.get()
+
+
             state = self.controller.mediator.addVisitor(name, surname, card_id, car_num, company, group_size, visit_reason)
             # visitor je úspešne pridaný 
             if state == "signature":
@@ -181,9 +183,6 @@ class Entry(ctk.CTkFrame):
                 # TODO treba upraviť zadané info a znova poslať na kontrolu
                 print("Wrong data...")
             # TODO dorobit POPUP visitor sa prida az po odkontrolovani
-            '''if checked():
-                    self.goBack()
-            '''
             self.controller.show_frame(Control)
 
     def badEntry(self, entry):
@@ -365,51 +364,82 @@ class Ongoing(ctk.CTkFrame):
 
 
 class Visit_History(ctk.CTkFrame):
-    #TODO celkovo dizajn
+    #TODO upravit dizajn table (datum, dovod navstevy)
     def __init__(self, parent, controller):
         self.controller = controller
         ctk.CTkFrame.__init__(self, parent)
-        label = ctk.CTkLabel(self, text="Historia Navstev", font=LARGE_FONT)
-        label.pack(pady=10, padx=10)
+
 
         if self.controller.visitors is None:
             self.controller.visitors = self.listVisitors(m.allVisitors)
-        # TODO priradit sort na labels
-        self.lname = ctk.CTkLabel(self, text="meno")
-        self.lname.pack()
-        self.lsurname = ctk.CTkLabel(self, text="priezvisko")
-        self.lsurname.pack()
-        self.lcompany = ctk.CTkLabel(self, text="firma")
-        self.lcompany.pack()
-        self.larrival = ctk.CTkLabel(self, text="prichod")
-        self.larrival.pack()
-        self.ldeparture = ctk.CTkLabel(self, text="odchod")
-        self.ldeparture.pack()
 
-        self.name = ctk.CTkEntry(self, placeholder_text="meno")
-        self.name.pack()
-        self.surname = ctk.CTkEntry(self, placeholder_text="priezvisko")
-        self.surname.pack()
-        self.company = ctk.CTkEntry(self, placeholder_text="firma")
-        self.company.pack()
-        self.arrival = ctk.CTkEntry(self, placeholder_text="prichod")
-        self.arrival.pack()
-        self.departure = ctk.CTkEntry(self, placeholder_text="odchod")
-        self.departure.pack()
+        frame = ctk.CTkFrame(self, width=800,height=600)
 
+        label = ctk.CTkLabel(frame, text="História Návštev", font=VERY_LARGE_FONT)
+        label.place(y=20, relx=0.35)
 
-        scrollable_frame = ctk.CTkScrollableFrame(self,width=800)
-        scrollable_frame.pack()
+        lname = ctk.CTkLabel(frame, text="Meno:")
+        lname.place(x=112,y=100)
+        self.name = ctk.CTkEntry(frame, placeholder_text="meno")
+        self.name.place(x=150,y=100)
+
+        lsurname = ctk.CTkLabel(frame, text="Priezvisko:")
+        lsurname.place(x=335,y=100)
+        self.surname = ctk.CTkEntry(frame, placeholder_text="priezvisko")
+        self.surname.place(x=400,y=100)
+
+        lcompany = ctk.CTkLabel(frame, text="Firma:")
+        lcompany.place(x=580,y=100)
+        self.company = ctk.CTkEntry(frame, placeholder_text="firma")
+        self.company.place(x=620,y=100)
+
+        larrival = ctk.CTkLabel(frame, text="Príchod:")
+        larrival.place(x=100,y=150)
+        self.arrival = ctk.CTkEntry(frame, placeholder_text="dd.mm.???")
+        self.arrival.place(x=150,y=150)
+
+        ldeparture = ctk.CTkLabel(frame, text="Odchod:")
+        ldeparture.place(x=348,y=150)
+        self.departure = ctk.CTkEntry(frame, placeholder_text="dd.mm.???")
+        self.departure.place(x=400,y=150)
+
+        filter = ctk.CTkButton(frame, text="Filter", command=lambda: self.filterVisitors())
+        filter.place(x=620, y=150)
+
+        sname = ctk.CTkLabel(frame, text="Meno")
+        sname.place(x=12, y=200)
+        ssurname = ctk.CTkLabel(frame, text="Priezvisko")
+        ssurname.place(x=112, y=200)
+        scompany = ctk.CTkLabel(frame, text="Firma")
+        scompany.place(x=212, y=200)
+        scardid = ctk.CTkLabel(frame, text="Id karta")
+        scardid.place(x=312, y=200)
+        scartag = ctk.CTkLabel(frame, text="Špz")
+        scartag.place(x=412, y=200)
+        sreason = ctk.CTkLabel(frame, text="Dôvod návštevy")
+        sreason.place(x=512, y=200)
+        sarrival = ctk.CTkLabel(frame, text="Príchod")
+        sarrival.place(x=612, y=200)
+        sdeparture = ctk.CTkLabel(frame, text="Odchod")
+        sdeparture.place(x=712, y=200)
+        sreview = ctk.CTkLabel(frame, text="Recenzia")
+        sreview.place(x=762, y=200)
+
+        scrollable_frame = ctk.CTkScrollableFrame(frame,width=800)
+        scrollable_frame.place(relx=0,rely=0.4)
         self.table = t.CTkTable(scrollable_frame, row=len(self.controller.visitors), column=9, values=self.listVisitors())
         self.table.pack()
+        self.table.edit_column(3,width=100)
 
-        filter = ctk.CTkButton(self, text="Filter", command=lambda: self.filterVisitors())
-        filter.pack()
 
-        refresh = ctk.CTkButton(self, text="Clear", command=lambda: self.clearEntry())
-        refresh.pack()
-        button = ctk.CTkButton(self, text="Back", command=lambda: self.goBack())
-        button.pack()
+
+        refresh = ctk.CTkButton(frame, text="Clear", command=lambda: self.clearEntry())
+        refresh.place(relx=0.4,rely=0.9)
+
+        button = ctk.CTkButton(frame, text="Back", command=lambda: self.goBack())
+        button.place(relx=0.7,rely=0.9)
+
+        frame.pack()
 
 
     def clearEntry(self):
@@ -462,7 +492,6 @@ class Visit_History(ctk.CTkFrame):
         return listofvisitors
 
 class Edit(ctk.CTkFrame):
-    #TODO upravit ako ENTRY
     def __init__(self, parent, controller):
         self.controller = controller
         self.parent = parent
@@ -470,45 +499,55 @@ class Edit(ctk.CTkFrame):
 
         self.chosenVisitor = None
 
-        label = ctk.CTkLabel(self, text="Zapis Navstevy", font=LARGE_FONT)
-        label.pack(pady=10, padx=10)
+        frame = ctk.CTkFrame(self, width=400, height=400)
 
-        button = ctk.CTkButton(self, text="Naspat", command=lambda: self.goBack())
-        button.pack()
+        label = ctk.CTkLabel(frame, text="Úprava Navstevy", font=VERY_LARGE_FONT)
+        label.place(relx=0.3, y=10)
 
-        submit = ctk.CTkButton(self, text="Ulozit zmeny", command=lambda: self.saveInfo())
-        submit.pack()
+        lname = ctk.CTkLabel(frame, text="Meno:")
+        lname.place(x=160, y=75)
+        self.name = ctk.CTkEntry(frame, placeholder_text="meno")
+        self.name.place(x=200, y=75)
 
-        self.lname = ctk.CTkLabel(self, text="meno")
-        self.lname.pack()
-        self.lsurname = ctk.CTkLabel(self, text="priezvisko")
-        self.lsurname.pack()
-        self.lcard_id = ctk.CTkLabel(self, text="id")
-        self.lcard_id.pack()
-        self.lcar_num = ctk.CTkLabel(self, text="spz")
-        self.lcar_num.pack()
-        self.lcompany = ctk.CTkLabel(self, text="firma")
-        self.lcompany.pack()
-        self.lgroup_size = ctk.CTkLabel(self, text="pocet ludi v skupine")
-        self.lgroup_size.pack()
+        lsurname = ctk.CTkLabel(frame, text="Priezvisko:")
+        lsurname.place(x=135, y=110)
+        self.surname = ctk.CTkEntry(frame, placeholder_text="priezvisko")
+        self.surname.place(x=200, y=110)
 
-        self.name = ctk.CTkEntry(self, placeholder_text="meno")
-        self.name.pack()
-        self.surname = ctk.CTkEntry(self, placeholder_text="priezvisko")
-        self.surname.pack()
-        self.card_id = ctk.CTkEntry(self, placeholder_text="id")
-        self.card_id.pack()
-        self.car_num = ctk.CTkEntry(self, placeholder_text="spz")
-        self.car_num.pack()
-        self.company = ctk.CTkEntry(self, placeholder_text="firma")
-        self.company.pack()
-        self.group_size = ctk.CTkEntry(self, placeholder_text="pocet ludi v skupine")
-        self.group_size.pack()
+        lcard_id = ctk.CTkLabel(frame, text="Id karty:")
+        lcard_id.place(x=150, y=145)
+        self.card_id = ctk.CTkEntry(frame, placeholder_text="id karty")
+        self.card_id.place(x=200, y=145)
 
+        lcar_num = ctk.CTkLabel(frame, text="Spz:")
+        lcar_num.place(x=170, y=180)
+        self.car_num = ctk.CTkEntry(frame, placeholder_text="spz")
+        self.car_num.place(x=200, y=180)
 
+        lcompany = ctk.CTkLabel(frame, text="Firma:")
+        lcompany.place(x=160, y=215)
+        self.company = ctk.CTkEntry(frame, placeholder_text="firma")
+        self.company.place(x=200, y=215)
 
-        self.visit_reason = ctk.CTkOptionMenu(master=self, values=self.controller.options)
-        self.visit_reason.pack()
+        lgroup_size = ctk.CTkLabel(frame, text="Počet ľudí v skupine:")
+        lgroup_size.place(x=80, y=250)
+        self.group_size = ctk.CTkEntry(frame, placeholder_text="počet ľudí v skupine")
+        self.group_size.place(x=200, y=250)
+
+        lvisit_reason = ctk.CTkLabel(frame, text="Dôvod návštevy:")
+        lvisit_reason.place(x=103, y=285)
+        self.visit_reason = ctk.CTkOptionMenu(frame, values=self.controller.options)
+        self.visit_reason.place(x=200, y=285)
+
+        back = ctk.CTkButton(frame, text="Naspäť", height=40, command=lambda: self.goBack())
+        back.place(x=250, y=350)
+
+        submit = ctk.CTkButton(frame, text="Uložiť zmeny", height=40, command=lambda: self.saveInfo())
+        submit.place(x=75, y=350)
+
+        frame.grid(padx=10, pady=10)
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
 
     def goBack(self):
         self.clearEntry()
