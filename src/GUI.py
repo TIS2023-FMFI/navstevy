@@ -597,12 +597,17 @@ class Edit(ctk.CTkFrame):
         #self.visit_reason.set(0,self.chosenVisitor[0].reason)
 
 class Control(ctk.CTkFrame):
-    def __init__(self, parent, controller):
+    # TODO dorobit frame co sa deje po spusteni prezentacie
+    def init(self, parent, controller):
         self.controller = controller
-        ctk.CTkFrame.__init__(self, parent)
+        ctk.CTkFrame.init(self, parent)
         label = ctk.CTkLabel(self, text="Prebieha kontrola zadaných údajov.", font=VERY_LARGE_FONT)
         label.pack(expand=True, fill='both', anchor='center')
+        back = ctk.CTkButton(self, text="Naspäť", height=40, command=lambda: self.goBack())
+        back.pack()
 
+    def goBack(self):
+        self.controller.show_frame(MainMenu)
 
 
 m = med.Mediator()

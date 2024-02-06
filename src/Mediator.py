@@ -7,11 +7,13 @@ from Communication import Communication
 from threading import Thread
 from PIL import Image
 
+OUTPUT_PATH = 'src/files/signatures' # TODO nastavnie správnej cesty pre ich potreby
+FILE_PATH = 'src/files/testFile.csv'
+
 class Mediator:
-    OUTPUT_PATH = 'src/files/signatures' # TODO nastavnie správnej cesty pre ich potreby
     def __init__(self):
         self.visitors = []      # TODO pridávanie neodhlásených z predošlého dňa
-        self.file = cf.CustomFile('src/files/testFile.csv')  # TODO nastavnie správnej cesty pre ich potreby
+        self.file = cf.CustomFile(FILE_PATH) 
         self.allVisitors = []
         self.saveAllVisits()
         try:
@@ -22,14 +24,13 @@ class Mediator:
         
     def addVisitor(self, name, surname, cardId, carTag, company, count, reason):
         visitor = vis.Visitor(None, name, surname, cardId, carTag, company, count, reason)
-        state = self.startPresentation(visitor)
-        if state == "signature":
-            self.file.writeVisitor(visitor.getDataToWrite())  # zapíše visitora do súboru
-            self.visitors.append(visitor)
-            return state
-        return state
+        # state = self.startPresentation(visitor)
+        # if state == "signature":
+        self.file.writeVisitor(visitor.getDataToWrite())  # zapíše visitora do súboru
+        self.visitors.append(visitor)
+        #     return state
+        # return state
         
-
     def editVisitor(self, id, name = None, surname = None, cardId = None, carTag = None, company = None, count = None, reason = None):
         changedVisiotor = None
         for vis in self.visitors: 
@@ -99,10 +100,10 @@ class Mediator:
                 self.visitors.append(visitor)
             self.allVisitors.append(visitor)
 
-    def startPresentation(self, temporaryVisitor):
+    def startPresentation(self, visitor):
         # Cakaj odpovede z prezentacia a reaguj na to, ked je koniec tak toto cele skonci
         # v state, data budu ulezene vsetky info
-        state, data = self.communication.send_start_presentation(temporaryVisitor)
+        state, data = self.communication.send_start_presentation(visitor)
         while state == Communication.message_code["progress"]:
             state_data_result = []
             thread = Thread(target=self.communication.recieve, args=(state_data_result,))
@@ -115,7 +116,7 @@ class Mediator:
         
         if state == Communication.message_code["signature"]:
             ## data je PIL obrazok podpisu
-            data.save(self.OUTPUT_PATH + str(temporaryVisitor.getID()) + '.jpg')        #zapíše obrázok do súboru s ID visitora ako názov
+            data.save(self.OUTPUT_PATH + str(visitor.getID()) + '.jpg')        #zapíše obrázok do súboru s ID visitora ako názov
         elif state == Communication.message_code["error"]:
             print(state)
         return state
