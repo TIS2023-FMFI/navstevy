@@ -159,14 +159,6 @@ class Communication:
             except:
                 return Communication.message_code["error"], f"Device didn't respond in {self.TIMEOUT_SECONDS}"
         
-
-
-            
-
-    
-    
-    
-
 if __name__ == "__main__":
     communication = Communication()
     visitor = Visitor(15, "Jožko", "Mrkvička", 1, "AB-123-CD", "Matfyz", 0, "Musim")
@@ -178,12 +170,3 @@ if __name__ == "__main__":
     
     print(state)
     print(data)
-    
-
-        
-    
-
-
-    
-    
-

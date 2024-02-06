@@ -13,7 +13,6 @@ class Mediator:
         self.visitors = []      # TODO pridávanie neodhlásených z predošlého dňa
         self.file = cf.CustomFile('src/files/testFile.csv')  # TODO nastavnie správnej cesty pre ich potreby
         self.allVisitors = []
-        self.leftWaitingForReview = []
         self.saveAllVisits()
         try:
             self.communication = Communication()
@@ -47,7 +46,6 @@ class Mediator:
         for vis in self.visitors[:]:
             if vis.id == id:
                 self.visitors.remove(vis)
-                self.leftWaitingForReview.append(vis)
                 vis.registerDeparture(vis)      
 
     def getVisitors(self):
@@ -115,15 +113,31 @@ class Mediator:
             print(state, data)
             thread.join()
         
-        if state == Communication.message_code["wrong_data"]:
-            return "wrong_data"
-        elif state == Communication.message_code["signature"]:
+        if state == Communication.message_code["signature"]:
             ## data je PIL obrazok podpisu
             data.save(self.OUTPUT_PATH + str(temporaryVisitor.getID()) + '.jpg')        #zapíše obrázok do súboru s ID visitora ako názov
-            return "signature"
         elif state == Communication.message_code["error"]:
-            print("Connection error...")
-            return "error"
+            print(state)
+        return state
+    
+    def startReview(self, visitor):
+        state, data = self.communication.send_start_review(visitor)
+        while state == Communication.message_code["progress"]:
+            state_data_result = []
+            thread = Thread(target=self.communication.recieve, args=(state_data_result,))
+            thread.start()
+            while not state_data_result:
+                self.update()
+            state, data = tuple(state_data_result)
+            print(state, data)
+            thread.join()
+
+        if state == Communication.message_code["review"]:
+            visitor.addReview(data)
+        elif state == Communication.message_code["error"]:
+            print(state)
+        return state
+
 # Example
 # m = Mediator()
 # m.addVisitor('Lara', 'Taka', 1, 'BL000BS', 'Nic', 2, 2)
