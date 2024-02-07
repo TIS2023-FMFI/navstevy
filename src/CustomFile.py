@@ -20,27 +20,27 @@ class CustomFile:
         file.close()
         return dataInStrings
 
-def edit(self, id, visitor):
-    with open(self.path, "r", encoding="utf-8") as file:
-        lines = file.readlines()
+    def edit(self, id, visitor):
+        with open(self.path, "r", encoding="utf-8") as file:
+            lines = file.readlines()
 
-    lineToChange = None
+        lineToChange = None
 
-    for index, line in enumerate(lines):
-        foundId = int(line.strip().split(';')[0])
-        if foundId == id:
-            lineToChange = index
-            break
+        for index, line in enumerate(lines):
+            foundId = int(line.strip().split(';')[0])
+            if foundId == id:
+                lineToChange = index
+                break
 
-    if lineToChange is None:
-        print(f"There is no visitor with {id} ID currently on site.")
-    else:
-        lines[lineToChange] = visitor.getDataToWrite()
+        if lineToChange is None:
+            print(f"There is no visitor with {id} ID currently on site.")
+        else:
+            lines[lineToChange] = visitor.getDataToWrite()
 
-        with open(self.path, "w", encoding="utf-8") as file:
-            file.writelines(lines)
+            with open(self.path, "w", encoding="utf-8") as file:
+                file.writelines(lines)
 
-        print(f"Visitor {id} changed successfully!")
+            print(f"Visitor {id} changed successfully!")
 
 
 

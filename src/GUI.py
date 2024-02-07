@@ -160,9 +160,6 @@ class Entry(ctk.CTkFrame):
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
 
-
-
-
     def goBack(self):
         self.clearEntry()
         self.controller.show_frame(MainMenu)
