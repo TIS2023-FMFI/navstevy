@@ -3,11 +3,6 @@ from datetime import datetime
 class Visitor:
     def __init__(self, id, name, surname, cardId, carTag, company, count, reason, arrival=None, departure=None, signature=None, review=None):
         date = datetime.now()
-        date.year
-        date.month
-        date.day
-        date.minute
-        date.second
         if id is None:
             self.id = self.generateId(date)
         else: 
@@ -21,7 +16,6 @@ class Visitor:
         self.reasonOfVisit = reason
         self.arrival = arrival if arrival is not None else date.strftime("%d-%m-%Y %H:%M")    #formátovanie času deň-mesiac-rok hodina:minúta
         self.departure = departure
-        self.signature = signature
         self.review = review                    #zmení sa po prijatí spravy od komunikácie
 
     def generateId(self, date):
@@ -69,3 +63,12 @@ class Visitor:
 
     def addReview(self, review):
         self.review = review
+
+    def getDepartureInfo(self): 
+        return self.departure, self.review
+    
+    def setDepartureInfo(self, departure = None, review = None):
+        if departure:
+            self.departure = departure
+        if review:
+            self.review = review
