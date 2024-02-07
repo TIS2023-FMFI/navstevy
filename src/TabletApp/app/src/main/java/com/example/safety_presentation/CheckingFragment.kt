@@ -25,7 +25,7 @@ class CheckingFragment : Fragment() {
             textView2.text = "Prosím skontrolujte správnosť zadaných dát: \nmeno: "+
             mainActivity.visitor!!.name + "\npriezvisko: " + mainActivity.visitor!!.surname +
                     "\nfirma: " + mainActivity.visitor!!.company + "\nŠPZ: " +
-                    mainActivity.visitor!!.cardId + "\npočet vo Vašej skupine: " +
+                    mainActivity.visitor!!.carTag + "\npočet vo Vašej skupine: " +
                     mainActivity.visitor!!.count
 
             // yes_button
@@ -69,7 +69,7 @@ class CheckingFragment : Fragment() {
             bind.textView2.text = "Please check, if the following data is correct: \nname: "+
                     mainActivity.visitor!!.name + "\nsurname: " + mainActivity.visitor!!.surname +
                     "\ncompany: " + mainActivity.visitor!!.company + "\nŠPZ: " +
-                    mainActivity.visitor!!.cardId + "\namount in your party: " +
+                    mainActivity.visitor!!.carTag + "\namount in your party: " +
                     mainActivity.visitor!!.count
         }
         else{
@@ -80,7 +80,7 @@ class CheckingFragment : Fragment() {
             bind.textView2.text = "Prosím skontrolujte správnosť zadaných dát: \nmeno: "+
                     mainActivity.visitor!!.name + "\npriezvisko: " + mainActivity.visitor!!.surname +
                     "\nfirma: " + mainActivity.visitor!!.company + "\nŠPZ: " +
-                    mainActivity.visitor!!.cardId + "\npočet vo Vašej skupine: " +
+                    mainActivity.visitor!!.carTag + "\npočet vo Vašej skupine: " +
                     mainActivity.visitor!!.count
         }
 
