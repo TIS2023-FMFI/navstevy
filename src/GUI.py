@@ -11,7 +11,7 @@ class MainScreen(ctk.CTk):
 
     def __init__(self, mediator):
         ctk.CTk.__init__(self)
-        self.geometry("1200x600")
+        self.geometry("1200x620")
         self.width = 1200
         self.height = 600
         self.mediator = mediator
@@ -45,6 +45,8 @@ class MainScreen(ctk.CTk):
 
         self.show_frame(MainMenu)
 
+
+
     def show_frame(self, cont):
         if cont == Edit:
             self.frames[Edit].enterVisitor()
@@ -52,6 +54,10 @@ class MainScreen(ctk.CTk):
         frame.configure(width=1000, height=1000)
         frame.tkraise()
         self.current_frame = cont
+
+    def update_tables(self):
+        self.frames[Ongoing].table.update_values(self.mediator.visitors)
+        self.frames[Visit_History].table.update_values(self.mediator.allVisitors)
 
     def resize(self):
         self.width = self.winfo_width()
@@ -62,6 +68,7 @@ class MainScreen(ctk.CTk):
 class MainMenu(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
+        self.controller = controller
         frame = ctk.CTkFrame(self,width=300,height=400)
 
         label = ctk.CTkLabel(frame, text="Úvod", font=VERY_LARGE_FONT)
@@ -79,6 +86,22 @@ class MainMenu(ctk.CTkFrame):
         frame.grid(padx=10,pady=10)
         self.grid_rowconfigure(0,weight=1)
         self.grid_columnconfigure(0, weight=1)
+
+        #TODO zobrazenie toho ze zariadenie nieje pripojene
+        #if self.controller.mediator.communication is None:
+        #    self.device_not_connected()
+
+    def device_not_connected(self):
+        popup = ctk.CTkToplevel(self)
+        popup.geometry('300x200')
+        popup.attributes('-topmost', 'true')
+        label = ctk.CTkLabel(popup, text="Zariadenie nieje pripojene", font=LARGE_FONT)
+        label.pack()
+        popup.mainloop()
+
+
+
+
 class Entry(ctk.CTkFrame):
     def __init__(self, parent, controller):
         self.controller = controller
@@ -167,7 +190,7 @@ class Entry(ctk.CTkFrame):
             group_size = int(self.group_size.get())
             visit_reason = self.visit_reason.get()
             self.controller.show_frame(Control)
-            Control.waitForPresentation(name, surname, card_id, car_num, company, group_size, visit_reason)
+            self.controller.frames[Control].waitForPresentation(name, surname, card_id, car_num, company, group_size, visit_reason)
 
     def badEntry(self, entry):
         entry.configure(fg_color='red')
@@ -305,21 +328,21 @@ class Ongoing(ctk.CTkFrame):
         if self.chosenVisitor[0]:
             visitorx = self.chosenVisitor
             self.controller.mediator.departureVisitor(visitorx)
-            #todo dorobit review
-            '''
-            idea
+            #TODO dorobit update tabulky po odchode || pockat na review??
+            self.goBack()
+            self.controller.update_tables()
             popup = ctk.CTkToplevel(self.controller)
             popup.geometry('300x200')
-            popup.grab_set()
-            label = ctk.CTkLabel(popup, text="Odoslane review", font=LARGE_FONT)
+            popup.attributes('-topmost', 'true')
+            label = ctk.CTkLabel(popup, text="Odoslany review", font=LARGE_FONT)
             label.pack()
             popup.mainloop()
-            '''
-            self.goBack()
+
+
         else:
             self.notify()
-            
-    def isGood(self,string):
+
+    def isGood(self, string):
         if string:
              return string
         else:
@@ -395,24 +418,25 @@ class Visit_History(ctk.CTkFrame):
         ssurname.place(x=112, y=200)
         scompany = ctk.CTkLabel(frame, text="Firma")
         scompany.place(x=212, y=200)
-        scardid = ctk.CTkLabel(frame, text="Id karta")
-        scardid.place(x=312, y=200)
         scartag = ctk.CTkLabel(frame, text="Špz")
-        scartag.place(x=412, y=200)
+        scartag.place(x=312, y=200)
         sreason = ctk.CTkLabel(frame, text="Dôvod návštevy")
-        sreason.place(x=512, y=200)
+        sreason.place(x=412, y=200)
+        sreview = ctk.CTkLabel(frame, text="Recenzia")
+        sreview.place(x=512, y=200)
         sarrival = ctk.CTkLabel(frame, text="Príchod")
         sarrival.place(x=612, y=200)
         sdeparture = ctk.CTkLabel(frame, text="Odchod")
         sdeparture.place(x=712, y=200)
-        sreview = ctk.CTkLabel(frame, text="Recenzia")
-        sreview.place(x=762, y=200)
+
 
         scrollable_frame = ctk.CTkScrollableFrame(frame,width=800)
         scrollable_frame.place(relx=0,rely=0.4)
         self.table = t.CTkTable(scrollable_frame, row=len(self.controller.visitors), column=9, values=self.listVisitors())
         self.table.pack()
-        self.table.edit_column(3,width=100)
+        self.table.edit_column(4,width=80)
+        self.table.edit_column(8, width=100)
+        self.table.edit_column(6, width=80)
 
         refresh = ctk.CTkButton(frame, text="Clear", command=lambda: self.clearEntry())
         refresh.place(relx=0.4,rely=0.9)
@@ -445,7 +469,7 @@ class Visit_History(ctk.CTkFrame):
         self.table.configure(rows=len(visitors))
         self.table.update_values(visitors)
         self.controller.show_frame(Visit_History)
-    
+
     def isGood(self,string):
         if string:
              return string
@@ -459,7 +483,6 @@ class Visit_History(ctk.CTkFrame):
 
             name = self.isGood(v.name)
             surname = self.isGood(v.surname)
-            cardId = self.isGood(v.cardId)
             review = self.isGood(v.review)
             company = self.isGood(v.company)
             carTag = self.isGood(v.carTag)
@@ -468,8 +491,8 @@ class Visit_History(ctk.CTkFrame):
             arrival = self.isGood(v.arrival)
             departure = self.isGood(v.departure)
             listofvisitors.append(
-                [name, surname, company, cardId, carTag, count, reasonOfVisit, arrival, departure,
-                 review])
+
+                [name, surname, company, carTag, count, reasonOfVisit,review, arrival, departure])
         return listofvisitors
 
 class Edit(ctk.CTkFrame):
@@ -559,7 +582,16 @@ class Edit(ctk.CTkFrame):
             group_size = int(self.group_size.get())
             visit_reason = self.visit_reason.get()
             self.controller.mediator.editVisitor(int(self.chosenVisitor[0].id),name, surname, card_id, car_num, company, group_size, visit_reason)
-            #Todo urobit aby sa to ulozilo a zobrazilo
+
+            popup = ctk.CTkToplevel(self.controller)
+            popup.geometry('300x200')
+            popup.attributes('-topmost', 'true')
+            label = ctk.CTkLabel(popup, text="Navsteva uspesne pridana", font=LARGE_FONT)
+            label.pack()
+            popup.mainloop()
+
+            self.controller.update_tables()
+
 
             self.chosenVisitor = [None,None]
             self.controller.frames[Ongoing].chosenVisitor  = [None,None]
@@ -645,27 +677,48 @@ class Control(ctk.CTkFrame):
         label.pack(expand=True, fill='both', anchor='center')
         back = ctk.CTkButton(self, text="Naspäť", height=40, command=lambda: self.goBack())
         back.pack()
-    
+
+
     def goBack(self):
         self.controller.show_frame(MainMenu)
 
     def waitForPresentation(self, name, surname, card_id, car_num, company, group_size, visit_reason):
         state = self.controller.mediator.addVisitor(name, surname, card_id, car_num, company, group_size, visit_reason)
-        # visitor je úspešne pridaný 
+
+        # visitor je úspešne pridaný
         if state == "signature":
-            print("Visitor and signature saved.")
+            self.controller.show_frame(MainMenu)
+            self.goBack()
+            self.controller.update_tables()
+            popup = ctk.CTkToplevel(self.controller)
+            popup.geometry('300x200')
+            popup.attributes('-topmost', 'true')
+            label = ctk.CTkLabel(popup, text="Navsteva bola zapisana", font=LARGE_FONT)
+            label.pack()
+            popup.mainloop()
+
         # visitor sa nepridal
         elif state == "error":
-            # TODO nastala nejaká chyba
             # data je dôvod chyby, ktorý stačí niekde vypísať
             # Bud chyba spojenia
-            # alebo timout 60s  
-            print("Error...")
+            # alebo timout 60s
+            self.controller.show_frame(Entry)
+            popup = ctk.CTkToplevel(self.controller)
+            popup.geometry('300x200')
+            popup.attributes('-topmost', 'true')
+            label = ctk.CTkLabel(popup, text="Nastala chyba skuste znova a skontrolujte zariadenie", font=LARGE_FONT)
+            label.pack()
+            popup.mainloop()
+
         elif state == "wrong_data":
-            # TODO treba upraviť zadané info a znova poslať na kontrolu
-            print("Wrong data...")
-        # TODO dorobit POPUP visitor sa prida az po odkontrolovani
-            
+            self.controller.show_frame(Entry)
+            popup = ctk.CTkToplevel(self.controller)
+            popup.geometry('300x200')
+            popup.attributes('-topmost', 'true')
+            label = ctk.CTkLabel(popup, text="Udaje boli zadane zle", font=LARGE_FONT)
+            label.pack()
+            popup.mainloop()
+
 ctk.set_appearance_mode('dark')
 m = med.Mediator()
 app = MainScreen(m)
