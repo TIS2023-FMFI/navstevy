@@ -166,24 +166,8 @@ class Entry(ctk.CTkFrame):
             company = self.company.get()
             group_size = int(self.group_size.get())
             visit_reason = self.visit_reason.get()
-
-
-            state = self.controller.mediator.addVisitor(name, surname, card_id, car_num, company, group_size, visit_reason)
-            # visitor je úspešne pridaný 
-            if state == "signature":
-                print("Visitor and signature saved.")
-            # visitor sa nepridal
-            elif state == "error":
-                # TODO nastala nejaká chyba
-                # data je dôvod chyby, ktorý stačí niekde vypísať
-                # Bud chyba spojenia
-                # alebo timout 60s  
-                print("Error...")
-            elif state == "wrong_data":
-                # TODO treba upraviť zadané info a znova poslať na kontrolu
-                print("Wrong data...")
-            # TODO dorobit POPUP visitor sa prida az po odkontrolovani
             self.controller.show_frame(Control)
+            Control.waitForPresentation(name, surname, card_id, car_num, company, group_size, visit_reason)
 
     def badEntry(self, entry):
         entry.configure(fg_color='red')
@@ -317,8 +301,6 @@ class Ongoing(ctk.CTkFrame):
         else:
             self.notify()
 
-
-
     def submit(self):
         if self.chosenVisitor[0]:
             visitorx = self.chosenVisitor
@@ -336,6 +318,7 @@ class Ongoing(ctk.CTkFrame):
             self.goBack()
         else:
             self.notify()
+            
     def isGood(self,string):
         if string:
              return string
@@ -431,8 +414,6 @@ class Visit_History(ctk.CTkFrame):
         self.table.pack()
         self.table.edit_column(3,width=100)
 
-
-
         refresh = ctk.CTkButton(frame, text="Clear", command=lambda: self.clearEntry())
         refresh.place(relx=0.4,rely=0.9)
 
@@ -464,6 +445,7 @@ class Visit_History(ctk.CTkFrame):
         self.table.configure(rows=len(visitors))
         self.table.update_values(visitors)
         self.controller.show_frame(Visit_History)
+    
     def isGood(self,string):
         if string:
              return string
@@ -486,7 +468,6 @@ class Visit_History(ctk.CTkFrame):
             arrival = self.isGood(v.arrival)
             departure = self.isGood(v.departure)
             listofvisitors.append(
-
                 [name, surname, company, cardId, carTag, count, reasonOfVisit, arrival, departure,
                  review])
         return listofvisitors
@@ -662,7 +643,29 @@ class Control(ctk.CTkFrame):
         ctk.CTkFrame.__init__(self, parent)
         label = ctk.CTkLabel(self, text="Prebieha kontrola zadaných údajov.", font=VERY_LARGE_FONT)
         label.pack(expand=True, fill='both', anchor='center')
+        back = ctk.CTkButton(self, text="Naspäť", height=40, command=lambda: self.goBack())
+        back.pack()
+    
+    def goBack(self):
+        self.controller.show_frame(MainMenu)
 
+    def waitForPresentation(self, name, surname, card_id, car_num, company, group_size, visit_reason):
+        state = self.controller.mediator.addVisitor(name, surname, card_id, car_num, company, group_size, visit_reason)
+        # visitor je úspešne pridaný 
+        if state == "signature":
+            print("Visitor and signature saved.")
+        # visitor sa nepridal
+        elif state == "error":
+            # TODO nastala nejaká chyba
+            # data je dôvod chyby, ktorý stačí niekde vypísať
+            # Bud chyba spojenia
+            # alebo timout 60s  
+            print("Error...")
+        elif state == "wrong_data":
+            # TODO treba upraviť zadané info a znova poslať na kontrolu
+            print("Wrong data...")
+        # TODO dorobit POPUP visitor sa prida az po odkontrolovani
+            
 ctk.set_appearance_mode('dark')
 m = med.Mediator()
 app = MainScreen(m)
