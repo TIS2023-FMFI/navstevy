@@ -7,7 +7,7 @@ from Communication import Communication
 from threading import Thread
 from PIL import Image
 
-OUTPUT_PATH = '../src/files/signatures' # TODO nastavnie správnej cesty pre ich potreby
+OUTPUT_PATH = '../src/files/signatures/' # TODO nastavnie správnej cesty pre ich potreby
 FILE_PATH = '../src/files/testFile.csv'
 
 class Mediator:
@@ -22,15 +22,13 @@ class Mediator:
             self.communication = None
              # TODO dať informáciu o nepripojenom zariadení
         
-    def addVisitor(self, name, surname, cardId, carTag, company, count, reason):
+    def addVisitor(self, controlFrame, name, surname, cardId, carTag, company, count, reason):
         visitor = vis.Visitor(None, name, surname, cardId, carTag, company, count, reason)
-        state = None
-        #state = self.startPresentation(visitor)
-        if state == "signature":
+        state = self.startPresentation(visitor, controlFrame)
+        if state == Communication.message_code["signature"]:
             self.file.writeVisitor(visitor.getDataToWrite())  # zapíše visitora do súboru
             self.allVisitors.append(visitor)
             self.visitors.append(visitor)
-            return state
         return state
         
     def editVisitor(self, id, name=None, surname=None, cardId=None, carTag=None, company=None, count=None, reason=None):
@@ -48,20 +46,15 @@ class Mediator:
                 break
 
 
-    def departureVisitor(self, id):
+    def departureVisitor(self, id, controlFrame):
         for vis in self.visitors[:]:
-            if vis.id == id:
+            if vis.getId() == id:
                 self.visitors.remove(vis)
-                vis.registerDeparture(vis)
-                self.startReview(vis)
-                self.updateAllVisitors(id)
+                vis.registerDeparture()
+                self.startReview(vis, controlFrame)
+                self.file.edit(vis.getId(), vis)
                 break
 
-    def updateAllVisitors(self, id):
-        for vis in self.allVisitors:
-            if vis.getId() == id:
-                vis.setDepartureInfo(*vis.getDepartureInfo())
-                break
 
     def getVisitors(self):
         return self.visitors
@@ -114,7 +107,7 @@ class Mediator:
                 self.visitors.append(visitor)
             self.allVisitors.append(visitor)
 
-    def startPresentation(self, visitor):
+    def startPresentation(self, visitor, controlFrame):
         # Cakaj odpovede z prezentacia a reaguj na to, ked je koniec tak toto cele skonci
         # v state, data budu ulezene vsetky info
         state, data = self.communication.send_start_presentation(visitor)
@@ -123,35 +116,35 @@ class Mediator:
             thread = Thread(target=self.communication.recieve, args=(state_data_result,))
             thread.start()
             while not state_data_result:
-                self.update()
+                controlFrame.update()
             state, data = tuple(state_data_result)
             print(state, data)
             thread.join()
         
         if state == Communication.message_code["signature"]:
             ## data je PIL obrazok podpisu
-            data.save(self.OUTPUT_PATH + str(visitor.getID()) + '.jpg')        #zapíše obrázok do súboru s ID visitora ako názov
+            data.save(OUTPUT_PATH + str(visitor.getId()) + '.png')        #zapíše obrázok do súboru s ID visitora ako názov
         elif state == Communication.message_code["error"]:
-            print(state)
+            print(data)
         return state
     
-    def startReview(self, visitor):
+    def startReview(self, visitor, controlFrame):
+        print("Idem startorvaty")
         state, data = self.communication.send_start_review(visitor)
         while state == Communication.message_code["progress"]:
             state_data_result = []
             thread = Thread(target=self.communication.recieve, args=(state_data_result,))
             thread.start()
             while not state_data_result:
-                self.update()
+                controlFrame.update()
             state, data = tuple(state_data_result)
             print(state, data)
             thread.join()
 
-        if state == Communication.message_code["review"]:
+        if state == Communication.message_code["rating"]:
             visitor.addReview(data)
-            self.updateAllVisitors()
         elif state == Communication.message_code["error"]:
-            print(state)
+            print(data)
         return state
 
 # Example

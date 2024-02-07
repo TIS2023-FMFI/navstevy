@@ -31,8 +31,8 @@ class Communication:
             if "Ethernet adapter Ethernet" not in adapter_name:
                 continue
             if "Description" not in atributes:
-                continue
-            if atributes["Description"] == "UsbNcm Host Device":
+                continue 
+            if "UsbNcm Host Device" in atributes["Description"]:
                 print("Device connected...")
                 return atributes["Default Gateway"]
         print("Device not found...")

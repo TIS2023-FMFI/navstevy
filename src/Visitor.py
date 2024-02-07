@@ -33,7 +33,7 @@ class Visitor:
         else:
             data_string += ";"
         if self.review:
-            data_string += f";{self.review}"
+            data_string += f";{self.review}\n"
         else:
             data_string += ";\n"
         return data_string
