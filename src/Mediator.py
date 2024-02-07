@@ -30,21 +30,20 @@ class Mediator:
             self.visitors.append(visitor)
         return state
         
-    def editVisitor(self, id, name = None, surname = None, cardId = None, carTag = None, company = None, count = None, reason = None):
-        changedVisiotor = None
-        for vis in self.visitors: 
+    def editVisitor(self, id, name=None, surname=None, cardId=None, carTag=None, company=None, count=None, reason=None):
+        for vis in self.visitors:
             if vis.getId() == id:
                 vis.edit(name, surname, cardId, carTag, company, count, reason)
-                changedVisiotor = vis
+                self.file.edit(id, vis)
                 break
-        if changedVisiotor is None:
-            print("We do not have this visitor right now!")
         else:
-            self.file.edit(id, changedVisiotor)
-            for vis in self.allVisitors:
-                if vis.getId() == id:
-                    vis.edit(name, surname, cardId, carTag, company, count, reason)
-                    break
+            print("We do not have this visitor right now!")
+
+        for vis in self.allVisitors:
+            if vis.getId() == id:
+                vis.edit(name, surname, cardId, carTag, company, count, reason)
+                break
+
 
     def departureVisitor(self, id):
         for vis in self.visitors[:]:
