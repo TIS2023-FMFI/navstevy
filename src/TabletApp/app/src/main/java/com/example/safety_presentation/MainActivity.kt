@@ -2,11 +2,13 @@ package com.example.safety_presentation
 
 import Communication
 import Visitor
+import android.content.pm.ActivityInfo
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.StrictMode
+import android.view.WindowManager
 
 
 class MainActivity : AppCompatActivity() {
@@ -14,12 +16,13 @@ class MainActivity : AppCompatActivity() {
     var imagesDict : MutableMap<Int, Bitmap> = mutableMapOf()
     var ratingImages : MutableList<Bitmap> = mutableListOf()
     val communication: Communication = Communication(this)
-    public var visitor: Visitor? = null;
+    var visitor: Visitor? = null;
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         imageCreation()
+        setFullScreen()
         StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.Builder().permitNetwork().build())
     }
 
@@ -58,6 +61,13 @@ class MainActivity : AppCompatActivity() {
             val curr = BitmapFactory.decodeResource(this.resources, i)
             ratingImages.add(Bitmap.createScaledBitmap(curr, (curr.width/4), (curr.height/4), false))
         }
+    }
+
+    fun setFullScreen() {
+        getWindow().setFlags(
+            WindowManager.LayoutParams.FLAG_FULLSCREEN,
+            WindowManager.LayoutParams.FLAG_FULLSCREEN
+        );
     }
 
 }

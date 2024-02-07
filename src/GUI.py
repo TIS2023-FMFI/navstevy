@@ -1,6 +1,7 @@
 import customtkinter as ctk
 import Mediator as med
 import CTkTable as t
+from Communication import Communication
 
 BASE_FG_COLOR = '#343638'
 LARGE_FONT = ("times new roman", 18)
@@ -56,10 +57,8 @@ class MainScreen(ctk.CTk):
         self.current_frame = cont
 
     def update_tables(self):
-        frame1 = self.frames[Ongoing]
-        frame2 = self.frames[Visit_History]
-        frame1.table.update_values(frame1.listOngoing())
-        frame2.table.update_values(frame2.listVisitors())
+        frame1 = self.frames[Ongoing].updateTable()
+        frame2 = self.frames[Visit_History].updateTable()        
 
     def resize(self):
         self.width = self.winfo_width()
@@ -282,10 +281,13 @@ class Ongoing(ctk.CTkFrame):
 
         scrollable_frame = ctk.CTkScrollableFrame(frame, width=600)
         scrollable_frame.place(relx=0,rely=0.2)
-
+        
         self.table = t.CTkTable(scrollable_frame, row=len(self.controller.ongoingVisitors),
                                 column=4, values=self.listOngoing(),
                                 command=self.on_row_clicked)
+        
+        
+    
         self.table.pack()
 
         frame.grid(padx=10, pady=10)
@@ -325,8 +327,8 @@ class Ongoing(ctk.CTkFrame):
 
     def submit(self):
         if self.chosenVisitor[0]:
-            visitorx = self.chosenVisitor
-            self.controller.mediator.departureVisitor(visitorx)
+            visitorx = self.chosenVisitor[0]
+            self.controller.mediator.departureVisitor(visitorx.getId(), self)
             #TODO dorobit update tabulky po odchode || pockat na review??
             self.controller.update_tables()
             self.goBack()
@@ -346,7 +348,7 @@ class Ongoing(ctk.CTkFrame):
             return ''
 
     def listOngoing(self):
-        visitors = self.controller.ongoingVisitors
+        visitors = self.controller.mediator.visitors
         filtered = []
         for v in visitors:
             name = self.isGood(v.name)
@@ -364,6 +366,13 @@ class Ongoing(ctk.CTkFrame):
         label = ctk.CTkLabel(popup, text="Vyberte navstevu", font=LARGE_FONT)
         label.pack()
         popup.mainloop()
+
+
+    def updateTable(self):
+        visitors = self.listOngoing()
+        self.table.rows = len(visitors)
+        self.table.update_values(visitors)
+
 
 
 class Visit_History(ctk.CTkFrame):
@@ -458,13 +467,18 @@ class Visit_History(ctk.CTkFrame):
 
 
     def filterVisitors(self):
-        self.controller.visitors = m.filter(name=self.name.get(), surname=self.surname.get(), company=self.company.get(),
+        visitors = self.controller.mediator.filter(name=self.name.get(), surname=self.surname.get(), company=self.company.get(),
                  dateFrom=self.arrival.get(), dateTo=self.departure.get())
-
-        visitors = self.listVisitors()
+    
+        visitors = self.listVisitors(visitors)
         self.table.configure(rows=len(visitors))
         self.table.update_values(visitors)
         self.controller.show_frame(Visit_History)
+    
+    def updateTable(self):
+        visitors = self.listVisitors()
+        self.table.rows = len(visitors)
+        self.table.update_values(visitors)
 
     def isGood(self,string):
         if string:
@@ -472,8 +486,11 @@ class Visit_History(ctk.CTkFrame):
         else:
             return ''
 
-    def listVisitors(self):
-        visitors = self.controller.visitors
+    def listVisitors(self, filtered=None):
+        visitors = self.controller.mediator.allVisitors
+        if filtered:
+            visitors = filtered
+        
         listofvisitors = []
         for v in visitors:
 
@@ -489,6 +506,7 @@ class Visit_History(ctk.CTkFrame):
             listofvisitors.append(
 
                 [name, surname, company, carTag, count, reasonOfVisit,review, arrival, departure])
+    
         return listofvisitors
 
 class Edit(ctk.CTkFrame):
@@ -679,13 +697,13 @@ class Control(ctk.CTkFrame):
         self.controller.show_frame(MainMenu)
 
     def waitForPresentation(self, name, surname, card_id, car_num, company, group_size, visit_reason):
-        state = self.controller.mediator.addVisitor(name, surname, card_id, car_num, company, group_size, visit_reason)
+        state = self.controller.mediator.addVisitor(self, name, surname, card_id, car_num, company, group_size, visit_reason)
 
         # visitor je úspešne pridaný
-        if state == "signature":
+        if state == Communication.message_code["signature"]:
             self.controller.show_frame(MainMenu)
-            self.goBack()
             self.controller.update_tables()
+            self.goBack()
             popup = ctk.CTkToplevel(self.controller)
             popup.geometry('300x200')
             popup.attributes('-topmost', 'true')
@@ -694,7 +712,7 @@ class Control(ctk.CTkFrame):
             popup.mainloop()
 
         # visitor sa nepridal
-        elif state == "error":
+        elif state == Communication.message_code["error"]:
             # data je dôvod chyby, ktorý stačí niekde vypísať
             # Bud chyba spojenia
             # alebo timout 60s
@@ -706,7 +724,7 @@ class Control(ctk.CTkFrame):
             label.pack()
             popup.mainloop()
 
-        elif state == "wrong_data":
+        elif state == Communication.message_code["wrong_data"]:
             self.controller.show_frame(Entry)
             popup = ctk.CTkToplevel(self.controller)
             popup.geometry('300x200')

@@ -3,11 +3,15 @@ package com.example.safety_presentation
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Color
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.core.graphics.get
+import androidx.core.graphics.toColor
 import androidx.navigation.Navigation
 import com.example.safety_presentation.databinding.FragmentConfirmationBinding
 
@@ -44,10 +48,19 @@ class ConfirmationFragment : Fragment() {
                 val bitmap : Bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
                 val canvas = Canvas(bitmap)
                 view.draw(canvas)
-                val action = ConfirmationFragmentDirections.actionConfirmationFragmentToTextFragment()
-                action.message = "con"
-                mainActivity.communication.send_signature(resizeBitmap(bitmap, 0.25f))
-                Navigation.findNavController(it).navigate(action)
+
+                val signature = resizeBitmap(bitmap, 0.25f)
+                if (!isBitmapEmpty(signature)) {
+                    val action = ConfirmationFragmentDirections.actionConfirmationFragmentToTextFragment()
+                    action.message = "con"
+                    mainActivity.communication.send_signature(signature)
+                    Navigation.findNavController(it).navigate(action)
+                }
+                else {
+                    Toast.makeText(context,
+                        if (mainActivity.languageInUse == "sk") "Prosím, najskôr sa podpíšte" else "Please, sign first",
+                        Toast.LENGTH_SHORT).show();
+                }
             }
         }
 
@@ -70,5 +83,17 @@ class ConfirmationFragment : Fragment() {
         val newHeight = (originalHeight * k).toInt()
 
         return Bitmap.createScaledBitmap(originalBitmap, newWidth, newHeight, true)
+    }
+
+    fun isBitmapEmpty(bitmap: Bitmap): Boolean {
+        (0 until bitmap.height).forEach {y ->
+            (0 until bitmap.width).forEach { x ->
+                val color = Color.valueOf(bitmap.get(x, y))
+                if (color == Color.BLACK.toColor()) {
+                    return false
+                }
+            }
+        }
+        return true
     }
 }

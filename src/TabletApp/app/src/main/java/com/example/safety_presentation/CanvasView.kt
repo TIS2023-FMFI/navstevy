@@ -17,7 +17,7 @@ class CanvasView (context: Context, attrs: AttributeSet) : View(context, attrs){
 
     init{
         mPaint.style = Paint.Style.STROKE
-        mPaint.strokeWidth = 5f
+        mPaint.strokeWidth = 10f
     }
 
     override fun onDraw(canvas: Canvas){

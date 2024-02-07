@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,7 +26,22 @@ class ScreenSaverFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        wait_for_signal()
+        return inflater.inflate(R.layout.fragment_screen_saver, container, false)
+    }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        mainActivity = context as MainActivity
+    }
+
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+    }
+
+    fun wait_for_signal() {
         CoroutineScope(Dispatchers.IO).launch {
             // Wait for presentation start on IO thread
             val visitor = mainActivity.communication.recieve_message()
@@ -44,16 +60,8 @@ class ScreenSaverFragment : Fragment() {
                         ScreenSaverFragmentDirections.actionScreenSaverFragmentToRatingFragment()
                 val controller = NavHostFragment.findNavController(this@ScreenSaverFragment)
                 controller.navigate(action)
-
             }
         }
-
-        return inflater.inflate(R.layout.fragment_screen_saver, container, false)
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        mainActivity = context as MainActivity
     }
 
 }
