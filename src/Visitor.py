@@ -32,10 +32,6 @@ class Visitor:
             data_string += f";{self.departure}"
         else:
             data_string += ";"
-        if self.signature:
-            data_string += f";{self.signature}"
-        else:
-            data_string += ";"
         if self.review:
             data_string += f";{self.review}"
         else:
