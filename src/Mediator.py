@@ -1,18 +1,19 @@
 import Visitor as vis
 import CustomFile as cf
+import difflib
 import string
 import unidecode
 from Communication import Communication
 from threading import Thread
 from PIL import Image
 
-OUTPUT_PATH = 'src/files/signatures' # TODO nastavnie správnej cesty pre ich potreby
-FILE_PATH = 'src/files/testFile.csv'
+OUTPUT_PATH = '../src/files/signatures' # TODO nastavnie správnej cesty pre ich potreby
+FILE_PATH = '../src/files/testFile.csv'
 
 class Mediator:
     def __init__(self):
         self.visitors = []      # TODO pridávanie neodhlásených z predošlého dňa
-        self.file = cf.CustomFile(FILE_PATH) 
+        self.file = cf.CustomFile(FILE_PATH)
         self.allVisitors = []
         self.saveAllVisits()
         try:
@@ -23,11 +24,13 @@ class Mediator:
         
     def addVisitor(self, name, surname, cardId, carTag, company, count, reason):
         visitor = vis.Visitor(None, name, surname, cardId, carTag, company, count, reason)
-        state = self.startPresentation(visitor)
+        state = None
+        #state = self.startPresentation(visitor)
         if state == "signature":
             self.file.writeVisitor(visitor.getDataToWrite())  # zapíše visitora do súboru
             self.allVisitors.append(visitor)
             self.visitors.append(visitor)
+            return state
         return state
         
     def editVisitor(self, id, name=None, surname=None, cardId=None, carTag=None, company=None, count=None, reason=None):
@@ -50,10 +53,10 @@ class Mediator:
             if vis.id == id:
                 self.visitors.remove(vis)
                 vis.registerDeparture(vis)
-                self.startReview(vis)      
+                self.startReview(vis)
                 self.updateAllVisitors(id)
                 break
-    
+
     def updateAllVisitors(self, id):
         for vis in self.allVisitors:
             if vis.getId() == id:
@@ -152,12 +155,10 @@ class Mediator:
         return state
 
 # Example
-# m = Mediator()
-# m.addVisitor('Lara', 'Taka', 1, 'BL000BS', 'Nic', 2, 2)
-# findId = m.getVisitors()[5].getId()
-# m.editVisitor(findId, "Sarah")
-# m.addVisitor('Laura', 'Zemiakova', 1, 'KE999BS', 'Nieco', 1, 1)
-# m.addVisitor('Peter', 'Zemiak', 1, 'DS111SD', 'StaleNic', 200, 3)
+#m = Mediator()
+#m.addVisitor('Lara', 'Taka', 1, 'BL000BS', 'Nic', 2, 2)
+#findId = m.getVisitors()[5].getId()
+#m.editVisitor(findId, "Sarah")
 # zoz = m.filter(None, None, "ó")
 # for i in zoz:
 #     print(i.getDataToWrite())

@@ -56,8 +56,10 @@ class MainScreen(ctk.CTk):
         self.current_frame = cont
 
     def update_tables(self):
-        self.frames[Ongoing].table.update_values(self.mediator.visitors)
-        self.frames[Visit_History].table.update_values(self.mediator.allVisitors)
+        frame1 = self.frames[Ongoing]
+        frame2 = self.frames[Visit_History]
+        frame1.table.update_values(frame1.listOngoing())
+        frame2.table.update_values(frame2.listVisitors())
 
     def resize(self):
         self.width = self.winfo_width()
@@ -326,16 +328,14 @@ class Ongoing(ctk.CTkFrame):
             visitorx = self.chosenVisitor
             self.controller.mediator.departureVisitor(visitorx)
             #TODO dorobit update tabulky po odchode || pockat na review??
-            self.goBack()
             self.controller.update_tables()
+            self.goBack()
             popup = ctk.CTkToplevel(self.controller)
             popup.geometry('300x200')
             popup.attributes('-topmost', 'true')
             label = ctk.CTkLabel(popup, text="Odoslany review", font=LARGE_FONT)
             label.pack()
             popup.mainloop()
-
-
         else:
             self.notify()
 
@@ -451,7 +451,6 @@ class Visit_History(ctk.CTkFrame):
         self.arrival.delete(0, 'end')
         self.departure.delete(0, 'end')
         self.controller.visitors = self.controller.mediator.allVisitors
-        self.table.configure(rows=len(self.controller.visitors))
         self.table.update_values(self.listVisitors())
 
     def goBack(self):
@@ -579,6 +578,7 @@ class Edit(ctk.CTkFrame):
             group_size = int(self.group_size.get())
             visit_reason = self.visit_reason.get()
             self.controller.mediator.editVisitor(int(self.chosenVisitor[0].id),name, surname, card_id, car_num, company, group_size, visit_reason)
+            self.controller.update_tables()
 
             popup = ctk.CTkToplevel(self.controller)
             popup.geometry('300x200')
@@ -587,7 +587,6 @@ class Edit(ctk.CTkFrame):
             label.pack()
             popup.mainloop()
 
-            self.controller.update_tables()
 
 
             self.chosenVisitor = [None,None]
