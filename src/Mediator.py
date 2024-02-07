@@ -44,6 +44,7 @@ class Mediator:
             for vis in self.allVisitors:
                 if vis.getId() == id:
                     vis.edit(name, surname, cardId, carTag, company, count, reason)
+                    break
 
     def departureVisitor(self, id):
         for vis in self.visitors[:]:
