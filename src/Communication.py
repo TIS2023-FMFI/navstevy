@@ -39,6 +39,7 @@ class Communication:
         time.sleep(0.2)
     
     def close(self):
+        print("Koniec komunikacie")
         self.my_angel_alive = False
         self.my_angel.join()
 

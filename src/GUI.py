@@ -7,6 +7,7 @@ from PIL import Image
 BASE_FG_COLOR = '#343638'
 LARGE_FONT = ("times new roman", 18)
 VERY_LARGE_FONT = ("times new roman", 32)
+ICONS_PATH = 'src/files/icons/'
 
 class MainScreen(ctk.CTk):
 
@@ -82,23 +83,38 @@ class MainMenu(ctk.CTkFrame):
         button2.place(relx=0.2, rely=0.5)
 
         button3 = ctk.CTkButton(frame, text="História návštev",font=LARGE_FONT,width=200,height=50, command=lambda: controller.show_frame(Visit_History))
-        button3.place(relx=0.2, rely=0.7, )
+        button3.place(relx=0.2, rely=0.7)
+
+        ## nacitaj obrazky ikoniek
+        self.error_application_image = ctk.CTkImage(Image.open(ICONS_PATH + "tablet_error.png"), None, (50, 50))
+        self.error_cable_image = ctk.CTkImage(Image.open(ICONS_PATH + "connection_error.png"),  None, (50, 50))
+        self.no_error_image = ctk.CTkImage(Image.new("RGBA", (50, 50), (0, 0, 0, 0)), None, (50, 50))
+
+        self.error_cable = ctk.CTkLabel(self, text="", font=LARGE_FONT, image=self.error_cable_image)
+        self.error_cable.place(relx=0, rely=0.8)
+
+        self.error_application = ctk.CTkLabel(self, text="", font=LARGE_FONT, image=self.error_application_image)
+        self.error_application.place(relx=0, rely=0.9)
 
         frame.grid(padx=10,pady=10)
         self.grid_rowconfigure(0,weight=1)
         self.grid_columnconfigure(0, weight=1)
 
-        #TODO zobrazenie toho ze zariadenie nieje pripojene
-        #if self.controller.mediator.communication is None:
-        #    self.device_not_connected()
+        self.show_connection_status()
 
-    def device_not_connected(self):
-        popup = ctk.CTkToplevel(self)
-        popup.geometry('300x200')
-        popup.attributes('-topmost', 'true')
-        label = ctk.CTkLabel(popup, text="Zariadenie nieje pripojene", font=LARGE_FONT)
-        label.pack()
-        popup.mainloop()
+       
+
+    def show_connection_status(self):
+        if not self.controller.mediator.communication.is_device_connected:
+            self.error_cable.configure(True, image=self.error_cable_image)
+        else:
+            self.error_cable.configure(True, image=self.no_error_image)
+
+        if not self.controller.mediator.communication.is_application_running:
+            self.error_application.configure(True, image=self.error_application_image)
+        else:
+            self.error_application.configure(True, image=self.no_error_image)
+        self.after(1000, self.show_connection_status)
 
 
 
@@ -155,9 +171,36 @@ class Entry(ctk.CTkFrame):
         submit = ctk.CTkButton(frame, text="Spustiť prezentáciu",height=40, command=lambda: self.saveInfo())
         submit.place(x=75,y=350)
 
+        ## nacitaj obrazky ikoniek
+        self.error_application_image = ctk.CTkImage(Image.open(ICONS_PATH + "tablet_error.png"), None, (50, 50))
+        self.error_cable_image = ctk.CTkImage(Image.open(ICONS_PATH + "connection_error.png"),  None, (50, 50))
+        self.no_error_image = ctk.CTkImage(Image.new("RGBA", (50, 50), (0, 0, 0, 0)), None, (50, 50))
+
+        self.error_cable = ctk.CTkLabel(self, text="", font=LARGE_FONT, image=self.error_cable_image)
+        self.error_cable.place(relx=0, rely=0.8)
+
+        self.error_application = ctk.CTkLabel(self, text="", font=LARGE_FONT, image=self.error_application_image)
+        self.error_application.place(relx=0, rely=0.9)
+
         frame.grid(padx=10, pady=10)
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
+        
+        self.show_connection_status()
+
+       
+
+    def show_connection_status(self):
+        if not self.controller.mediator.communication.is_device_connected:
+            self.error_cable.configure(True, image=self.error_cable_image)
+        else:
+            self.error_cable.configure(True, image=self.no_error_image)
+
+        if not self.controller.mediator.communication.is_application_running:
+            self.error_application.configure(True, image=self.error_application_image)
+        else:
+            self.error_application.configure(True, image=self.no_error_image)
+        self.after(1000, self.show_connection_status)
 
     def goBack(self):
         self.clearEntry()
@@ -290,9 +333,36 @@ class Ongoing(ctk.CTkFrame):
     
         self.table.pack()
 
+        ## nacitaj obrazky ikoniek
+        self.error_application_image = ctk.CTkImage(Image.open(ICONS_PATH + "tablet_error.png"), None, (50, 50))
+        self.error_cable_image = ctk.CTkImage(Image.open(ICONS_PATH + "connection_error.png"),  None, (50, 50))
+        self.no_error_image = ctk.CTkImage(Image.new("RGBA", (50, 50), (0, 0, 0, 0)), None, (50, 50))
+
+        self.error_cable = ctk.CTkLabel(self, text="", font=LARGE_FONT, image=self.error_cable_image)
+        self.error_cable.place(relx=0, rely=0.8)
+
+        self.error_application = ctk.CTkLabel(self, text="", font=LARGE_FONT, image=self.error_application_image)
+        self.error_application.place(relx=0, rely=0.9)
+
         frame.grid(padx=10, pady=10)
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
+
+        self.show_connection_status()
+
+       
+
+    def show_connection_status(self):
+        if not self.controller.mediator.communication.is_device_connected:
+            self.error_cable.configure(True, image=self.error_cable_image)
+        else:
+            self.error_cable.configure(True, image=self.no_error_image)
+
+        if not self.controller.mediator.communication.is_application_running:
+            self.error_application.configure(True, image=self.error_application_image)
+        else:
+            self.error_application.configure(True, image=self.no_error_image)
+        self.after(1000, self.show_connection_status)
 
 
 
@@ -450,7 +520,34 @@ class Visit_History(ctk.CTkFrame):
         button = ctk.CTkButton(frame, text="Back", command=lambda: self.goBack())
         button.place(relx=0.7,rely=0.9)
 
+        ## nacitaj obrazky ikoniek
+        self.error_application_image = ctk.CTkImage(Image.open(ICONS_PATH + "tablet_error.png"), None, (50, 50))
+        self.error_cable_image = ctk.CTkImage(Image.open(ICONS_PATH + "connection_error.png"),  None, (50, 50))
+        self.no_error_image = ctk.CTkImage(Image.new("RGBA", (50, 50), (0, 0, 0, 0)), None, (50, 50))
+
+        self.error_cable = ctk.CTkLabel(self, text="", font=LARGE_FONT, image=self.error_cable_image)
+        self.error_cable.place(relx=0, rely=0.8)
+
+        self.error_application = ctk.CTkLabel(self, text="", font=LARGE_FONT, image=self.error_application_image)
+        self.error_application.place(relx=0, rely=0.9)
+
         frame.pack()
+
+        self.show_connection_status()
+
+       
+
+    def show_connection_status(self):
+        if not self.controller.mediator.communication.is_device_connected:
+            self.error_cable.configure(True, image=self.error_cable_image)
+        else:
+            self.error_cable.configure(True, image=self.no_error_image)
+
+        if not self.controller.mediator.communication.is_application_running:
+            self.error_application.configure(True, image=self.error_application_image)
+        else:
+            self.error_application.configure(True, image=self.no_error_image)
+        self.after(1000, self.show_connection_status)
 
 
     def clearEntry(self):
@@ -564,9 +661,36 @@ class Edit(ctk.CTkFrame):
         submit = ctk.CTkButton(frame, text="Uložiť zmeny", height=40, command=lambda: self.saveInfo())
         submit.place(x=75, y=350)
 
+        ## nacitaj obrazky ikoniek
+        self.error_application_image = ctk.CTkImage(Image.open(ICONS_PATH + "tablet_error.png"), None, (50, 50))
+        self.error_cable_image = ctk.CTkImage(Image.open(ICONS_PATH + "connection_error.png"),  None, (50, 50))
+        self.no_error_image = ctk.CTkImage(Image.new("RGBA", (50, 50), (0, 0, 0, 0)), None, (50, 50))
+
+        self.error_cable = ctk.CTkLabel(self, text="", font=LARGE_FONT, image=self.error_cable_image)
+        self.error_cable.place(relx=0, rely=0.8)
+
+        self.error_application = ctk.CTkLabel(self, text="", font=LARGE_FONT, image=self.error_application_image)
+        self.error_application.place(relx=0, rely=0.9)
+
         frame.grid(padx=10, pady=10)
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
+
+        self.show_connection_status()
+
+       
+
+    def show_connection_status(self):
+        if not self.controller.mediator.communication.is_device_connected:
+            self.error_cable.configure(True, image=self.error_cable_image)
+        else:
+            self.error_cable.configure(True, image=self.no_error_image)
+
+        if not self.controller.mediator.communication.is_application_running:
+            self.error_application.configure(True, image=self.error_application_image)
+        else:
+            self.error_application.configure(True, image=self.no_error_image)
+        self.after(1000, self.show_connection_status)
 
     def goBack(self):
         self.clearEntry()
@@ -697,6 +821,33 @@ class Control(ctk.CTkFrame):
         back = ctk.CTkButton(self, text="Naspäť", height=40, command=lambda: self.goBack())
         back.pack()
 
+        ## nacitaj obrazky ikoniek
+        self.error_application_image = ctk.CTkImage(Image.open(ICONS_PATH + "tablet_error.png"), None, (50, 50))
+        self.error_cable_image = ctk.CTkImage(Image.open(ICONS_PATH + "connection_error.png"),  None, (50, 50))
+        self.no_error_image = ctk.CTkImage(Image.new("RGBA", (50, 50), (0, 0, 0, 0)), None, (50, 50))
+
+        self.error_cable = ctk.CTkLabel(self, text="", font=LARGE_FONT, image=self.error_cable_image)
+        self.error_cable.place(relx=0, rely=0.8)
+
+        self.error_application = ctk.CTkLabel(self, text="", font=LARGE_FONT, image=self.error_application_image)
+        self.error_application.place(relx=0, rely=0.9)
+
+        self.show_connection_status()
+
+       
+
+    def show_connection_status(self):
+        if not self.controller.mediator.communication.is_device_connected:
+            self.error_cable.configure(True, image=self.error_cable_image)
+        else:
+            self.error_cable.configure(True, image=self.no_error_image)
+
+        if not self.controller.mediator.communication.is_application_running:
+            self.error_application.configure(True, image=self.error_application_image)
+        else:
+            self.error_application.configure(True, image=self.no_error_image)
+        self.after(1000, self.show_connection_status)
+
 
 
 
@@ -759,8 +910,12 @@ class Control(ctk.CTkFrame):
             label.pack()
             popup.mainloop()
 
+def close_app():
+    app.destroy()
+    m.communication.close()
+
 ctk.set_appearance_mode('dark')
 m = med.Mediator()
 app = MainScreen(m)
-app.protocol("WM_DELETE_WINDOW", m.communication.close())
+app.protocol("WM_DELETE_WINDOW", close_app)
 app.mainloop()
