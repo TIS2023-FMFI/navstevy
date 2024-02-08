@@ -14,6 +14,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.InputStream
+import java.lang.Thread.sleep
 import java.nio.ByteBuffer
 
 
@@ -38,8 +39,13 @@ enum class MessageType(val message_code: Int) {
 }
 
 class Communication(val mainActivity: MainActivity) {
+    companion object{
+        var instances = 0
+    }
     init {
-
+        instances++
+        println("$instances instances ")
+        guardian_angel_thread()
     }
     fun send_wrong_data() {
         try {
@@ -248,8 +254,20 @@ class Communication(val mainActivity: MainActivity) {
         } catch (e: Exception) {
             println(e.toString())
         }
-        return false
+        return true
     }
+
+    fun guardian_angel_thread() {
+        CoroutineScope(Dispatchers.IO).launch {
+            while (true) {
+                val everything_ok = recieve_guardian_angel()
+                if (!everything_ok) {
+                    println("RESTAAAAAAAAAART")
+                }
+            }
+        }
+    }
+
 
     private fun int_to_byte_array(value: Int): ByteArray {
         val buffer = ByteBuffer.allocate(4)
@@ -263,25 +281,5 @@ class Communication(val mainActivity: MainActivity) {
             byte_array[it] = input_stream.read().toByte()
         }
         return byte_array
-    }
-
-    fun guardian_angel_thread() {
-        CoroutineScope(Dispatchers.Unconfined).launch {
-            while (true) {
-                val everything_ok = recieve_guardian_angel()
-                if (!everything_ok) {
-                    CoroutineScope(Dispatchers.IO).cancel()
-
-                    withContext(Dispatchers.Main) {
-                        val fragmentManager = mainActivity.supportFragmentManager
-                        val transaction = fragmentManager.beginTransaction()
-
-                        transaction.replace(R.id.container, ScreenSaverFragment()) // Replace R.id.fragment_container with your actual container ID
-                        transaction.addToBackStack(null) // Add the transaction to the back stack
-                        transaction.commit()
-                    }
-                }
-            }
-        }
     }
 }

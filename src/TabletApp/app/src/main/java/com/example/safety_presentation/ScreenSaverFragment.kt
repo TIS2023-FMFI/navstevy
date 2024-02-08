@@ -22,23 +22,26 @@ import kotlinx.coroutines.withContext
 
 class ScreenSaverFragment : Fragment() {
     companion object {
-
+        lateinit var last_fragment: ScreenSaverFragment;
+        lateinit var mainActivity: MainActivity
     }
-    lateinit var mainActivity: MainActivity
+
+
+
 
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        last_fragment = this;
+        mainActivity = context as MainActivity
         wait_for_signal()
         return inflater.inflate(R.layout.fragment_screen_saver, container, false)
     }
 
     override fun onAttach(context: Context) {
-
         super.onAttach(context)
-        mainActivity = context as MainActivity
     }
 
     fun wait_for_signal() {
@@ -47,6 +50,8 @@ class ScreenSaverFragment : Fragment() {
             // Wait for presentation start on IO thread
             val visitor = mainActivity.communication.recieve_message()  // THIS LINE WAITS FOR TCP CONNECTION, SO THIS LINE IS BLOCKING
             mainActivity.visitor = visitor
+            println("Nastavil som visitora na ${mainActivity.visitor}")
+
             if (visitor == null){
                 return@launch
             }
@@ -59,10 +64,8 @@ class ScreenSaverFragment : Fragment() {
                         ScreenSaverFragmentDirections.actionScreenSaverFragmentToCheckingFragment()
                     else
                         ScreenSaverFragmentDirections.actionScreenSaverFragmentToRatingFragment()
-                val controller = NavHostFragment.findNavController(this@ScreenSaverFragment)
+                val controller = NavHostFragment.findNavController(last_fragment)
                 controller.navigate(action)
-
-
 
             }
         }

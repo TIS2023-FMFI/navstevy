@@ -20,7 +20,7 @@ class CheckingFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         bind = FragmentCheckingBinding.inflate(inflater, container, false)
-
+        println(mainActivity.visitor)
         bind.apply {
             textView2.text = "Prosím skontrolujte správnosť zadaných dát: \nmeno: "+
             mainActivity.visitor!!.name + "\npriezvisko: " + mainActivity.visitor!!.surname +
