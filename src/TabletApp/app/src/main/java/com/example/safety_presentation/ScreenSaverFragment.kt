@@ -8,17 +8,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
 
 class ScreenSaverFragment : Fragment() {
+    companion object {
 
+    }
     lateinit var mainActivity: MainActivity
 
 
@@ -31,20 +36,16 @@ class ScreenSaverFragment : Fragment() {
     }
 
     override fun onAttach(context: Context) {
+
         super.onAttach(context)
         mainActivity = context as MainActivity
     }
 
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-    }
-
     fun wait_for_signal() {
+
         CoroutineScope(Dispatchers.IO).launch {
             // Wait for presentation start on IO thread
-            val visitor = mainActivity.communication.recieve_message()
+            val visitor = mainActivity.communication.recieve_message()  // THIS LINE WAITS FOR TCP CONNECTION, SO THIS LINE IS BLOCKING
             mainActivity.visitor = visitor
             if (visitor == null){
                 return@launch
@@ -60,8 +61,22 @@ class ScreenSaverFragment : Fragment() {
                         ScreenSaverFragmentDirections.actionScreenSaverFragmentToRatingFragment()
                 val controller = NavHostFragment.findNavController(this@ScreenSaverFragment)
                 controller.navigate(action)
+
+
+
             }
         }
     }
+
+    fun switch_to_fragment(go_to_fragment: Fragment) {
+        val fragmentManager = mainActivity.supportFragmentManager
+        val transaction = fragmentManager.beginTransaction()
+
+        transaction.replace(R.id.container, go_to_fragment) // Replace R.id.fragment_container with your actual container ID
+        transaction.addToBackStack(null) // Add the transaction to the back stack
+        transaction.commit()
+    }
+    //                val go_to_fragment: Fragment = if (visitor.is_new) CheckingFragment() else RatingFragment()
+    //                switch_to_fragment(go_to_fragment)
 
 }

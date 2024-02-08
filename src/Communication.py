@@ -2,11 +2,14 @@ import socket
 from PIL import Image
 from Visitor import Visitor
 from IpConfigParser import ipconfig_all
+from threading import Thread
+
 
 class Communication:
     TIMEOUT_SECONDS = 60
     message_code = {
         ## sending message
+        "guardian_angel": 0,
         "presentation_start": 1,
         "presentation_end": 2,
         "rating_start": 3,
@@ -17,12 +20,23 @@ class Communication:
         "signature": 6,
         "rating": 7,
         "error": 8,
+
     }
 
     def __init__(self):
-        self.device_ip_adress = self.get_android_device_ip()
         self.port_out = 5013
         self.port_in = 5014
+        self.port_check = 5015
+
+        self.is_device_connected = False
+        self.is_application_running = False
+        self.device_ip_adress = self.get_android_device_ip()
+
+        self.guardian_angel()
+
+    def guardian_angel(self):
+        pass
+
 
     def get_android_device_ip(self):
         ip_config_result = ipconfig_all()
@@ -112,7 +126,7 @@ class Communication:
                 if message_code == Communication.message_code["progress"]:
                     progres_percentage = int.from_bytes(client_socket.recv(4))
                     client_socket.close()
-                    print(f"<--- Progress ... {progres_percentage}")
+                    print(f"<--- Progress ... {progres_percentage}%")
                     array_to_write.append(message_code)
                     array_to_write.append(progres_percentage)
                     return message_code, progres_percentage

@@ -6,6 +6,13 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import androidx.core.graphics.get
 import androidx.core.graphics.toColor
+import com.example.safety_presentation.R
+import com.example.safety_presentation.ScreenSaverFragment
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.InputStream
 import java.nio.ByteBuffer
 
@@ -13,9 +20,11 @@ import java.nio.ByteBuffer
 var IP_ADDRESS = "localhost"
 val PORT_IN = 5013
 val PORT_OUT = 5014
+val PORT_CHECK = 5015
 
 enum class MessageType(val message_code: Int) {
     // receiving message
+    GUARDIAN_CHECK(0),
     PRESENTATION_START(1),
     PRESENTATION_END(2),
     RATING_START(3),
@@ -29,7 +38,9 @@ enum class MessageType(val message_code: Int) {
 }
 
 class Communication(val mainActivity: MainActivity) {
+    init {
 
+    }
     fun send_wrong_data() {
         try {
             val socket = Socket(IP_ADDRESS, PORT_OUT)
@@ -156,6 +167,7 @@ class Communication(val mainActivity: MainActivity) {
         try {
             val serverSocket = ServerSocket(PORT_IN)
             val socket: Socket = serverSocket.accept()
+
             IP_ADDRESS = socket.inetAddress.toString().drop(1)
 
 
@@ -169,6 +181,8 @@ class Communication(val mainActivity: MainActivity) {
                 val visitor_string = read_n_bytes(input_stream, data_lenght).decodeToString()
                 val visitor = Visitor("true;" + visitor_string)
                 println("<--- Visitor prišiel")
+                socket.close()
+                serverSocket.close()
                 return visitor
             }
 
@@ -179,12 +193,16 @@ class Communication(val mainActivity: MainActivity) {
                 println(visitor_string)
                 val visitor = Visitor("false;" + visitor_string)
                 println("<--- Visitor odchadza")
+                socket.close()
+                serverSocket.close()
                 return visitor
             }
 
             // End presentation
             else if (message_code == MessageType.PRESENTATION_END.message_code) {
                 println("<--- Ukonči prezentáciu")
+                socket.close()
+                serverSocket.close()
                 return null
             }
             socket.close()
@@ -194,6 +212,43 @@ class Communication(val mainActivity: MainActivity) {
         }
         println("Tu returnujem")
         return null
+    }
+
+    fun recieve_guardian_angel(): Boolean {
+        println("---- Guardian angel watching ---- ")
+
+        try {
+            val serverSocket = ServerSocket(PORT_CHECK)
+            val socket: Socket = serverSocket.accept()
+            IP_ADDRESS = socket.inetAddress.toString().drop(1)
+
+
+            val input_stream = socket.getInputStream()
+            val message_code = input_stream.read()
+            println("Message code (guardian): " + message_code)
+
+            // Only checking
+            if (message_code == MessageType.GUARDIAN_CHECK.message_code) {
+                println("<*** Guardian check")
+                socket.close()
+                serverSocket.close()
+                return true
+            }
+
+            // Guardian reset
+            if (message_code == MessageType.PRESENTATION_END.message_code) {
+                println("<*** Guardian reset")
+                socket.close()
+                serverSocket.close()
+                return false
+            }
+            socket.close()
+            serverSocket.close()
+
+        } catch (e: Exception) {
+            println(e.toString())
+        }
+        return false
     }
 
     private fun int_to_byte_array(value: Int): ByteArray {
@@ -208,5 +263,25 @@ class Communication(val mainActivity: MainActivity) {
             byte_array[it] = input_stream.read().toByte()
         }
         return byte_array
+    }
+
+    fun guardian_angel_thread() {
+        CoroutineScope(Dispatchers.Unconfined).launch {
+            while (true) {
+                val everything_ok = recieve_guardian_angel()
+                if (!everything_ok) {
+                    CoroutineScope(Dispatchers.IO).cancel()
+
+                    withContext(Dispatchers.Main) {
+                        val fragmentManager = mainActivity.supportFragmentManager
+                        val transaction = fragmentManager.beginTransaction()
+
+                        transaction.replace(R.id.container, ScreenSaverFragment()) // Replace R.id.fragment_container with your actual container ID
+                        transaction.addToBackStack(null) // Add the transaction to the back stack
+                        transaction.commit()
+                    }
+                }
+            }
+        }
     }
 }

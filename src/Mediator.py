@@ -24,12 +24,17 @@ class Mediator:
         
     def addVisitor(self, controlFrame, name, surname, cardId, carTag, company, count, reason):
         visitor = vis.Visitor(None, name, surname, cardId, carTag, company, count, reason)
-        state = self.startPresentation(visitor, controlFrame)
+        state, data = self.startPresentation(visitor, controlFrame)
         if state == Communication.message_code["signature"]:
+            ## data je PIL image
+            data.save(OUTPUT_PATH + f'{visitor.name}_{visitor.surname}_{visitor.arrival}.PNG')  
             self.file.writeVisitor(visitor.getDataToWrite())  # zapíše visitora do súboru
             self.allVisitors.append(visitor)
             self.visitors.append(visitor)
-        return state
+        elif state == Communication.message_code["error"]:
+            ## data je dovod erroru
+            print(data)
+        return state, data
         
     def editVisitor(self, id, name=None, surname=None, cardId=None, carTag=None, company=None, count=None, reason=None):
         for vis in self.visitors:
@@ -107,29 +112,24 @@ class Mediator:
                 self.visitors.append(visitor)
             self.allVisitors.append(visitor)
 
-    def startPresentation(self, visitor, controlFrame):
+    def startPresentation(self, visitor: vis.Visitor, controlFrame):
         # Cakaj odpovede z prezentacia a reaguj na to, ked je koniec tak toto cele skonci
         # v state, data budu ulezene vsetky info
         state, data = self.communication.send_start_presentation(visitor)
         while state == Communication.message_code["progress"]:
+            if data is not None:
+                controlFrame.showProgress(data)
             state_data_result = []
             thread = Thread(target=self.communication.recieve, args=(state_data_result,))
             thread.start()
             while not state_data_result:
                 controlFrame.update()
             state, data = tuple(state_data_result)
-            print(state, data)
+            
             thread.join()
-        
-        if state == Communication.message_code["signature"]:
-            ## data je PIL obrazok podpisu
-            data.save(OUTPUT_PATH + str(visitor.getId()) + '.png')        #zapíše obrázok do súboru s ID visitora ako názov
-        elif state == Communication.message_code["error"]:
-            print(data)
-        return state
+        return state, data
     
     def startReview(self, visitor, controlFrame):
-        print("Idem startorvaty")
         state, data = self.communication.send_start_review(visitor)
         while state == Communication.message_code["progress"]:
             state_data_result = []

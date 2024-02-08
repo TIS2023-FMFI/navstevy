@@ -2,6 +2,7 @@ import customtkinter as ctk
 import Mediator as med
 import CTkTable as t
 from Communication import Communication
+from PIL import Image
 
 BASE_FG_COLOR = '#343638'
 LARGE_FONT = ("times new roman", 18)
@@ -687,28 +688,54 @@ class Control(ctk.CTkFrame):
     def __init__(self, parent, controller):
         self.controller = controller
         ctk.CTkFrame.__init__(self, parent)
-        label = ctk.CTkLabel(self, text="Prebieha kontrola zadaných údajov.", font=VERY_LARGE_FONT)
-        label.pack(expand=True, fill='both', anchor='center')
+        self.label = ctk.CTkLabel(self, text="Prebieha kontrola zadaných údajov.", font=VERY_LARGE_FONT)
+        self.label.pack(expand=True, fill='both', anchor='center')
+        
+        self.progressbar = ctk.CTkProgressBar(self)
+        self.progressbar.set(0)
+
         back = ctk.CTkButton(self, text="Naspäť", height=40, command=lambda: self.goBack())
         back.pack()
+
+
 
 
     def goBack(self):
         self.controller.show_frame(MainMenu)
 
-    def waitForPresentation(self, name, surname, card_id, car_num, company, group_size, visit_reason):
-        state = self.controller.mediator.addVisitor(self, name, surname, card_id, car_num, company, group_size, visit_reason)
+    def showProgress(self, percentage):
+        self.label.configure(text="Návšteva sa zoznamje s pravidlami prevádzky")
+        self.progressbar.place(rely=0.7, relx=0.5, anchor="center")
+        value = percentage / 100
+        self.progressbar.set(value)
+        self.progressbar.update()
 
+
+    def waitForPresentation(self, name, surname, card_id, car_num, company, group_size, visit_reason):
+        state, data = self.controller.mediator.addVisitor(self, name, surname, card_id, car_num, company, group_size, visit_reason)
+
+        
+        
         # visitor je úspešne pridaný
         if state == Communication.message_code["signature"]:
             self.controller.show_frame(MainMenu)
             self.controller.update_tables()
             self.goBack()
+
+            signature: Image = data
+            width, height = signature.size
+            
             popup = ctk.CTkToplevel(self.controller)
-            popup.geometry('300x200')
+            popup.geometry(f'{width}x{height + 100}')
             popup.attributes('-topmost', 'true')
+            
             label = ctk.CTkLabel(popup, text="Navsteva bola zapisana", font=LARGE_FONT)
             label.pack()
+
+            signature_image = ctk.CTkImage(signature, None, signature.size)
+            image_label = ctk.CTkLabel(popup, image=signature_image, text="")
+            image_label.pack(expand=True, fill="both")
+            
             popup.mainloop()
 
         # visitor sa nepridal
