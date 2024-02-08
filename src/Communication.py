@@ -3,6 +3,7 @@ from PIL import Image
 from Visitor import Visitor
 from IpConfigParser import ipconfig_all
 from threading import Thread
+import time
 
 
 class Communication:
@@ -30,12 +31,61 @@ class Communication:
 
         self.is_device_connected = False
         self.is_application_running = False
-        self.device_ip_adress = self.get_android_device_ip()
+        self.device_ip_adress = None
 
-        self.guardian_angel()
+        self.my_angel_alive = True
+        self.my_angel = Thread(target=self.guardian_angel)
+        self.my_angel.start()
+        time.sleep(0.2)
+    
+    def close(self):
+        self.my_angel_alive = False
+        self.my_angel.join()
+
+    def stable(self):
+        return self.is_device_connected and self.is_application_running
 
     def guardian_angel(self):
-        pass
+        wait_time = 0
+        while self.my_angel_alive:
+            time.sleep(wait_time)
+            if not self.try_connect_android_device():
+                wait_time = 1
+                continue
+            wait_time = 3
+            if not self.guardian_angel_check():
+                wait_time = 3
+                continue
+            wait_time = 5
+            print("Komunikácia beží...", end="\r")
+
+    def try_connect_android_device(self):
+        try:
+            self.device_ip_adress = self.get_android_device_ip()
+            self.is_device_connected = True
+            return True
+        except:
+            self.is_device_connected = False
+            self.is_application_running = False
+            self.device_ip_adress = None
+            print("Device not found...")
+            return False
+        
+    def guardian_angel_check(self):
+        try:
+            ## Sends message to check connection
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                message = Communication.message_code["guardian_angel"].to_bytes(1)
+
+                s.connect((self.device_ip_adress, self.port_check))
+                s.sendall(message)
+                self.is_application_running = True
+                return True
+        except:
+            print("App not running ...")
+            self.is_application_running = False
+            return False
+
 
 
     def get_android_device_ip(self):
@@ -47,9 +97,7 @@ class Communication:
             if "Description" not in atributes:
                 continue 
             if "UsbNcm Host Device" in atributes["Description"]:
-                print("Device connected...")
                 return atributes["Default Gateway"]
-        print("Device not found...")
         raise Exception("Android device not found")
         
     def send_start_presentation(self, visitor: Visitor):
@@ -66,7 +114,8 @@ class Communication:
                 s.close()
                 print("---> Presentation started...")
             return Communication.message_code["progress"], None
-        except:
+        except Exception as e:
+            print(e)
             return Communication.message_code["error"], "Device not connected properly or application not running"
 
     
@@ -175,6 +224,9 @@ class Communication:
         
 if __name__ == "__main__":
     communication = Communication()
+    while not communication.stable():
+        pass
+
     visitor = Visitor(15, "Jožko", "Mrkvička", 1, "AB-123-CD", "Matfyz", 0, "Musim")
 
     state, data = communication.send_start_presentation(visitor)
@@ -184,3 +236,4 @@ if __name__ == "__main__":
     
     print(state)
     print(data)
+    communication.close()

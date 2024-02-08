@@ -8,7 +8,6 @@ BASE_FG_COLOR = '#343638'
 LARGE_FONT = ("times new roman", 18)
 VERY_LARGE_FONT = ("times new roman", 32)
 
-
 class MainScreen(ctk.CTk):
 
     def __init__(self, mediator):
@@ -462,6 +461,7 @@ class Visit_History(ctk.CTkFrame):
         self.departure.delete(0, 'end')
         self.controller.visitors = self.controller.mediator.allVisitors
         self.table.update_values(self.listVisitors())
+        self.filterVisitors()
 
     def goBack(self):
         self.controller.show_frame(MainMenu)
@@ -684,7 +684,7 @@ class Edit(ctk.CTkFrame):
         self.visit_reason.set(self.chosenVisitor[0].reasonOfVisit)
 
 class Control(ctk.CTkFrame):
-    # TODO dorobit frame co sa deje po spusteni prezentacie
+    
     def __init__(self, parent, controller):
         self.controller = controller
         ctk.CTkFrame.__init__(self, parent)
@@ -713,9 +713,8 @@ class Control(ctk.CTkFrame):
 
     def waitForPresentation(self, name, surname, card_id, car_num, company, group_size, visit_reason):
         state, data = self.controller.mediator.addVisitor(self, name, surname, card_id, car_num, company, group_size, visit_reason)
+        self.progressbar.set(0)
 
-        
-        
         # visitor je úspešne pridaný
         if state == Communication.message_code["signature"]:
             self.controller.show_frame(MainMenu)
@@ -763,4 +762,5 @@ class Control(ctk.CTkFrame):
 ctk.set_appearance_mode('dark')
 m = med.Mediator()
 app = MainScreen(m)
+app.protocol("WM_DELETE_WINDOW", m.communication.close())
 app.mainloop()

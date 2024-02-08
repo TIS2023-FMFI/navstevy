@@ -7,8 +7,8 @@ from Communication import Communication
 from threading import Thread
 from PIL import Image
 
-OUTPUT_PATH = '../src/files/signatures/' # TODO nastavnie správnej cesty pre ich potreby
-FILE_PATH = '../src/files/testFile.csv'
+OUTPUT_PATH = 'src/files/signatures/' # TODO nastavnie správnej cesty pre ich potreby
+FILE_PATH = 'src/files/testFile.csv'
 
 class Mediator:
     def __init__(self):
@@ -16,18 +16,15 @@ class Mediator:
         self.file = cf.CustomFile(FILE_PATH)
         self.allVisitors = []
         self.saveAllVisits()
-        try:
-            self.communication = Communication()
-        except:
-            self.communication = None
-             # TODO dať informáciu o nepripojenom zariadení
+        self.communication = Communication()
+
         
     def addVisitor(self, controlFrame, name, surname, cardId, carTag, company, count, reason):
         visitor = vis.Visitor(None, name, surname, cardId, carTag, company, count, reason)
         state, data = self.startPresentation(visitor, controlFrame)
         if state == Communication.message_code["signature"]:
             ## data je PIL image
-            data.save(OUTPUT_PATH + f'{visitor.name}_{visitor.surname}_{visitor.arrival}.PNG')  
+            data.save(OUTPUT_PATH + visitor.getSignatureFileName())  
             self.file.writeVisitor(visitor.getDataToWrite())  # zapíše visitora do súboru
             self.allVisitors.append(visitor)
             self.visitors.append(visitor)
@@ -138,7 +135,6 @@ class Mediator:
             while not state_data_result:
                 controlFrame.update()
             state, data = tuple(state_data_result)
-            print(state, data)
             thread.join()
 
         if state == Communication.message_code["rating"]:
