@@ -31,33 +31,37 @@ class Communication:
 
         self.is_device_connected = False
         self.is_application_running = False
-        self.device_ip_adress = None
+        self.device_ip_adress = self.get_android_device_ip()
 
         self.my_angel_alive = True
         self.my_angel = Thread(target=self.guardian_angel)
         self.my_angel.start()
-        time.sleep(0.2)
     
     def close(self):
         print("Koniec komunikacie")
+        self.angel_wait_time = 0
         self.my_angel_alive = False
         self.my_angel.join()
+        print("Komunikácia ukončená")
 
     def stable(self):
         return self.is_device_connected and self.is_application_running
 
     def guardian_angel(self):
-        wait_time = 0
+        self.angel_wait_time = 0
         while self.my_angel_alive:
-            time.sleep(wait_time)
+            
             if not self.try_connect_android_device():
-                wait_time = 1
+                time.sleep(1)
+                self.angel_wait_time = 1
                 continue
-            wait_time = 3
+            self.angel_wait_time = 3
             if not self.guardian_angel_check():
-                wait_time = 3
+                time.sleep(1)
+                self.angel_wait_time = 3
                 continue
-            wait_time = 5
+            self.angel_wait_time = 5
+            time.sleep(1)
             print("Komunikácia beží...", end="\r")
 
     def try_connect_android_device(self):
@@ -76,10 +80,15 @@ class Communication:
         try:
             ## Sends message to check connection
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    
                 message = Communication.message_code["guardian_angel"].to_bytes(1)
-
+                if self.is_application_running:
+                    message += int(0).to_bytes(1)
+                else:
+                    message += int(1).to_bytes(1)
                 s.connect((self.device_ip_adress, self.port_check))
                 s.sendall(message)
+                
                 self.is_application_running = True
                 return True
         except:
@@ -144,9 +153,10 @@ class Communication:
                 message = Communication.message_code["presentation_end"].to_bytes(1)
                 s.connect((self.device_ip_adress, self.port_check))
                 s.sendall(message)
-                print("---> Presentation ended")
+                print(f"---> Presentation ended")
             return Communication.message_code["presentation_end"], None
         except:
+            print("debil")
             return Communication.message_code["error"], "Device not connected properly or application not running"
             
 
@@ -165,6 +175,13 @@ class Communication:
 
                 # Receive data from the client
                 message_code = int.from_bytes(client_socket.recv(1))
+
+                if message_code == Communication.message_code["presentation_end"]:
+                    client_socket.close()
+                    print("<--- Prezentácia ukončená")
+                    array_to_write.append(message_code)
+                    array_to_write.append(None)
+                    return message_code, None
                 
                 if message_code == Communication.message_code["wrong_data"]:
                     client_socket.close()
@@ -234,8 +251,7 @@ if __name__ == "__main__":
     ##state, data = communication.send_start_review(visitor)
     while state == Communication.message_code["progress"]:
         state, data = communication.recieve(list())
-        if data is not None and data > 50:
-            communication.send_end_presentation()
+    
     
     print(state)
     print(data)

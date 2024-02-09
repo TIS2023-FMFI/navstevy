@@ -17,23 +17,18 @@ class Mediator:
         self.allVisitors = []
         self.saveAllVisits()
         self.communication = Communication()
-        self.restart_signal = False
 
         
     def addVisitor(self, controlFrame, name, surname, cardId, carTag, company, count, reason):
         visitor = vis.Visitor(None, name, surname, cardId, carTag, company, count, reason)
-        print("start thread")
         state, data = self.startPresentation(visitor, controlFrame)
-        print("konieeeeec thread")
+
         if state == Communication.message_code["signature"]:
             ## data je PIL image
             data.save(OUTPUT_PATH + visitor.getSignatureFileName())  
             self.file.writeVisitor(visitor.getDataToWrite())  # zapíše visitora do súboru
             self.allVisitors.append(visitor)
             self.visitors.append(visitor)
-        elif state == Communication.message_code["error"]:
-            ## data je dovod erroru
-            print(data)
         return state, data
         
     def editVisitor(self, id, name=None, surname=None, cardId=None, carTag=None, company=None, count=None, reason=None):
@@ -120,30 +115,24 @@ class Mediator:
         state, data = self.communication.send_start_presentation(visitor)
         self.restart_signal = False
         while state == Communication.message_code["progress"]:
-            if self.restart_signal:
-                self.restart_signal = False
-                return Communication.message_code["presentation_end"], 0
             
             if data is not None:
                 controlFrame.showProgress(data)
+            
             state_data_result = []
             thread = Thread(target=self.communication.recieve, args=(state_data_result,))
             thread.start()
             while not state_data_result:
                 controlFrame.update()
             state, data = tuple(state_data_result)
-            
             thread.join()
+            
         return state, data
     
     def startReview(self, visitor, controlFrame):
         state, data = self.communication.send_start_review(visitor)
         self.restart_signal = False
         while state == Communication.message_code["progress"]:
-            if self.restart_signal:
-                self.restart_signal = False
-                return Communication.message_code["rating"], 0
-
             state_data_result = []
             thread = Thread(target=self.communication.recieve, args=(state_data_result,))
             thread.start()
@@ -155,14 +144,13 @@ class Mediator:
         return state, data
 
     def endPresentation(self):
-        self.restart_signal = True
         self.communication.send_end_presentation()
 
-# Example
-#m = Mediator()
-#m.addVisitor('Lara', 'Taka', 1, 'BL000BS', 'Nic', 2, 2)
-#findId = m.getVisitors()[5].getId()
-#m.editVisitor(findId, "Sarah")
-# zoz = m.filter(None, None, "ó")
-# for i in zoz:
-#     print(i.getDataToWrite())
+if __name__ == "__main__": 
+    m = Mediator()
+    m.addVisitor('Lara', 'Taka', 1, 'BL000BS', 'Nic', 2, 2)
+    findId = m.getVisitors()[5].getId()
+    m.editVisitor(findId, "Sarah")
+    zoz = m.filter(None, None, "ó")
+    for i in zoz:
+        print(i.getDataToWrite())

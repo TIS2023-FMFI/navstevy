@@ -4,6 +4,7 @@ import java.net.ServerSocket
 import java.net.Socket
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.widget.Toast
 import androidx.core.graphics.get
 import androidx.core.graphics.toColor
 import com.example.safety_presentation.R
@@ -15,6 +16,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.InputStream
 import java.lang.Thread.sleep
+import java.net.SocketTimeoutException
 import java.nio.ByteBuffer
 
 
@@ -39,6 +41,9 @@ enum class MessageType(val message_code: Int) {
 }
 
 class Communication(val mainActivity: MainActivity) {
+    companion object {
+        var connected = false
+    }
     init {
         guardian_angel_thread()
     }
@@ -56,6 +61,26 @@ class Communication(val mainActivity: MainActivity) {
             // Close the socket
             socket.close()
             println("---> Sending wrong data")
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    fun send_end_presentation_confirm() {
+        try {
+            val socket = Socket(IP_ADDRESS, PORT_OUT)
+            socket.reuseAddress = true
+            socket.soTimeout = 1
+
+            // Get the output stream from the socket
+            val outputStream: OutputStream = socket.getOutputStream()
+
+            // Write raw bytes to the output stream
+            outputStream.write(MessageType.PRESENTATION_END.message_code)
+
+            // Close the socket
+            socket.close()
+            println("---> Sending end presentation")
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -164,7 +189,6 @@ class Communication(val mainActivity: MainActivity) {
 
     fun recieve_message(): Visitor? {
         println("---- Waiting for some message ---- ")
-
         try {
             val serverSocket = ServerSocket(PORT_IN)
             val socket: Socket = serverSocket.accept()
@@ -199,23 +223,16 @@ class Communication(val mainActivity: MainActivity) {
                 return visitor
             }
 
-            // End presentation
-            else if (message_code == MessageType.PRESENTATION_END.message_code) {
-                println("<--- Ukonči prezentáciu")
-                socket.close()
-                serverSocket.close()
-                return null
-            }
             socket.close()
             serverSocket.close()
         } catch (e: Exception) {
             println(e.toString())
+
         }
-        println("Tu returnujem")
         return null
     }
 
-    fun recieve_guardian_angel(): Boolean? {
+    fun recieve_guardian_angel(): Int? {
         println("---- Guardian angel watching ---- ")
 
         try {
@@ -226,22 +243,24 @@ class Communication(val mainActivity: MainActivity) {
 
             val input_stream = socket.getInputStream()
             val message_code = input_stream.read()
-            println("Message code (guardian): " + message_code)
+            connected = true
 
             // Only checking
             if (message_code == MessageType.GUARDIAN_CHECK.message_code) {
-                println("<*** Guardian check")
+
+                val reset_needed = input_stream.read()
                 socket.close()
                 serverSocket.close()
-                return true
+                println("<*** Guardian check, reset ${(reset_needed == 1)}")
+                return reset_needed
             }
 
-            // Guardian reset
+            // Restart presentation
             if (message_code == MessageType.PRESENTATION_END.message_code) {
-                println("<*** Guardian reset")
+                send_end_presentation_confirm()
                 socket.close()
                 serverSocket.close()
-                return false
+                return MessageType.PRESENTATION_END.message_code
             }
             socket.close()
             serverSocket.close()
@@ -255,10 +274,10 @@ class Communication(val mainActivity: MainActivity) {
     fun guardian_angel_thread() {
         CoroutineScope(Dispatchers.IO).launch {
             while (true) {
-                val everything_ok = recieve_guardian_angel() ?: return@launch
-                if (!everything_ok) {
+                val restart_needed = recieve_guardian_angel() ?: return@launch
+                if (restart_needed != 0) {
                     withContext(Dispatchers.Main) {
-                        mainActivity.restart()
+                        mainActivity.restart(restart_needed == MessageType.PRESENTATION_END.message_code)
                     }
                 }
             }

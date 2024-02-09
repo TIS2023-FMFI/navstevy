@@ -15,6 +15,7 @@ import android.os.PowerManager
 import android.os.StrictMode
 import android.provider.Settings
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.core.content.ContextCompat.startActivity
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
@@ -31,6 +32,7 @@ class MainActivity : AppCompatActivity() {
         val imagesDict : MutableMap<Int, Bitmap> = mutableMapOf()
         val ratingImages : MutableList<Bitmap> = mutableListOf()
         var imagesInitialized = false;
+        lateinit var current_activity: MainActivity
     }
 
     var languageInUse = "sk"
@@ -40,6 +42,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        current_activity = this
         setContentView(R.layout.activity_main)
         imageCreation()
         setFullScreenMode()
@@ -119,8 +122,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun restart() {
-        val navController = Navigation.findNavController(this, R.id.fragmentContainerView)
+    fun restart(show_text: Boolean) {
+        if (show_text)
+            Toast.makeText(this,
+                if (languageInUse == "sk")
+                    "Prezentácia bola ukončená personálom"
+                else
+                    "The presentation was concluded by the staff.",
+                Toast.LENGTH_SHORT).show()
+
+        val navController = Navigation.findNavController(current_activity, R.id.fragmentContainerView)
         // Call navigateToDestination() method when you want to switch to a specific fragment
         navController.navigate(R.id.screenSaverFragment)
     }

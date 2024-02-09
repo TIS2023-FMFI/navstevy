@@ -461,7 +461,7 @@ class Visit_History(ctk.CTkFrame):
 
 
         if self.controller.visitors is None:
-            self.controller.visitors = self.listVisitors(m.allVisitors)
+            self.controller.visitors = self.listVisitors(self.controller.mediator.allVisitors)
 
         frame = ctk.CTkFrame(self, width=800,height=600)
 
@@ -862,9 +862,6 @@ class Control(ctk.CTkFrame):
             self.error_application.configure(True, image=self.no_error_image)
         self.after(1000, self.show_connection_status)
 
-
-
-
     def goBack(self):
         self.controller.show_frame(MainMenu)
 
@@ -877,13 +874,8 @@ class Control(ctk.CTkFrame):
 
 
     def waitForPresentation(self, name, surname, card_id, car_num, company, group_size, visit_reason):
-        print("======================== spustam")
         state, data = self.controller.mediator.addVisitor(self, name, surname, card_id, car_num, company, group_size, visit_reason)
-        print("======================== koniec")
         self.progressbar.set(0)
-        print()
-        print(state, data)
-        print()
 
         # visitor je úspešne pridaný
         if state == Communication.message_code["signature"]:
@@ -909,18 +901,6 @@ class Control(ctk.CTkFrame):
             popup.mainloop()
 
         # visitor sa nepridal
-        elif state == Communication.message_code["error"]:
-            # data je dôvod chyby, ktorý stačí niekde vypísať
-            # Bud chyba spojenia
-            # alebo timout 60s
-            self.controller.show_frame(Entry)
-            popup = ctk.CTkToplevel(self.controller)
-            popup.geometry('300x200')
-            popup.attributes('-topmost', 'true')
-            label = ctk.CTkLabel(popup, text="Nastala chyba skuste znova a skontrolujte zariadenie", font=LARGE_FONT)
-            label.pack()
-            popup.mainloop()
-
         elif state == Communication.message_code["wrong_data"]:
             self.controller.show_frame(Entry)
             popup = ctk.CTkToplevel(self.controller)
@@ -931,8 +911,29 @@ class Control(ctk.CTkFrame):
             popup.mainloop()
 
         elif state == Communication.message_code["presentation_end"]:
-            self.controller.show_frame(MainMenu)
-            self.controller.frames[Entry].clearEntry()
+            self.controller.show_frame(Entry)
+            ## self.controller.frames[Entry].clearEntry()
+            popup = ctk.CTkToplevel(self.controller)
+            popup.geometry('300x200')
+            popup.attributes('-topmost', 'true')
+            label = ctk.CTkLabel(popup, text="Prezentácia bola ukončená", font=LARGE_FONT)
+            label.pack()
+            popup.mainloop()
+
+        
+        else:
+            ## elif state == Communication.message_code["error"]:
+            # data je dôvod chyby, ktorý stačí niekde vypísať
+            # Bud chyba spojenia
+            # alebo timout 60s
+            self.controller.show_frame(Entry)
+            popup = ctk.CTkToplevel(self.controller)
+            popup.geometry('300x200')
+            popup.attributes('-topmost', 'true')
+            label = ctk.CTkLabel(popup, text="Nastala chyba skuste znova a skontrolujte zariadenie", font=LARGE_FONT)
+            label.pack()
+            popup.mainloop()
+           
 
 
 
