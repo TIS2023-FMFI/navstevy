@@ -142,10 +142,10 @@ class Communication:
             ## Sends message to end presentation
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 message = Communication.message_code["presentation_end"].to_bytes(1)
-                s.connect((self.device_ip_adress, self.port_out))
+                s.connect((self.device_ip_adress, self.port_check))
                 s.sendall(message)
                 print("---> Presentation ended")
-            return Communication.message_code["presentation_end"]
+            return Communication.message_code["presentation_end"], None
         except:
             return Communication.message_code["error"], "Device not connected properly or application not running"
             
@@ -234,6 +234,8 @@ if __name__ == "__main__":
     ##state, data = communication.send_start_review(visitor)
     while state == Communication.message_code["progress"]:
         state, data = communication.recieve(list())
+        if data is not None and data > 50:
+            communication.send_end_presentation()
     
     print(state)
     print(data)

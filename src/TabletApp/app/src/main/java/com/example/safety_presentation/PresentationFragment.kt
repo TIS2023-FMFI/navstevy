@@ -77,7 +77,7 @@ class PresentationFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mainActivity = context as MainActivity
-        dict = mainActivity.imagesDict
+        dict = MainActivity.imagesDict
     }
 
     fun changeLanguage(){

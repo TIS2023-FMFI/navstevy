@@ -13,6 +13,11 @@ class MainScreen(ctk.CTk):
 
     def __init__(self, mediator):
         ctk.CTk.__init__(self)
+
+        self.iconbitmap(ICONS_PATH + "icon.ico")
+        self.title("Evidencia návštev")
+        self.protocol("WM_DELETE_WINDOW", self.close_app)
+
         self.geometry("1200x620")
         self.width = 1200
         self.height = 600
@@ -47,6 +52,9 @@ class MainScreen(ctk.CTk):
 
         self.show_frame(MainMenu)
 
+    def close_app(self):
+        self.destroy()
+        self.mediator.communication.close()
 
 
     def show_frame(self, cont):
@@ -818,8 +826,11 @@ class Control(ctk.CTkFrame):
         self.progressbar = ctk.CTkProgressBar(self)
         self.progressbar.set(0)
 
+        end_presentation = ctk.CTkButton(self, text="Ukonči prezentáciu", height=40, command=lambda: self.send_end_presentation())
+        end_presentation.pack(pady=20)
+
         back = ctk.CTkButton(self, text="Naspäť", height=40, command=lambda: self.goBack())
-        back.pack()
+        back.pack(pady=20)
 
         ## nacitaj obrazky ikoniek
         self.error_application_image = ctk.CTkImage(Image.open(ICONS_PATH + "tablet_error.png"), None, (50, 50))
@@ -834,6 +845,9 @@ class Control(ctk.CTkFrame):
 
         self.show_connection_status()
 
+    def send_end_presentation(self):
+        self.label.configure(True, text="Prezentácia bola ukončená")
+        self.controller.mediator.endPresentation()
        
 
     def show_connection_status(self):
@@ -863,13 +877,19 @@ class Control(ctk.CTkFrame):
 
 
     def waitForPresentation(self, name, surname, card_id, car_num, company, group_size, visit_reason):
+        print("======================== spustam")
         state, data = self.controller.mediator.addVisitor(self, name, surname, card_id, car_num, company, group_size, visit_reason)
+        print("======================== koniec")
         self.progressbar.set(0)
+        print()
+        print(state, data)
+        print()
 
         # visitor je úspešne pridaný
         if state == Communication.message_code["signature"]:
             self.controller.show_frame(MainMenu)
             self.controller.update_tables()
+            self.controller.frames[Entry].clearEntry()
             self.goBack()
 
             signature: Image = data
@@ -910,12 +930,14 @@ class Control(ctk.CTkFrame):
             label.pack()
             popup.mainloop()
 
-def close_app():
-    app.destroy()
-    m.communication.close()
+        elif state == Communication.message_code["presentation_end"]:
+            self.controller.show_frame(MainMenu)
+            self.controller.frames[Entry].clearEntry()
+
+
+
 
 ctk.set_appearance_mode('dark')
-m = med.Mediator()
-app = MainScreen(m)
-app.protocol("WM_DELETE_WINDOW", close_app)
+mediator = med.Mediator()
+app = MainScreen(mediator)
 app.mainloop()

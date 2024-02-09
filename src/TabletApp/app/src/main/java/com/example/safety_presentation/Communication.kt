@@ -39,12 +39,7 @@ enum class MessageType(val message_code: Int) {
 }
 
 class Communication(val mainActivity: MainActivity) {
-    companion object{
-        var instances = 0
-    }
     init {
-        instances++
-        println("$instances instances ")
         guardian_angel_thread()
     }
     fun send_wrong_data() {
@@ -220,7 +215,7 @@ class Communication(val mainActivity: MainActivity) {
         return null
     }
 
-    fun recieve_guardian_angel(): Boolean {
+    fun recieve_guardian_angel(): Boolean? {
         println("---- Guardian angel watching ---- ")
 
         try {
@@ -254,15 +249,17 @@ class Communication(val mainActivity: MainActivity) {
         } catch (e: Exception) {
             println(e.toString())
         }
-        return true
+        return null
     }
 
     fun guardian_angel_thread() {
         CoroutineScope(Dispatchers.IO).launch {
             while (true) {
-                val everything_ok = recieve_guardian_angel()
+                val everything_ok = recieve_guardian_angel() ?: return@launch
                 if (!everything_ok) {
-                    println("RESTAAAAAAAAAART")
+                    withContext(Dispatchers.Main) {
+                        mainActivity.restart()
+                    }
                 }
             }
         }

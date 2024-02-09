@@ -38,7 +38,7 @@ class RatingFragment : Fragment() {
         }
 
         for (i in ratings.indices) {
-            ratings[i].setImageBitmap(mainActivity.ratingImages[i])
+            ratings[i].setImageBitmap(MainActivity.ratingImages[i])
         }
 
         bind.apply {
@@ -65,8 +65,8 @@ class RatingFragment : Fragment() {
         mainActivity = context as MainActivity
 
         mainActivity.imageCreation()
-        en = mainActivity.imagesDict[mainActivity.imagesDict.size - 2]!!
-        sk = mainActivity.imagesDict[mainActivity.imagesDict.size - 1]!!
+        en = MainActivity.imagesDict[MainActivity.imagesDict.size - 2]!!
+        sk = MainActivity.imagesDict[MainActivity.imagesDict.size - 1]!!
     }
 
     fun changeLanguage(){
