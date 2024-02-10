@@ -80,7 +80,7 @@ class MainMenu(ctk.CTkFrame):
         history = ctk.CTkButton(frame, text="História návštev",font=LARGE_FONT,width=200,height=50, command=lambda: controller.show_frame(Visit_History))
         history.place(relx=0.2, rely=0.7)
 
-        #todo opytat sa timoteja ze co toto
+        #todo upravit do jedneho
         ## nacitaj obrazky ikoniek
         self.error_application_image = ctk.CTkImage(Image.open(ICONS_PATH + "tablet_error.png"), None, (50, 50))
         self.error_cable_image = ctk.CTkImage(Image.open(ICONS_PATH + "connection_error.png"),  None, (50, 50))
@@ -199,7 +199,7 @@ class Entry(ctk.CTkFrame):
         self.after(1000, self.show_connection_status)
 
     def go_back(self):
-        self.clearEntry()
+        self.clear_entry()
         self.controller.show_frame(MainMenu)
 
     def clear_entry(self):
@@ -688,10 +688,10 @@ class Edit(ctk.CTkFrame):
         self.after(1000, self.show_connection_status)
 
     def go_back(self):
-        self.clearEntry()
+        self.clear_entry()
         self.controller.show_frame(Ongoing)
 
-    def clearEntry(self):
+    def clear_entry(self):
         self.name.delete(0, 'end')
         self.name.configure(fg_color='#343638')
         self.surname.delete(0, 'end')
@@ -899,7 +899,7 @@ class Control(ctk.CTkFrame):
 
         elif state == Communication.message_code["presentation_end"]:
             self.controller.show_frame(Entry)
-            ## self.controller.frames[Entry].clearEntry()
+            ## self.controller.frames[Entry].clear_entry()
             popup = ctk.CTkToplevel(self.controller)
             popup.geometry('300x200')
             popup.attributes('-topmost', 'true')
