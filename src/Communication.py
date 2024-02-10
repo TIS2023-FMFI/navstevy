@@ -31,7 +31,7 @@ class Communication:
 
         self.is_device_connected = False
         self.is_application_running = False
-        self.device_ip_adress = self.get_android_device_ip()
+        self.device_ip_adress = None
 
         self.my_angel_alive = True
         self.my_angel = Thread(target=self.guardian_angel)
