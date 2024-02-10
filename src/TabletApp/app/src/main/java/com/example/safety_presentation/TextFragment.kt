@@ -47,11 +47,9 @@ class TextFragment : Fragment() {
             }
         }
         val timer = Timer()
-        println("Prisiel som na text fragment")
         timer.schedule(1000 * 5) {
 
             mainActivity.runOnUiThread(){
-                println("Vraciam saaaa")
                 val action = TextFragmentDirections.actionTextFragmentToScreenSaverFragment()
                 val controller = NavHostFragment.findNavController(this@TextFragment)
                 controller.navigate(action)

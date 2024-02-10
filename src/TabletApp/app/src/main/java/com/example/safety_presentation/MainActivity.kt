@@ -2,28 +2,63 @@ package com.example.safety_presentation
 
 import Communication
 import Visitor
+import android.content.Context
+import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.ConnectivityManager
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.PowerManager
 import android.os.StrictMode
+import android.provider.Settings
+import android.view.WindowManager
+import android.widget.Toast
+import androidx.core.content.ContextCompat.startActivity
+import androidx.fragment.app.Fragment
+import androidx.navigation.Navigation
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.lang.reflect.Method
 
 
 class MainActivity : AppCompatActivity() {
+    companion object {
+        val imagesDict : MutableMap<Int, Bitmap> = mutableMapOf()
+        val ratingImages : MutableList<Bitmap> = mutableListOf()
+        var imagesInitialized = false;
+        lateinit var current_activity: MainActivity
+    }
+
     var languageInUse = "sk"
-    var imagesDict : MutableMap<Int, Bitmap> = mutableMapOf()
-    var ratingImages : MutableList<Bitmap> = mutableListOf()
-    val communication: Communication = Communication(this)
-    public var visitor: Visitor? = null;
+    var visitor: Visitor? = null;
+    var wakeLock: PowerManager.WakeLock? = null
+    val communication: Communication = Communication(this);
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        current_activity = this
         setContentView(R.layout.activity_main)
         imageCreation()
+        setFullScreenMode()
+        setAlwaysOnScreen()
         StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.Builder().permitNetwork().build())
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        allowScreenToSleep()
+        communication.send_error("Aplikácia bola vypnutá")
+    }
+
     fun imageCreation(){
+        if (imagesInitialized)
+            return
         val resourceList : List<Int> = listOf(R.drawable.en1, R.drawable.en2, R.drawable.en3,
             R.drawable.en4, R.drawable.en5, R.drawable.en6,
             R.drawable.en7, R.drawable.en8, R.drawable.en9,
@@ -58,6 +93,47 @@ class MainActivity : AppCompatActivity() {
             val curr = BitmapFactory.decodeResource(this.resources, i)
             ratingImages.add(Bitmap.createScaledBitmap(curr, (curr.width/4), (curr.height/4), false))
         }
+        imagesInitialized = true;
+    }
+
+    fun setFullScreenMode() {
+        getWindow().setFlags(
+            WindowManager.LayoutParams.FLAG_FULLSCREEN,
+            WindowManager.LayoutParams.FLAG_FULLSCREEN
+        );
+    }
+
+    fun setAlwaysOnScreen() {
+        // Acquire a wake lock
+        val powerManager = getSystemService(POWER_SERVICE) as PowerManager
+        wakeLock = powerManager.newWakeLock(
+            PowerManager.FULL_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP,
+            "MyApp::MyWakelockTag"
+        )
+        wakeLock?.acquire()
+        println(wakeLock?.isHeld)
+    }
+
+    fun allowScreenToSleep() {
+        wakeLock?.let {
+            if (it.isHeld) {
+                it.release()
+            }
+        }
+    }
+
+    fun restart(show_text: Boolean) {
+        if (show_text)
+            Toast.makeText(this,
+                if (languageInUse == "sk")
+                    "Prezentácia bola ukončená personálom"
+                else
+                    "The presentation was concluded by the staff.",
+                Toast.LENGTH_SHORT).show()
+
+        val navController = Navigation.findNavController(current_activity, R.id.fragmentContainerView)
+        // Call navigateToDestination() method when you want to switch to a specific fragment
+        navController.navigate(R.id.screenSaverFragment)
     }
 
 }
