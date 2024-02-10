@@ -7,7 +7,7 @@ from PIL import Image
 BASE_FG_COLOR = '#343638'
 LARGE_FONT = ("times new roman", 18)
 VERY_LARGE_FONT = ("times new roman", 32)
-ICONS_PATH = 'src/files/icons/'
+ICONS_PATH = '../src/files/icons/'
 
 class MainScreen(ctk.CTk):
 
