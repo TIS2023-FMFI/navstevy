@@ -7,8 +7,8 @@ from Communication import Communication
 from threading import Thread
 from PIL import Image
 
-OUTPUT_PATH = 'src/files/signatures/' # TODO nastavnie správnej cesty pre ich potreby
-FILE_PATH = 'src/files/testFile.csv'
+OUTPUT_PATH = '../src/files/signatures/' # TODO nastavnie správnej cesty pre ich potreby
+FILE_PATH = '../src/files/testFile.csv'
 
 class Mediator:
     def __init__(self):
