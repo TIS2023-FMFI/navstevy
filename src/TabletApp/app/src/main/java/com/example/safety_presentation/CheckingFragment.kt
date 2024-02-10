@@ -20,7 +20,6 @@ class CheckingFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         bind = FragmentCheckingBinding.inflate(inflater, container, false)
-
         bind.apply {
             textView2.text = "Prosím skontrolujte správnosť zadaných dát: \nmeno: "+
             mainActivity.visitor!!.name + "\npriezvisko: " + mainActivity.visitor!!.surname +
@@ -56,8 +55,8 @@ class CheckingFragment : Fragment() {
         mainActivity = context as MainActivity
 
         mainActivity.imageCreation()
-        en = mainActivity.imagesDict[mainActivity.imagesDict.size - 2]!!
-        sk = mainActivity.imagesDict[mainActivity.imagesDict.size - 1]!!
+        en = MainActivity.imagesDict[MainActivity.imagesDict.size - 2]!!
+        sk = MainActivity.imagesDict[MainActivity.imagesDict.size - 1]!!
     }
 
     fun changeLanguage(){

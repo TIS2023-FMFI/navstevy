@@ -4,18 +4,30 @@ import java.net.ServerSocket
 import java.net.Socket
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.widget.Toast
 import androidx.core.graphics.get
 import androidx.core.graphics.toColor
+import com.example.safety_presentation.R
+import com.example.safety_presentation.ScreenSaverFragment
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.InputStream
+import java.lang.Thread.sleep
+import java.net.SocketTimeoutException
 import java.nio.ByteBuffer
 
 
 var IP_ADDRESS = "localhost"
 val PORT_IN = 5013
 val PORT_OUT = 5014
+val PORT_CHECK = 5015
 
 enum class MessageType(val message_code: Int) {
     // receiving message
+    GUARDIAN_CHECK(0),
     PRESENTATION_START(1),
     PRESENTATION_END(2),
     RATING_START(3),
@@ -29,7 +41,12 @@ enum class MessageType(val message_code: Int) {
 }
 
 class Communication(val mainActivity: MainActivity) {
-
+    companion object {
+        var connected = false
+    }
+    init {
+        guardian_angel_thread()
+    }
     fun send_wrong_data() {
         try {
             val socket = Socket(IP_ADDRESS, PORT_OUT)
@@ -44,6 +61,26 @@ class Communication(val mainActivity: MainActivity) {
             // Close the socket
             socket.close()
             println("---> Sending wrong data")
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    fun send_end_presentation_confirm() {
+        try {
+            val socket = Socket(IP_ADDRESS, PORT_OUT)
+            socket.reuseAddress = true
+            socket.soTimeout = 1
+
+            // Get the output stream from the socket
+            val outputStream: OutputStream = socket.getOutputStream()
+
+            // Write raw bytes to the output stream
+            outputStream.write(MessageType.PRESENTATION_END.message_code)
+
+            // Close the socket
+            socket.close()
+            println("---> Sending end presentation")
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -152,10 +189,10 @@ class Communication(val mainActivity: MainActivity) {
 
     fun recieve_message(): Visitor? {
         println("---- Waiting for some message ---- ")
-
         try {
             val serverSocket = ServerSocket(PORT_IN)
             val socket: Socket = serverSocket.accept()
+
             IP_ADDRESS = socket.inetAddress.toString().drop(1)
 
 
@@ -169,6 +206,8 @@ class Communication(val mainActivity: MainActivity) {
                 val visitor_string = read_n_bytes(input_stream, data_lenght).decodeToString()
                 val visitor = Visitor("true;" + visitor_string)
                 println("<--- Visitor prišiel")
+                socket.close()
+                serverSocket.close()
                 return visitor
             }
 
@@ -179,22 +218,72 @@ class Communication(val mainActivity: MainActivity) {
                 println(visitor_string)
                 val visitor = Visitor("false;" + visitor_string)
                 println("<--- Visitor odchadza")
+                socket.close()
+                serverSocket.close()
                 return visitor
             }
 
-            // End presentation
-            else if (message_code == MessageType.PRESENTATION_END.message_code) {
-                println("<--- Ukonči prezentáciu")
-                return null
-            }
             socket.close()
             serverSocket.close()
         } catch (e: Exception) {
             println(e.toString())
+
         }
-        println("Tu returnujem")
         return null
     }
+
+    fun recieve_guardian_angel(): Int? {
+        println("---- Guardian angel watching ---- ")
+
+        try {
+            val serverSocket = ServerSocket(PORT_CHECK)
+            val socket: Socket = serverSocket.accept()
+            IP_ADDRESS = socket.inetAddress.toString().drop(1)
+
+
+            val input_stream = socket.getInputStream()
+            val message_code = input_stream.read()
+            connected = true
+
+            // Only checking
+            if (message_code == MessageType.GUARDIAN_CHECK.message_code) {
+
+                val reset_needed = input_stream.read()
+                socket.close()
+                serverSocket.close()
+                println("<*** Guardian check, reset ${(reset_needed == 1)}")
+                return reset_needed
+            }
+
+            // Restart presentation
+            if (message_code == MessageType.PRESENTATION_END.message_code) {
+                send_end_presentation_confirm()
+                socket.close()
+                serverSocket.close()
+                return MessageType.PRESENTATION_END.message_code
+            }
+            socket.close()
+            serverSocket.close()
+
+        } catch (e: Exception) {
+            println(e.toString())
+        }
+        return null
+    }
+
+    fun guardian_angel_thread() {
+        CoroutineScope(Dispatchers.IO).launch {
+            while (true) {
+                val restart_needed = recieve_guardian_angel() ?: return@launch
+                if (restart_needed != 0) {
+                    withContext(Dispatchers.Main) {
+                        mainActivity.restart(restart_needed == MessageType.PRESENTATION_END.message_code)
+                    }
+                }
+            }
+        }
+    }
+
 
     private fun int_to_byte_array(value: Int): ByteArray {
         val buffer = ByteBuffer.allocate(4)

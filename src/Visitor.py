@@ -68,3 +68,6 @@ class Visitor:
             self.departure = departure
         if review:
             self.review = review
+
+    def getSignatureFileName(self):
+        return f'{self.name}_{self.surname} {self.arrival.replace(":", "_")}.png'
