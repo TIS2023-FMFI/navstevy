@@ -7,8 +7,8 @@ from Communication import Communication
 from threading import Thread
 from PIL import Image
 
-OUTPUT_PATH = '../src/files/signatures/' # TODO nastavnie správnej cesty pre ich potreby
-FILE_PATH = '../src/files/testFile.csv'
+OUTPUT_PATH = 'files/signatures/' # TODO nastavnie správnej cesty pre ich potreby
+FILE_PATH = 'files/testFile.csv'
 
 class Mediator:
     def __init__(self):
@@ -37,8 +37,6 @@ class Mediator:
                 vis.edit(name, surname, cardId, carTag, company, count, reason)
                 self.file.edit(id, vis)
                 break
-        else:
-            print("We do not have this visitor right now!")
 
         for vis in self.allVisitors:
             if vis.getId() == id:
