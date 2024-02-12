@@ -6,7 +6,7 @@ from Communication import Communication
 from threading import Thread
 from PIL import Image
 
-OUTPUT_PATH = 'src/files/signatures' # TODO nastavnie správnej cesty pre ich potreby
+OUTPUT_PATH = 'src/files/signatures/' # TODO nastavnie správnej cesty pre ich potreby
 FILE_PATH = 'src/files/testFile.csv'
 
 class Mediator:
@@ -19,12 +19,12 @@ class Mediator:
             self.communication = Communication()
         except:
             self.communication = None
-             # TODO dať informáciu o nepripojenom zariadení
+            # TODO dať informáciu o nepripojenom zariadení
         
     def addVisitor(self, name, surname, cardId, carTag, company, count, reason):
         visitor = vis.Visitor(None, name, surname, cardId, carTag, company, count, reason)
-        state = self.startPresentation(visitor)
-        if state == "signature":
+        state = self.startPresentation(visitor)      ## TODO state, data ukladať obrázok a visitora na jednom mieste !
+        if state == "signature":               
             self.file.writeVisitor(visitor.getDataToWrite())  # zapíše visitora do súboru
             self.allVisitors.append(visitor)
             self.visitors.append(visitor)
@@ -45,7 +45,7 @@ class Mediator:
                 break
 
 
-    def departureVisitor(self, id):
+    def departureVisitor(self, id):             # posielaj visitora a rovno ho removni!
         for vis in self.visitors[:]:
             if vis.id == id:
                 self.visitors.remove(vis)
@@ -127,7 +127,7 @@ class Mediator:
         
         if state == Communication.message_code["signature"]:
             ## data je PIL obrazok podpisu
-            data.save(self.OUTPUT_PATH + str(visitor.getID()) + '.jpg')        #zapíše obrázok do súboru s ID visitora ako názov
+            data.save(OUTPUT_PATH + str(visitor.getId()) + '.jpg')        #zapíše obrázok do súboru s ID visitora ako názov
         elif state == Communication.message_code["error"]:
             print(state)
         return state
