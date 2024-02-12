@@ -51,7 +51,7 @@ class Communication:
         self.angel_wait_time = 0
         while self.my_angel_alive:
             
-            if self.try_connect_android_device():
+            if not self.try_connect_android_device():
                 time.sleep(1)
                 self.angel_wait_time = 1
                 continue
