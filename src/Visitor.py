@@ -33,7 +33,7 @@ class Visitor:
         else:
             data_string += ";"
         if self.review:
-            data_string += f";{self.review}"
+            data_string += f";{self.review}\n"
         else:
             data_string += ";\n"
         return data_string
@@ -68,3 +68,6 @@ class Visitor:
             self.departure = departure
         if review:
             self.review = review
+
+    def getSignatureFileName(self):
+        return f'{self.name}_{self.surname} {self.arrival.replace(":", "_")}.png'
