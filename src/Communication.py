@@ -38,11 +38,11 @@ class Communication:
         self.my_angel.start()
     
     def close(self):
-        print("Koniec komunikacie")
+        #print("Koniec komunikacie")
         self.angel_wait_time = 0
         self.my_angel_alive = False
         self.my_angel.join()
-        print("Komunikácia ukončená")
+        #print("Komunikácia ukončená")
 
     def stable(self):
         return self.is_device_connected and self.is_application_running
@@ -51,7 +51,7 @@ class Communication:
         self.angel_wait_time = 0
         while self.my_angel_alive:
             
-            if not self.try_connect_android_device():
+            if self.try_connect_android_device():
                 time.sleep(1)
                 self.angel_wait_time = 1
                 continue
@@ -62,7 +62,7 @@ class Communication:
                 continue
             self.angel_wait_time = 5
             time.sleep(1)
-            print("Komunikácia beží...", end="\r")
+            #print("Komunikácia beží...", end="\r")
 
     def try_connect_android_device(self):
         try:
@@ -73,7 +73,7 @@ class Communication:
             self.is_device_connected = False
             self.is_application_running = False
             self.device_ip_adress = None
-            print("Device not found...")
+            #print("Device not found...")
             return False
         
     def guardian_angel_check(self):
@@ -92,7 +92,7 @@ class Communication:
                 self.is_application_running = True
                 return True
         except:
-            print("App not running ...")
+            #print("App not running ...")
             self.is_application_running = False
             return False
 
@@ -106,7 +106,7 @@ class Communication:
                 continue
             if "Description" not in atributes:
                 continue 
-            if "UsbNcm Host Device" in atributes["Description"]:
+            if "UsbNcm Host Device" in atributes["Description"] or "Remote NDIS based Internet Sharing Device" in atributes["Description"]:
                 return atributes["Default Gateway"]
         raise Exception("Android device not found")
         
@@ -122,10 +122,10 @@ class Communication:
                 s.connect((self.device_ip_adress, self.port_out))
                 s.sendall(message)
                 s.close()
-                print("---> Presentation started...")
+                #print("---> Presentation started...")
             return Communication.message_code["progress"], None
         except Exception as e:
-            print(e)
+            #print(e)
             return Communication.message_code["error"], "Device not connected properly or application not running"
 
     
@@ -141,7 +141,7 @@ class Communication:
                 s.connect((self.device_ip_adress, self.port_out))
                 s.sendall(message)
                 s.close()
-                print("---> Review started...")
+                #print("---> Review started...")
             return Communication.message_code["progress"], None
         except:
             return Communication.message_code["error"], "Device not connected properly or application not running"
@@ -153,10 +153,9 @@ class Communication:
                 message = Communication.message_code["presentation_end"].to_bytes(1)
                 s.connect((self.device_ip_adress, self.port_check))
                 s.sendall(message)
-                print(f"---> Presentation ended")
+                #print(f"---> Presentation ended")
             return Communication.message_code["presentation_end"], None
         except:
-            print("debil")
             return Communication.message_code["error"], "Device not connected properly or application not running"
             
 
@@ -170,7 +169,7 @@ class Communication:
             
             try:
                 # Accept a single incoming connection
-                print("---- Waiting for some respond ---- ")
+                #print("---- Waiting for some respond ---- ")
                 client_socket, client_address = s.accept()
 
                 # Receive data from the client
@@ -178,14 +177,14 @@ class Communication:
 
                 if message_code == Communication.message_code["presentation_end"]:
                     client_socket.close()
-                    print("<--- Prezentácia ukončená")
+                    #print("<--- Prezentácia ukončená")
                     array_to_write.append(message_code)
                     array_to_write.append(None)
                     return message_code, None
                 
                 if message_code == Communication.message_code["wrong_data"]:
                     client_socket.close()
-                    print("<--- Zle zadané dáta")
+                    #print("<--- Zle zadané dáta")
                     array_to_write.append(message_code)
                     array_to_write.append(None)
                     return message_code, None
@@ -193,7 +192,7 @@ class Communication:
                 if message_code == Communication.message_code["progress"]:
                     progres_percentage = int.from_bytes(client_socket.recv(4))
                     client_socket.close()
-                    print(f"<--- Progress ... {progres_percentage}%")
+                    #print(f"<--- Progress ... {progres_percentage}%")
                     array_to_write.append(message_code)
                     array_to_write.append(progres_percentage)
                     return message_code, progres_percentage
@@ -210,7 +209,7 @@ class Communication:
                                 signature.putpixel((x, y), (0, 0, 0))
                     
                     client_socket.close()
-                    print("<--- Signature")
+                    #print("<--- Signature")
                     array_to_write.append(message_code)
                     array_to_write.append(signature)
                     return message_code, signature
@@ -219,7 +218,7 @@ class Communication:
                     message_lenght = int.from_bytes(client_socket.recv(4))
                     error_message = client_socket.recv(message_lenght).decode('utf-8')
                     client_socket.close()
-                    print(f"<--- Error: {error_message}")
+                    #print(f"<--- Error: {error_message}")
                     array_to_write.append(message_code)
                     array_to_write.append(error_message)
                     return message_code, error_message
@@ -227,12 +226,12 @@ class Communication:
                 if message_code == Communication.message_code["rating"]:
                     rating = int.from_bytes(client_socket.recv(4))
                     client_socket.close()
-                    print(f"<--- Rating ... {rating}")
+                    #print(f"<--- Rating ... {rating}")
                     array_to_write.append(message_code)
                     array_to_write.append(rating)
                     return message_code, rating
 
-                print("<--- Zle formatovaná správa")
+                #print("<--- Zle formatovaná správa")
                 array_to_write.append(Communication.message_code["error"])
                 array_to_write.append("Wrong message type")
                 client_socket.close()

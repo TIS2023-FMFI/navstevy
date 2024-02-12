@@ -1,7 +1,7 @@
 import subprocess
 
 def ipconfig_all():
-    result = subprocess.run(['ipconfig', '/all'], capture_output=True, text=True, check=True).stdout.strip().split("\n\n")
+    result = subprocess.run(['ipconfig', '/all'], capture_output=True, text=True, check=True, shell=True).stdout.strip().split("\n\n")
     output_dictionary = dict()
 
     for line in result:
