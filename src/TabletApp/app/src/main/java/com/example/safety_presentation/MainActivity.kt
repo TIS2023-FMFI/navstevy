@@ -16,6 +16,7 @@ import android.os.StrictMode
 import android.provider.Settings
 import android.view.WindowManager
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat.startActivity
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
@@ -48,6 +49,8 @@ class MainActivity : AppCompatActivity() {
         setFullScreenMode()
         setAlwaysOnScreen()
         StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.Builder().permitNetwork().build())
+        onBackPressedDispatcher.addCallback(this, object: OnBackPressedCallback(true){
+            override fun handleOnBackPressed(){}})
     }
 
     override fun onDestroy() {
