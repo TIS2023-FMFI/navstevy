@@ -62,23 +62,24 @@ class MainScreen(ctk.CTk):
         self.frames[Ongoing].update_table()
         self.frames[Visit_History].update_table()
 
+
 class MainMenu(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
         self.controller = controller
-        frame = ctk.CTkFrame(self,width=300,height=400)
+        frame = ctk.CTkFrame(self,width=400,height=600)
 
         title = ctk.CTkLabel(frame, text="Úvod", font=VERY_LARGE_FONT)
         title.place(relx=0.4,rely=0.1)
 
-        entry = ctk.CTkButton(frame, text="Príchod",font=LARGE_FONT,width=200,height=50, command=lambda: controller.show_frame(Entry))
-        entry.place(relx=0.2, rely=0.3)
+        entry = ctk.CTkButton(frame, text="Príchod",font=LARGE_FONT,width=225,height=70, command=lambda: controller.show_frame(Entry))
+        entry.place(relx=0.23, rely=0.3)
 
-        ongoing = ctk.CTkButton(frame, text="Prebiehajúce návštevy",font=LARGE_FONT,width=200,height=50, command=lambda: controller.show_frame(Ongoing))
-        ongoing.place(relx=0.2, rely=0.5)
+        ongoing = ctk.CTkButton(frame, text="Prebiehajúce návštevy",font=LARGE_FONT,width=225,height=70, command=lambda: controller.show_frame(Ongoing))
+        ongoing.place(relx=0.23, rely=0.5)
 
-        history = ctk.CTkButton(frame, text="História návštev",font=LARGE_FONT,width=200,height=50, command=lambda: controller.show_frame(Visit_History))
-        history.place(relx=0.2, rely=0.7)
+        history = ctk.CTkButton(frame, text="História návštev",font=LARGE_FONT,width=225,height=70, command=lambda: controller.show_frame(Visit_History))
+        history.place(relx=0.23, rely=0.7)
 
         #todo upravit do jedneho
         ## nacitaj obrazky ikoniek
@@ -114,13 +115,13 @@ class MainMenu(ctk.CTkFrame):
 
 
 
-
+#todo upravit velkosti buttonov a entry
 class Entry(ctk.CTkFrame):
     def __init__(self, parent, controller):
         self.controller = controller
         ctk.CTkFrame.__init__(self, parent)
 
-        frame = ctk.CTkFrame(self,width=400,height=400)
+        frame = ctk.CTkFrame(self,width=400,height=600)
 
         title = ctk.CTkLabel(frame, text="Zápis Návštevy", font=VERY_LARGE_FONT)
         title.place(relx=0.3,y=10)
@@ -233,7 +234,6 @@ class Entry(ctk.CTkFrame):
         entry.configure(fg_color='red')
 
     def good_entry(self, entry):
-        #todo relative color
         entry.configure(fg_color='#343638')
 
     def is_int(self, entry):
@@ -290,9 +290,8 @@ class Entry(ctk.CTkFrame):
 
         return flag
 
-
+#todo upravit velkosti buttonov
 class Ongoing(ctk.CTkFrame):
-    #TODO upravenie farieb, velkost
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
         self.controller = controller
@@ -319,16 +318,17 @@ class Ongoing(ctk.CTkFrame):
         button = ctk.CTkButton(frame, text="Naspäť", command=lambda: self.go_back())
         button.place(x=350,y=500)
 
-        scrollable_frame = ctk.CTkScrollableFrame(frame, width=600)
+        scrollable_frame = ctk.CTkScrollableFrame(frame, width=600,fg_color="gray17")
         scrollable_frame.place(relx=0,rely=0.2)
         
         self.table = t.CTkTable(scrollable_frame, row=len(self.controller.mediator.visitors),
-                                column=4, values=self.list_ongoing(),
+                                column=4, values=self.list_ongoing(), 
                                 command=self.on_row_clicked)
         
         
     
         self.table.pack()
+        self.restore_table()
 
 
         #todo skontroluj
@@ -367,9 +367,9 @@ class Ongoing(ctk.CTkFrame):
 
     def set_default(self, row):
         if row % 2 == 0:
-            self.table.edit_row(row, fg_color='gray17')
+            self.table.edit_row(row, fg_color='gray21')
         else:
-            self.table.edit_row(row, fg_color='gray14')
+            self.table.edit_row(row, fg_color='gray17')
 
     def restore_table(self):
         for row in range(self.table.rows):
@@ -443,18 +443,26 @@ class Ongoing(ctk.CTkFrame):
         self.table.update_values(visitors)
 
 
-
+#todo upravit velkosti labels a buttonov
 class Visit_History(ctk.CTkFrame):
-    #TODO upravit dizajn table (datum, dovod navstevy)
     def __init__(self, parent, controller):
         self.controller = controller
         ctk.CTkFrame.__init__(self, parent)
 
+        self.filtered_visitors = None
 
         frame = ctk.CTkFrame(self, width=800,height=600)
 
         title = ctk.CTkLabel(frame, text="História Návštev", font=VERY_LARGE_FONT)
         title.place(y=20, relx=0.35)
+
+        scrollable_frame = ctk.CTkScrollableFrame(frame, width=800, fg_color="gray17")
+        scrollable_frame.place(relx=0, rely=0.4)
+        self.table = t.CTkTable(scrollable_frame, row=len(self.controller.mediator.allVisitors), column=5,
+                                values=self.list_visitors(), command=self.show_visitor)
+        self.table.pack()
+        self.table.colors = ["gray30", "gray4"]
+        self.restore_table()
 
         name_label = ctk.CTkLabel(frame, text="Meno:")
         name_label.place(x=112,y=100)
@@ -473,42 +481,40 @@ class Visit_History(ctk.CTkFrame):
 
         arrival_label = ctk.CTkLabel(frame, text="Príchod:")
         arrival_label.place(x=100,y=150)
-        self.arrival = ctk.CTkEntry(frame, placeholder_text="dd.mm.???")
+        self.arrival = ctk.CTkEntry(frame, placeholder_text="dd.mm.rrrr")
         self.arrival.place(x=150,y=150)
 
         departure_label = ctk.CTkLabel(frame, text="Odchod:")
         departure_label.place(x=348,y=150)
-        self.departure = ctk.CTkEntry(frame, placeholder_text="dd.mm.???")
+        self.departure = ctk.CTkEntry(frame, placeholder_text="dd.mm.rrrr")
         self.departure.place(x=400,y=150)
 
         filter = ctk.CTkButton(frame, text="Filter", command=lambda: self.filter_visitors())
         filter.place(x=620, y=150)
 
+        #todo relativne vzdialenosti
         name_sort = ctk.CTkLabel(frame, text="Meno")
-        name_sort.place(x=12, y=200)
+        name_sort.place(x=112, y=200)
+        name_sort.bind("<Button-1>", lambda event: self.sort_by("name"))
+
         surname_sort = ctk.CTkLabel(frame, text="Priezvisko")
-        surname_sort.place(x=112, y=200)
+        surname_sort.place(x=232, y=200)
+        surname_sort.bind("<Button-1>", lambda event: self.sort_by("surname"))
+
         company_sort = ctk.CTkLabel(frame, text="Firma")
-        company_sort.place(x=212, y=200)
-        cartag_sort = ctk.CTkLabel(frame, text="Špz")
-        cartag_sort.place(x=312, y=200)
-        reason_sort = ctk.CTkLabel(frame, text="Dôvod návštevy")
-        reason_sort.place(x=412, y=200)
-        review_sort = ctk.CTkLabel(frame, text="Recenzia")
-        review_sort.place(x=512, y=200)
+        company_sort.place(x=382, y=200)
+        company_sort.bind("<Button-1>", lambda event: self.sort_by("company"))
+
         arrival_sort = ctk.CTkLabel(frame, text="Príchod")
-        arrival_sort.place(x=612, y=200)
+        arrival_sort.place(x=512, y=200)
+        arrival_sort.bind("<Button-1>",lambda event:  self.sort_by("arrival"))
+
         departure_sort = ctk.CTkLabel(frame, text="Odchod")
-        departure_sort.place(x=712, y=200)
+        departure_sort.place(x=652, y=200)
+        departure_sort.bind("<Button-1>",lambda event:  self.sort_by("departure"))
 
 
-        scrollable_frame = ctk.CTkScrollableFrame(frame,width=800)
-        scrollable_frame.place(relx=0,rely=0.4)
-        self.table = t.CTkTable(scrollable_frame, row=len(self.controller.mediator.allVisitors), column=9, values=self.list_visitors())
-        self.table.pack()
-        self.table.edit_column(4,width=80)
-        self.table.edit_column(8, width=100)
-        self.table.edit_column(6, width=80)
+
 
         refresh = ctk.CTkButton(frame, text="Vyčistiť filter", command=lambda: self.clear_entry())
         refresh.place(relx=0.4,rely=0.9)
@@ -532,6 +538,59 @@ class Visit_History(ctk.CTkFrame):
 
         self.show_connection_status()
 
+    def show_visitor(self,data):
+        popup = ctk.CTkToplevel(self.controller)
+        popup.geometry('600x400')
+        if(self.filtered_visitors):
+            visitor= self.filtered_visitors[data['row']]
+        else:
+            visitor = self.controller.mediator.allVisitors[data['row']]
+        popup.grab_set()
+        label = ctk.CTkLabel(popup, text="Meno: " + visitor.name, font=LARGE_FONT)
+        label.pack()
+        label2 = ctk.CTkLabel(popup, text="Priezvisko: " + visitor.surname, font=LARGE_FONT)
+        label2.pack()
+        label3 = ctk.CTkLabel(popup, text="Firma: " +visitor.company, font=LARGE_FONT)
+        label3.pack()
+        label4 = ctk.CTkLabel(popup, text="Príchod: " +visitor.arrival, font=LARGE_FONT)
+        label4.pack()
+        label5 = ctk.CTkLabel(popup, text="Odchod: " +visitor.departure, font=LARGE_FONT)
+        label5.pack()
+        label6 = ctk.CTkLabel(popup, text="Id karty: " +visitor.cardId, font=LARGE_FONT)
+        label6.pack()
+        label7 = ctk.CTkLabel(popup, text="EČV: " +visitor.carTag, font=LARGE_FONT)
+        label7.pack()
+        label8 = ctk.CTkLabel(popup, text="Dôvod návštevy: " + visitor.reasonOfVisit, font=LARGE_FONT)
+        label8.pack()
+        if visitor.review:
+            review = visitor.review
+        else:
+            review = "0";
+
+        label9 = ctk.CTkLabel(popup, text="Recenzia: " + review + "\U00002B50", font=LARGE_FONT)
+        label9.pack()
+
+
+        popup.mainloop()
+
+    #todo dorobit na opakovane kliknutie
+    def sort_by(self,sort):
+        if self.filtered_visitors:
+            visitors = self.filtered_visitors
+        else:
+            visitors = self.list_visitors(self.controller.mediator.allVisitors)
+
+        if sort == "name":
+            self.table.update_values(sorted(visitors, key=lambda x: x[0]))
+        elif sort == "surname":
+            self.table.update_values(sorted(visitors, key=lambda x: x[1]))
+        elif sort == "company":
+            self.table.update_values(sorted(visitors, key=lambda x: x[2]))
+        elif sort == "arrival":
+            self.table.update_values(sorted(visitors, key=lambda x: x[3]))
+        elif sort == "departure":
+            self.table.update_values(sorted(visitors, key=lambda x: x[4]))
+
        
 
     def show_connection_status(self):
@@ -554,6 +613,7 @@ class Visit_History(ctk.CTkFrame):
         self.arrival.delete(0, 'end')
         self.departure.delete(0, 'end')
         self.table.update_values(self.list_visitors())
+        self.controller.update_tables()
         self.filter_visitors()
 
     def go_back(self):
@@ -565,15 +625,23 @@ class Visit_History(ctk.CTkFrame):
                  dateFrom=self.arrival.get(), dateTo=self.departure.get())
     
         visitors = self.list_visitors(visitors)
+        self.filtered_visitors = visitors
         self.table.configure(rows=len(visitors))
         self.table.update_values(visitors)
-        self.controller.show_frame(Visit_History)
-    
+    def set_default(self, row):
+        if row % 2 == 0:
+            self.table.edit_row(row, fg_color='gray21')
+        else:
+            self.table.edit_row(row, fg_color='gray17')
+
+    def restore_table(self):
+        for row in range(self.table.rows):
+            self.set_default(row)
     def update_table(self):
         visitors = self.list_visitors()
         self.table.rows = len(visitors)
         self.table.update_values(visitors)
-
+        self.restore_table()
     def is_good(self, string):
         if string:
              return string
@@ -590,19 +658,16 @@ class Visit_History(ctk.CTkFrame):
 
             name = self.is_good(v.name)
             surname = self.is_good(v.surname)
-            review = self.is_good(v.review)
             company = self.is_good(v.company)
-            carTag = self.is_good(v.carTag)
-            count = self.is_good(v.count)
-            reasonOfVisit = self.is_good(v.reasonOfVisit)
             arrival = self.is_good(v.arrival)
             departure = self.is_good(v.departure)
             listofvisitors.append(
 
-                [name, surname, company, carTag, count, reasonOfVisit,review, arrival, departure])
+                [name, surname, company,  arrival, departure])
     
         return listofvisitors
 
+#todo dorobit to ako ENTRY
 class Edit(ctk.CTkFrame):
     def __init__(self, parent, controller):
         self.controller = controller
