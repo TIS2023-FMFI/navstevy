@@ -1038,11 +1038,6 @@ class Control(ctk.CTkFrame):
             label.pack()
             popup.mainloop()
 
-
-
-
-
-
 ctk.set_appearance_mode('dark')
 mediator = med.Mediator()
 app = MainScreen(mediator)
