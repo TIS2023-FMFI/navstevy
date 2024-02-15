@@ -217,6 +217,7 @@ class Entry(ctk.CTkFrame):
         self.group_size.configure(fg_color='#343638')
         self.visit_reason.set(self.controller.options[0])
 
+
     def save_info(self):
         if self.check_info():
             name = self.name.get()
@@ -290,12 +291,33 @@ class Entry(ctk.CTkFrame):
         return flag
     
     def changeOptions(self):
+        def go_back():
+            self.controller.frames[Entry].visit_reason.configure(values=self.controller.options)
+            self.controller.frames[Entry].visit_reason.set(self.controller.options[0])
+            visitReasonPop.configure(values=self.controller.options)
+            visitReasonPop.set(self.controller.options[0])
+            popup.destroy()
+        def delete_option():
+            self.controller.options.remove(visitReasonPop.get())
+            visitReasonPop.set(self.controller.options[0])
+            visitReasonPop.configure(values=self.controller.options)
+        def add_option():
+            if entry.get() not in self.controller.options:
+                self.controller.options.append(entry.get())
+                visitReasonPop.configure(values=self.controller.options)
+                self.controller.frames[Entry].visit_reason.configure(values=self.controller.options)
+                #todo zapisat do suboru
+                
+
         popup = ctk.CTkToplevel(self.controller)
         popup.geometry('400x200')
         popup.attributes('-topmost', 'true')
-
+        popup.grab_set()
         label = ctk.CTkLabel(popup, text="Pridajte alebo odstránte dôvody návštevy", font=LARGE_FONT)
         label.pack()
+        entry = ctk.CTkEntry(popup,placeholder_text="Dôvod")
+        entry.place(x=60, y=100)
+        add = ctk.CTkButton(popup, text="Pridaj",command=lambda : add_option())
 
         visitReasonPop = ctk.CTkOptionMenu(popup, values=self.controller.options)
         visitReasonPop.place(x=60,y=50)
@@ -304,9 +326,14 @@ class Entry(ctk.CTkFrame):
         for x in self.controller.options:
             print(x)
         
-        addOptionPop = ctk.CTkButton(popup, text="Odstráň", command=lambda: self.controller.options.remove(visitReasonPop.get()))
+        addOptionPop = ctk.CTkButton(popup, text="Odstráň", command=lambda: delete_option())
         addOptionPop.place(x=215,y=50)
+
+        back = ctk.CTkButton(popup, text="Naspäť",command=lambda: go_back())
+        back.place(y = 150,x = 215)
+
         popup.mainloop()
+
 
 
 #todo upravit velkosti buttonov
@@ -574,8 +601,10 @@ class Visit_History(ctk.CTkFrame):
         label3.pack()
         label4 = ctk.CTkLabel(popup, text="Príchod: " +visitor.arrival, font=LARGE_FONT)
         label4.pack()
-        label5 = ctk.CTkLabel(popup, text="Odchod: " +visitor.departure, font=LARGE_FONT)
+        label5 = ctk.CTkLabel(popup, text="Odchod: " , font=LARGE_FONT)
         label5.pack()
+        if visitor.departure:
+            label5.configure(text="Odchod: " +visitor.departure)
         label6 = ctk.CTkLabel(popup, text="Id karty: " +visitor.cardId, font=LARGE_FONT)
         label6.pack()
         label7 = ctk.CTkLabel(popup, text="EČV: " +visitor.carTag, font=LARGE_FONT)
