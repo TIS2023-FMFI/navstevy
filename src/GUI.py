@@ -123,7 +123,7 @@ class Entry(ctk.CTkFrame):
         self.controller = controller
         ctk.CTkFrame.__init__(self, parent)
 
-        frame = ctk.CTkFrame(self,width=400,height=600)
+        frame = ctk.CTkFrame(self,width=500,height=600)
 
         title = ctk.CTkLabel(frame, text="Zápis Návštevy", font=VERY_LARGE_FONT)
         title.place(relx=0.3,y=10)
@@ -169,6 +169,10 @@ class Entry(ctk.CTkFrame):
         submit = ctk.CTkButton(frame, text="Spustiť prezentáciu",height=40, command=lambda: self.save_info())
         submit.place(x=75,y=350)
 
+        #TODO Lubos
+        addOption = ctk.CTkButton(frame, text="Upraviť dôvody", command=lambda: self.changeOptions())
+        addOption.place(x=355,y=285)
+
         #todo skontrolovat
         ## nacitaj obrazky ikoniek
         self.error_application_image = ctk.CTkImage(Image.open(ICONS_PATH + "tablet_error.png"), None, (50, 50))
@@ -188,7 +192,7 @@ class Entry(ctk.CTkFrame):
         self.show_connection_status()
 
        
-
+ 
     def show_connection_status(self):
         if not self.controller.mediator.communication.is_device_connected:
             self.error_cable.configure(True, image=self.error_cable_image)
@@ -291,6 +295,27 @@ class Entry(ctk.CTkFrame):
             self.good_entry(self.group_size)
 
         return flag
+    
+    def changeOptions(self):
+        popup = ctk.CTkToplevel(self.controller)
+        popup.geometry('400x200')
+        popup.attributes('-topmost', 'true')
+
+        label = ctk.CTkLabel(popup, text="Pridajte alebo odstránte dôvody návštevy", font=LARGE_FONT)
+        label.pack()
+
+        visitReasonPop = ctk.CTkOptionMenu(popup, values=self.controller.options)
+        visitReasonPop.place(x=60,y=50)
+        
+        print(visitReasonPop.get()) 
+
+        for x in self.controller.options:
+            print(x)
+        
+        addOptionPop = ctk.CTkButton(popup, text="Odstráň", command=lambda: self.controller.options.remove(visitReasonPop.get()))
+        addOptionPop.place(x=215,y=50)
+        popup.mainloop()
+
 
 #todo upravit velkosti buttonov
 class Ongoing(ctk.CTkFrame):
@@ -797,8 +822,6 @@ class Edit(ctk.CTkFrame):
 
         self.show_connection_status()
 
-       
-
     def show_connection_status(self):
         if not self.controller.mediator.communication.is_device_connected:
             self.error_cable.configure(True, image=self.error_cable_image)
@@ -1044,11 +1067,6 @@ class Control(ctk.CTkFrame):
             label = ctk.CTkLabel(popup, text="Nastala chyba skuste znova a skontrolujte zariadenie", font=LARGE_FONT)
             label.pack()
             popup.mainloop()
-
-
-
-
-
 
 ctk.set_appearance_mode('dark')
 mediator = med.Mediator()
