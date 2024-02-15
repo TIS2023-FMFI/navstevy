@@ -21,47 +21,45 @@ class CustomFile:
         return dataInStrings
 
     def edit(self, id, visitor):
-        with open(self.path, "r",encoding="utf-8") as file:
-            file.seek(0)
+        with open(self.path, "r", encoding="utf-8") as file:
             lines = file.readlines()
-            lineCount = 0
-            lineToChange = -1
-            for line in lines:
-                foundId = int(line.strip().split(';')[0])
-                if foundId == id:
-                    lineToChange = lineCount
-                    break
-                lineCount += 1
-            if lineToChange == -1: 
-                print(f"There is no visitor with {id} ID curently on site.")
-            else:
-                with open(self.path, "w",encoding="utf-8") as file2:
-                    lines[lineToChange] = visitor.getDataToWrite()
-                    file.seek(0)
-                    file2.writelines(lines)
-                    file2.close()
-                    f"Visitor {id} changed successfully!"
-        file.close()
+
+        lineToChange = None
+
+        for index, line in enumerate(lines):
+            foundId = int(line.strip().split(';')[0])
+            if foundId == id:
+                lineToChange = index
+                break
+
+        if lineToChange is None:
+            print(f"There is no visitor with {id} ID currently on site.")
+        else:
+            lines[lineToChange] = visitor.getDataToWrite()
+
+            with open(self.path, "w", encoding="utf-8") as file:
+                file.writelines(lines)
+
+            print(f"Visitor {id} changed successfully!")
+
+
 
     def removeVisitor(self, id):
-        with open(self.path, "r",encoding="utf-8") as file:
-            file.seek(0)
+        with open(self.path, "r", encoding="utf-8") as file:
             lines = file.readlines()
-            lineCount = 0
-            lineToChange = -1
-            for line in lines:
-                foundId = int(line.strip().split()[0])
-                if foundId == id:
-                    lineToChange = lineCount
-                    break
-                lineCount += 1
-            if lineToChange == -1: 
-                print(f"There is no visitor with {id} ID curently on site.")
-            else:
-                with open(self.path, "w",encoding="utf-8") as file2:
-                    lines[lineToChange] = ""
-                    file.seek(0)
-                    file2.writelines(lines)
-                    file2.close()
-                    print(f"Visitor {id} removed successfully!")
-        file.close()
+        lineToChange = None
+        for index, line in enumerate(lines):
+            foundId = int(line.strip().split()[0])
+            if foundId == id:
+                lineToChange = index
+                break
+
+        if lineToChange is None:
+            print(f"There is no visitor with {id} ID currently on site.")
+        else:
+            lines.pop(lineToChange)
+
+            with open(self.path, "w", encoding="utf-8") as file:
+                file.writelines(lines)
+
+            print(f"Visitor {id} removed successfully!")

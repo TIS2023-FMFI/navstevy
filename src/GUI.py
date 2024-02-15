@@ -1,24 +1,28 @@
 import customtkinter as ctk
 import Mediator as med
 import CTkTable as t
+from Communication import Communication
+from PIL import Image
 
 BASE_FG_COLOR = '#343638'
-LARGE_FONT = ("times new roman", 12)
-VERY_LARGE_FONT = ("times new roman", 20)
-
+LARGE_FONT = ("times new roman", 18)
+VERY_LARGE_FONT = ("times new roman", 32)
+ICONS_PATH = 'files/icons/'
+ASC = "\u25B3"
+DESC = "\u25BD"
 
 class MainScreen(ctk.CTk):
 
     def __init__(self, mediator):
         ctk.CTk.__init__(self)
-        self.geometry("1200x600")
-        self.width = 1200
-        self.height = 600
-        self.mediator = mediator
-        self.minsize(500, 500)
 
-        self.visitors = mediator.allVisitors
-        self.ongoingVisitors = mediator.visitors
+        self.iconbitmap(ICONS_PATH + "icon.ico")
+        self.title("Evidencia návštev")
+        self.protocol("WM_DELETE_WINDOW", self.close_app)
+
+        self.geometry("1200x620")
+        self.mediator = mediator
+        self.minsize(620, 620)
 
         self.container = ctk.CTkFrame(self)
         self.container.pack(side="top", fill="both", expand=True)
@@ -37,6 +41,9 @@ class MainScreen(ctk.CTk):
 
         self.show_frame(MainMenu)
 
+    def close_app(self):
+        self.destroy()
+        self.mediator.communication.close()
     def show_frame(self, cont):
         if cont == Edit:
             self.frames[Edit].enterVisitor()
@@ -45,46 +52,78 @@ class MainScreen(ctk.CTk):
         frame.tkraise()
         self.current_frame = cont
 
-    def resize(self):
-        self.width = self.winfo_width()
-        self.height = self.winfo_screenheight()
-        self.show_frame(self.current_frame)
+    def update_tables(self):
+        self.frames[Ongoing].update_table()
+        self.frames[Visit_History].update_table()
 
 
 class MainMenu(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
-        label = ctk.CTkLabel(self, text="Uvod", font=VERY_LARGE_FONT)
-        button = ctk.CTkButton(self, text="Prichod", command=lambda: controller.show_frame(Entry))
-        button2 = ctk.CTkButton(self, text="Prebiehajuce", command=lambda: controller.show_frame(Ongoing))
-        button3 = ctk.CTkButton(self, text="Historia", command=lambda: controller.show_frame(Visit_History))
+        self.controller = controller
+        frame = ctk.CTkFrame(self,width=400,height=600)
 
-        def update_position(event):
-            # Get the current size of the window
-            window_width = self.winfo_width()
-            window_height = self.winfo_height()
-            
-            label.place(x=window_width/2 - label.winfo_width()/2, y=window_height*0.1)
-            button.place(x=window_width/2 - button.winfo_width()/2, y=window_height*0.1 + 200)
-            button2.place(x=window_width/2 - button2.winfo_width()/2, y=window_height*0.1 + 250)
-            button3.place(x=window_width/2 - button3.winfo_width()/2, y=window_height*0.1 + 300)
+        title = ctk.CTkLabel(frame, text="Úvod", font=VERY_LARGE_FONT)
+        title.place(relx=0.4,rely=0.1)
 
-        self.bind('<Configure>', update_position)
-        
+        entry = ctk.CTkButton(frame, text="Príchod",font=LARGE_FONT,width=225,height=70, command=lambda: controller.show_frame(Entry))
+        entry.place(relx=0.23, rely=0.3)
+
+        ongoing = ctk.CTkButton(frame, text="Prebiehajúce návštevy",font=LARGE_FONT,width=225,height=70, command=lambda: controller.show_frame(Ongoing))
+        ongoing.place(relx=0.23, rely=0.5)
+
+        history = ctk.CTkButton(frame, text="História návštev",font=LARGE_FONT,width=225,height=70, command=lambda: controller.show_frame(Visit_History))
+        history.place(relx=0.23, rely=0.7)
+
+        #todo upravit do jedneho
+        ## nacitaj obrazky ikoniek
+        self.error_application_image = ctk.CTkImage(Image.open(ICONS_PATH + "tablet_error.png"), None, (50, 50))
+        self.error_cable_image = ctk.CTkImage(Image.open(ICONS_PATH + "connection_error.png"),  None, (50, 50))
+        self.no_error_image = ctk.CTkImage(Image.new("RGBA", (50, 50), (0, 0, 0, 0)), None, (50, 50))
+
+        self.error_cable = ctk.CTkLabel(self, text="", font=LARGE_FONT, image=self.error_cable_image)
+        self.error_cable.place(relx=0, rely=0.8)
+
+        self.error_application = ctk.CTkLabel(self, text="", font=LARGE_FONT, image=self.error_application_image)
+        self.error_application.place(relx=0, rely=0.9)
+
+        frame.grid(padx=10,pady=10)
+        self.grid_rowconfigure(0,weight=1)
+        self.grid_columnconfigure(0, weight=1)
+
+        self.show_connection_status()
+
+       
+
+    def show_connection_status(self):
+        if not self.controller.mediator.communication.is_device_connected:
+            self.error_cable.configure(True, image=self.error_cable_image)
+        else:
+            self.error_cable.configure(True, image=self.no_error_image)
+
+        if not self.controller.mediator.communication.is_application_running:
+            self.error_application.configure(True, image=self.error_application_image)
+        else:
+            self.error_application.configure(True, image=self.no_error_image)
+        self.after(1000, self.show_connection_status)
+
+
+
+#todo upravit velkosti buttonov a entry
 class Entry(ctk.CTkFrame):
     def __init__(self, parent, controller):
         self.controller = controller
-        self.parent = parent
         ctk.CTkFrame.__init__(self, parent)
 
-        label = ctk.CTkLabel(self, text="Zapis Navstevy", font=LARGE_FONT)
-        label.pack(pady=10, padx=10)
+        frame = ctk.CTkFrame(self,width=400,height=600)
 
-        button = ctk.CTkButton(self, text="Naspat", command=lambda: self.goBack())
-        button.pack()
+        title = ctk.CTkLabel(frame, text="Zápis Návštevy", font=VERY_LARGE_FONT)
+        title.place(relx=0.3,y=10)
 
-        submit = ctk.CTkButton(self, text="Spustit prezentaciu", command=lambda: self.saveInfo())
-        submit.pack()
+        name_label = ctk.CTkLabel(frame, text="Meno:")
+        name_label.place(x=160,y=75)
+        self.name = ctk.CTkEntry(frame, placeholder_text="meno")
+        self.name.place(x=200,y=75)
 
         # TODO umiestnit labels k entry
         self.lname = ctk.CTkLabel(self, text="meno")
@@ -100,35 +139,64 @@ class Entry(ctk.CTkFrame):
         self.lgroup_size = ctk.CTkLabel(self, text="pocet ludi v skupine")
         self.lgroup_size.pack()
 
-        self.name = ctk.CTkEntry(self, placeholder_text="meno")
-        self.name.pack()
-        self.surname = ctk.CTkEntry(self, placeholder_text="priezvisko")
-        self.surname.pack()
-        self.card_id = ctk.CTkEntry(self, placeholder_text="id")
-        self.card_id.pack()
-        self.car_num = ctk.CTkEntry(self, placeholder_text="spz")
-        self.car_num.pack()
-        self.company = ctk.CTkEntry(self, placeholder_text="firma")
-        self.company.pack()
-        self.group_size = ctk.CTkEntry(self, placeholder_text="pocet ludi v skupine")
-        self.group_size.pack()
+        lcompany = ctk.CTkLabel(frame, text="Firma:")
+        lcompany.place(x=160,y=215)
+        self.company = ctk.CTkEntry(frame, placeholder_text="firma")
+        self.company.place(x=200,y=215)
 
-        self.options = [
-            "navsteva manazera",
-            "audit",
-            "instalacia",
-            "oprava zariadeni"
-        ]
-        # TODO pridat moznost Pomocou popup / remove moznost
+        lgroup_size = ctk.CTkLabel(frame, text="Počet ľudí v skupine:")
+        lgroup_size.place(x=80,y=250)
+        self.group_size = ctk.CTkEntry(frame, placeholder_text="počet ľudí v skupine")
+        self.group_size.place(x=200,y=250)
 
-        self.visit_reason = ctk.CTkOptionMenu(master=self, values=self.options)
-        self.visit_reason.pack()
+        lvisit_reason = ctk.CTkLabel(frame, text="Dôvod návštevy:")
+        lvisit_reason.place(x=103, y=285)
+        self.visit_reason = ctk.CTkOptionMenu(frame, values=self.controller.options)
+        self.visit_reason.place(x=200,y=285)
 
-    def goBack(self):
-        self.clearEntry()
+        back = ctk.CTkButton(frame, text="Naspäť",height=40, command=lambda: self.go_back())
+        back.place(x=250,y=350)
+
+        submit = ctk.CTkButton(frame, text="Spustiť prezentáciu",height=40, command=lambda: self.save_info())
+        submit.place(x=75,y=350)
+
+        #todo skontrolovat
+        ## nacitaj obrazky ikoniek
+        self.error_application_image = ctk.CTkImage(Image.open(ICONS_PATH + "tablet_error.png"), None, (50, 50))
+        self.error_cable_image = ctk.CTkImage(Image.open(ICONS_PATH + "connection_error.png"),  None, (50, 50))
+        self.no_error_image = ctk.CTkImage(Image.new("RGBA", (50, 50), (0, 0, 0, 0)), None, (50, 50))
+
+        self.error_cable = ctk.CTkLabel(self, text="", font=LARGE_FONT, image=self.error_cable_image)
+        self.error_cable.place(relx=0, rely=0.8)
+
+        self.error_application = ctk.CTkLabel(self, text="", font=LARGE_FONT, image=self.error_application_image)
+        self.error_application.place(relx=0, rely=0.9)
+
+        frame.grid(padx=10, pady=10)
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+        
+        self.show_connection_status()
+
+       
+
+    def show_connection_status(self):
+        if not self.controller.mediator.communication.is_device_connected:
+            self.error_cable.configure(True, image=self.error_cable_image)
+        else:
+            self.error_cable.configure(True, image=self.no_error_image)
+
+        if not self.controller.mediator.communication.is_application_running:
+            self.error_application.configure(True, image=self.error_application_image)
+        else:
+            self.error_application.configure(True, image=self.no_error_image)
+        self.after(1000, self.show_connection_status)
+
+    def go_back(self):
+        self.clear_entry()
         self.controller.show_frame(MainMenu)
 
-    def clearEntry(self):
+    def clear_entry(self):
         self.name.delete(0, 'end')
         self.name.configure(fg_color='#343638')
         self.surname.delete(0, 'end')
@@ -143,8 +211,8 @@ class Entry(ctk.CTkFrame):
         self.group_size.configure(fg_color='#343638')
         self.visit_reason.set(self.options[0])
 
-    def saveInfo(self):
-        if self.checkInfo():
+    def save_info(self):
+        if self.check_info():
             name = self.name.get()
             surname = self.surname.get()
             card_id = int(self.card_id.get())
@@ -152,89 +220,70 @@ class Entry(ctk.CTkFrame):
             company = self.company.get()
             group_size = int(self.group_size.get())
             visit_reason = self.visit_reason.get()
-            state = self.controller.mediator.addVisitor(name, surname, card_id, car_num, company, group_size, visit_reason)
-            # visitor je úspešne pridaný 
-            if state == "signature":
-                print("Visitor and signature saved.")
-            # visitor sa nepridal
-            elif state == "error":
-                # TODO nastala nejaká chyba
-                # data je dôvod chyby, ktorý stačí niekde vypísať
-                # Bud chyba spojenia
-                # alebo timout 60s  
-                print("Error...")
-            elif state == "wrong_data":
-                # TODO treba upraviť zadané info a znova poslať na kontrolu
-                print("Wrong data...")
-            # TODO dorobit POPUP visitor sa prida az po odkontrolovani
-            '''if checked():
-                    self.goBack()
-            '''
             self.controller.show_frame(Control)
-            # temporary
-            #self.goBack()
+            self.controller.frames[Control].waitForPresentation(name, surname, card_id, car_num, company, group_size, visit_reason)
 
-    def badEntry(self, entry):
+    def bad_entry(self, entry):
         entry.configure(fg_color='red')
 
-    def goodEntry(self, entry):
+    def good_entry(self, entry):
         entry.configure(fg_color='#343638')
 
-    def isInt(self, entry):
+    def is_int(self, entry):
         try:
-            int(self.group_size.get())
+            int(entry.get())
             return True
         except ValueError:
             return False
 
-    def checkInfo(self):
+    def check_info(self):
         flag = True
 
         if (self.name.get() == ''):
             flag = False
-            self.badEntry(self.name)
+            self.bad_entry(self.name)
         else:
-            self.goodEntry(self.name)
+            self.good_entry(self.name)
 
         if (self.surname.get() == ''):
             flag = False
-            self.badEntry(self.surname)
+            self.bad_entry(self.surname)
         else:
-            self.goodEntry(self.surname)
+            self.good_entry(self.surname)
 
         if (self.card_id.get() == ''):
             flag = False
-            self.badEntry(self.card_id)
-        elif not (self.isInt(self.card_id)):
-            flag = False
-            self.badEntry(self.card_id)
+            self.bad_entry(self.card_id)
+        if self.is_int(self.card_id):
+            self.good_entry(self.card_id)
         else:
-            self.goodEntry(self.card_id)
+            flag = False
+            self.bad_entry(self.card_id)
 
         if (self.car_num.get() == ''):
             flag = False
-            self.badEntry(self.car_num)
+            self.bad_entry(self.car_num)
         else:
-            self.goodEntry(self.car_num)
+            self.good_entry(self.car_num)
 
         if (self.company.get() == ''):
             flag = False
-            self.badEntry(self.company)
+            self.bad_entry(self.company)
         else:
-            self.goodEntry(self.company)
+            self.good_entry(self.company)
 
         if (self.group_size.get() == ''):
             flag = False
-            self.badEntry(self.group_size)
-        elif not (self.isInt(self.group_size)):
+            self.bad_entry(self.group_size)
+        elif not (self.is_int(self.group_size)):
             flag = False
-            self.badEntry(self.group_size)
+            self.bad_entry(self.group_size)
         else:
-            self.goodEntry(self.group_size)
+            self.good_entry(self.group_size)
 
         return flag
 
-
+#todo upravit velkosti buttonov
 class Ongoing(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
@@ -246,27 +295,79 @@ class Ongoing(ctk.CTkFrame):
         #self.controller.ongoingVisitors = self.listOngoing(self.controller.mediator.visitors)
         self.chosenVisitor = [None,None]
 
-        # TODO upravit vzhladom na velkost obrazovky
+        frame = ctk.CTkFrame(self, width=600, height=600)
 
-        self.table = t.CTkTable(self, row=len(self.controller.ongoingVisitors),
-                                column=4, values=self.listOngoing(),
+        title = ctk.CTkLabel(frame, text="Prebiehajúce Návštevy", font=VERY_LARGE_FONT)
+        title.place(relx=0.3, y=10)
+
+        name = ctk.CTkLabel(frame, text="Meno")
+        name.place(x=78, y=85)
+        surname = ctk.CTkLabel(frame, text="Priezvisko" )
+        surname.place(x=205, y=85)
+        company = ctk.CTkLabel(frame, text="Firma")
+        company.place(x=360, y=85)
+        review = ctk.CTkLabel(frame, text="Číslo karty")
+        review.place(x=485, y=85)
+
+        submit = ctk.CTkButton(frame, text="Odchod", command=lambda: self.submit())
+        submit.place(x=50,y=500)
+        edit = ctk.CTkButton(frame, text="Úprava", command=lambda: self.edit_chosen_visitor())
+        edit.place(x=200,y=500)
+        button = ctk.CTkButton(frame, text="Naspäť", command=lambda: self.go_back())
+        button.place(x=350,y=500)
+
+        scrollable_frame = ctk.CTkScrollableFrame(frame, width=600,fg_color="gray17")
+        scrollable_frame.place(relx=0,rely=0.2)
+        
+        self.table = t.CTkTable(scrollable_frame, row=len(self.controller.mediator.visitors),
+                                column=4, values=self.list_ongoing(), 
                                 command=self.on_row_clicked)
+        
+        
+    
         self.table.pack()
+        self.restore_table()
 
-        recenzia = ctk.CTkButton(self, text="Recenzia", command=lambda: self.review())
-        recenzia.pack()
-        submit = ctk.CTkButton(self, text="Odchod", command=lambda: self.submit())
-        submit.pack()
-        edit = ctk.CTkButton(self, text="Uprava", command=lambda: self.edit())
-        edit.pack()
-        button = ctk.CTkButton(self, text="Naspat", command=lambda: self.goBack())
-        button.pack()
+
+        #todo skontroluj
+        ## nacitaj obrazky ikoniek
+        self.error_application_image = ctk.CTkImage(Image.open(ICONS_PATH + "tablet_error.png"), None, (50, 50))
+        self.error_cable_image = ctk.CTkImage(Image.open(ICONS_PATH + "connection_error.png"),  None, (50, 50))
+        self.no_error_image = ctk.CTkImage(Image.new("RGBA", (50, 50), (0, 0, 0, 0)), None, (50, 50))
+
+        self.error_cable = ctk.CTkLabel(self, text="", font=LARGE_FONT, image=self.error_cable_image)
+        self.error_cable.place(relx=0, rely=0.8)
+
+        self.error_application = ctk.CTkLabel(self, text="", font=LARGE_FONT, image=self.error_application_image)
+        self.error_application.place(relx=0, rely=0.9)
+
+        frame.grid(padx=10, pady=10)
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+
+        self.show_connection_status()
+
+       
+
+    def show_connection_status(self):
+        if not self.controller.mediator.communication.is_device_connected:
+            self.error_cable.configure(True, image=self.error_cable_image)
+        else:
+            self.error_cable.configure(True, image=self.no_error_image)
+
+        if not self.controller.mediator.communication.is_application_running:
+            self.error_application.configure(True, image=self.error_application_image)
+        else:
+            self.error_application.configure(True, image=self.no_error_image)
+        self.after(1000, self.show_connection_status)
+
+
 
     def set_default(self, row):
         if row % 2 == 0:
-            self.table.edit_row(row, fg_color='gray17')
+            self.table.edit_row(row, fg_color='gray21')
         else:
-            self.table.edit_row(row, fg_color='gray14')
+            self.table.edit_row(row, fg_color='gray17')
 
     def restore_table(self):
         for row in range(self.table.rows):
@@ -275,16 +376,16 @@ class Ongoing(ctk.CTkFrame):
     def on_row_clicked(self, data):
         if self.chosenVisitor[0]:
             self.set_default(self.chosenVisitor[1])
-        self.chosenVisitor = [self.controller.ongoingVisitors[data['row']],data['row']]
+        self.chosenVisitor = [self.controller.mediator.visitors[data['row']],data['row']]
         self.table.edit_row(self.chosenVisitor[1], fg_color='green')
 
-    def goBack(self):
+    def go_back(self):
         if self.chosenVisitor:
             self.chosenVisitor = [None,None]
         self.restore_table()
         self.controller.show_frame(MainMenu)
 
-    def edit(self):
+    def edit_chosen_visitor(self):
         if self.chosenVisitor[0]:
             # TODO uprava vybrateho visitora
             self.controller.frames[Edit].chosenVisitor = self.chosenVisitor
@@ -292,42 +393,37 @@ class Ongoing(ctk.CTkFrame):
         else:
             self.notify()
 
-    def review(self):
-        if self.chosenVisitor[0]:
-            #self.controller.mediator.review()
-            # TODO popup na review a zapisanie review pre vybrateho visitora
-            popup = ctk.CTkToplevel(self.controller)
-            popup.geometry('300x200')
-            popup.grab_set()
-            label = ctk.CTkLabel(popup, text="Odoslane review", font=LARGE_FONT)
-            label.pack()
-            popup.mainloop()
-
-        else:
-            self.notify()
-
     def submit(self):
         if self.chosenVisitor[0]:
-            visitorx = self.chosenVisitor
-            #self.controller.mediator.departureVisitor(visitorx)
-            self.goBack()
+            visitorx = self.chosenVisitor[0]
+            self.controller.mediator.departureVisitor(visitorx.getId(), self)
+            #TODO dorobit update tabulky po odchode || pockat na review??
+            self.controller.update_tables()
+            self.go_back()
+            popup = ctk.CTkToplevel(self.controller)
+            popup.geometry('300x200')
+            popup.attributes('-topmost', 'true')
+            label = ctk.CTkLabel(popup, text="Odoslany review", font=LARGE_FONT)
+            label.pack()
+            popup.mainloop()
         else:
             self.notify()
-    def isGood(self,string):
+
+    def is_good(self, string):
         if string:
              return string
         else:
             return ''
 
-    def listOngoing(self):
-        visitors = self.controller.ongoingVisitors
+    def list_ongoing(self):
+        visitors = self.controller.mediator.visitors
         filtered = []
         for v in visitors:
-            name = self.isGood(v.name)
-            surname = self.isGood(v.surname)
-            cardId = self.isGood(v.cardId)
-            review = self.isGood(v.review)
-            filtered.append([name, surname, cardId, review])
+            name = self.is_good(v.name)
+            surname = self.is_good(v.surname)
+            company = self.is_good(v.company)
+            cardId = self.is_good(v.cardId)
+            filtered.append([name, surname,company, cardId])
         return filtered
 
     def notify(self):
@@ -340,105 +436,295 @@ class Ongoing(ctk.CTkFrame):
         popup.mainloop()
 
 
+    def update_table(self):
+        visitors = self.list_ongoing()
+        self.table.rows = len(visitors)
+        self.table.update_values(visitors)
+
+
+#todo upravit velkosti labels a buttonov
 class Visit_History(ctk.CTkFrame):
     def __init__(self, parent, controller):
         self.controller = controller
         ctk.CTkFrame.__init__(self, parent)
-        label = ctk.CTkLabel(self, text="Historia Navstev", font=LARGE_FONT)
-        label.pack(pady=10, padx=10)
 
-        if self.controller.visitors is None:
-            self.controller.visitors = self.listVisitors(m.allVisitors)
-        # TODO priradit sort na labels
-        self.lname = ctk.CTkLabel(self, text="meno")
-        self.lname.pack()
-        self.lsurname = ctk.CTkLabel(self, text="priezvisko")
-        self.lsurname.pack()
-        self.lcompany = ctk.CTkLabel(self, text="firma")
-        self.lcompany.pack()
-        self.larrival = ctk.CTkLabel(self, text="prichod")
-        self.larrival.pack()
-        self.ldeparture = ctk.CTkLabel(self, text="odchod")
-        self.ldeparture.pack()
+        self.filtered_visitors = None
+        self.sorted = [None,None]
 
-        self.name = ctk.CTkEntry(self, placeholder_text="meno")
-        self.name.pack()
-        self.surname = ctk.CTkEntry(self, placeholder_text="priezvisko")
-        self.surname.pack()
-        self.company = ctk.CTkEntry(self, placeholder_text="firma")
-        self.company.pack()
-        self.arrival = ctk.CTkEntry(self, placeholder_text="prichod")
-        self.arrival.pack()
-        self.departure = ctk.CTkEntry(self, placeholder_text="odchod")
-        self.departure.pack()
+        frame = ctk.CTkFrame(self, width=800,height=600)
 
-        # TODO upravit vzhladom na velkost obrazovky
-        self.table = t.CTkTable(self, row=len(self.controller.visitors), column=9, values=self.listVisitors())
+        title = ctk.CTkLabel(frame, text="História Návštev", font=VERY_LARGE_FONT)
+        title.place(y=20, relx=0.35)
+
+        scrollable_frame = ctk.CTkScrollableFrame(frame, width=800, fg_color="gray17")
+        scrollable_frame.place(relx=0, rely=0.4)
+        self.table = t.CTkTable(scrollable_frame, row=len(self.controller.mediator.allVisitors), column=5,
+                                values=self.list_visitors(), command=self.show_visitor)
         self.table.pack()
+        self.table.colors = ["gray30", "gray4"]
+        self.restore_table()
 
-        #TODO spravit na enter???
-        filter = ctk.CTkButton(self, text="Filter", command=lambda: self.filterVisitors())
-        filter.pack()
+        name_label = ctk.CTkLabel(frame, text="Meno:")
+        name_label.place(x=112,y=100)
+        self.name = ctk.CTkEntry(frame, placeholder_text="meno")
+        self.name.place(x=150,y=100)
 
-        refresh = ctk.CTkButton(self, text="Clear", command=lambda: self.clearEntry())
-        refresh.pack()
-        button = ctk.CTkButton(self, text="Back", command=lambda: self.goBack())
-        button.pack()
+        surname_label = ctk.CTkLabel(frame, text="Priezvisko:")
+        surname_label.place(x=335,y=100)
+        self.surname = ctk.CTkEntry(frame, placeholder_text="priezvisko")
+        self.surname.place(x=400,y=100)
+
+        company_label = ctk.CTkLabel(frame, text="Firma:")
+        company_label.place(x=580,y=100)
+        self.company = ctk.CTkEntry(frame, placeholder_text="firma")
+        self.company.place(x=620,y=100)
+
+        arrival_label = ctk.CTkLabel(frame, text="Príchod:")
+        arrival_label.place(x=100,y=150)
+        self.arrival = ctk.CTkEntry(frame, placeholder_text="dd.mm.rrrr")
+        self.arrival.place(x=150,y=150)
+
+        departure_label = ctk.CTkLabel(frame, text="Odchod:")
+        departure_label.place(x=348,y=150)
+        self.departure = ctk.CTkEntry(frame, placeholder_text="dd.mm.rrrr")
+        self.departure.place(x=400,y=150)
+
+        filter = ctk.CTkButton(frame, text="Filter", command=lambda: self.filter_visitors())
+        filter.place(x=620, y=150)
+
+        #todo relativne vzdialenosti
+        self.name_sort = ctk.CTkLabel(frame, text="Meno")
+        self.name_sort.place(x=112, y=200)
+        self.name_sort.bind("<Button-1>", lambda event: self.sort_by("name"))
+
+        self.surname_sort = ctk.CTkLabel(frame, text="Priezvisko")
+        self.surname_sort.place(x=232, y=200)
+        self.surname_sort.bind("<Button-1>", lambda event: self.sort_by("surname"))
+
+        self.company_sort = ctk.CTkLabel(frame, text="Firma")
+        self.company_sort.place(x=382, y=200)
+        self.company_sort.bind("<Button-1>", lambda event: self.sort_by("company"))
+
+        self.arrival_sort = ctk.CTkLabel(frame, text="Príchod")
+        self.arrival_sort.place(x=512, y=200)
+        self.arrival_sort.bind("<Button-1>",lambda event:  self.sort_by("arrival"))
+
+        self.departure_sort = ctk.CTkLabel(frame, text="Odchod")
+        self.departure_sort.place(x=652, y=200)
+        self.departure_sort.bind("<Button-1>",lambda event:  self.sort_by("departure"))
 
 
-    def clearEntry(self):
+
+
+        refresh = ctk.CTkButton(frame, text="Vyčistiť filter", command=lambda: self.clear_entry())
+        refresh.place(relx=0.4,rely=0.9)
+
+        button = ctk.CTkButton(frame, text="Naspäť", command=lambda: self.go_back())
+        button.place(relx=0.7,rely=0.9)
+
+        #todo skontroluj
+        ## nacitaj obrazky ikoniek
+        self.error_application_image = ctk.CTkImage(Image.open(ICONS_PATH + "tablet_error.png"), None, (50, 50))
+        self.error_cable_image = ctk.CTkImage(Image.open(ICONS_PATH + "connection_error.png"),  None, (50, 50))
+        self.no_error_image = ctk.CTkImage(Image.new("RGBA", (50, 50), (0, 0, 0, 0)), None, (50, 50))
+
+        self.error_cable = ctk.CTkLabel(self, text="", font=LARGE_FONT, image=self.error_cable_image)
+        self.error_cable.place(relx=0, rely=0.8)
+
+        self.error_application = ctk.CTkLabel(self, text="", font=LARGE_FONT, image=self.error_application_image)
+        self.error_application.place(relx=0, rely=0.9)
+
+        frame.pack()
+
+        self.show_connection_status()
+
+    def show_visitor(self,data):
+        popup = ctk.CTkToplevel(self.controller)
+        popup.geometry('600x400')
+        if(self.filtered_visitors):
+            visitor= self.filtered_visitors[data['row']]
+        else:
+            visitor = self.controller.mediator.allVisitors[data['row']]
+        popup.grab_set()
+        label = ctk.CTkLabel(popup, text="Meno: " + visitor.name, font=LARGE_FONT)
+        label.pack()
+        label2 = ctk.CTkLabel(popup, text="Priezvisko: " + visitor.surname, font=LARGE_FONT)
+        label2.pack()
+        label3 = ctk.CTkLabel(popup, text="Firma: " +visitor.company, font=LARGE_FONT)
+        label3.pack()
+        label4 = ctk.CTkLabel(popup, text="Príchod: " +visitor.arrival, font=LARGE_FONT)
+        label4.pack()
+        label5 = ctk.CTkLabel(popup, text="Odchod: " +visitor.departure, font=LARGE_FONT)
+        label5.pack()
+        label6 = ctk.CTkLabel(popup, text="Id karty: " +visitor.cardId, font=LARGE_FONT)
+        label6.pack()
+        label7 = ctk.CTkLabel(popup, text="EČV: " +visitor.carTag, font=LARGE_FONT)
+        label7.pack()
+        label8 = ctk.CTkLabel(popup, text="Dôvod návštevy: " + visitor.reasonOfVisit, font=LARGE_FONT)
+        label8.pack()
+        if visitor.review:
+            review = visitor.review
+        else:
+            review = "0";
+
+        label9 = ctk.CTkLabel(popup, text="Recenzia: " + review + "\U00002B50", font=LARGE_FONT)
+        label9.pack()
+
+
+        popup.mainloop()
+
+    def clear_label(self,label):
+        if label == "meno":
+            self.name_sort.configure(text="Meno")
+        if label == "priezvisko":
+            self.surname_sort.configure(text="Priezvisko")
+        if label == "firma":
+            self.company_sort.configure(text="Firma")
+        if label == "prichod":
+            self.arrival_sort.configure(text="Príchod")
+        if label == "odchod":
+            self.departure_sort.configure(text="Odchod")
+    #todo dorobit na opakovane kliknutie
+    def sort_by(self,sort):
+        if self.filtered_visitors:
+            visitors = self.filtered_visitors
+        else:
+            visitors = self.list_visitors(self.controller.mediator.allVisitors)
+
+        if self.sorted[0] != None:
+            self.clear_label(self.sorted[0])
+        if sort == "name":
+            if self.sorted[1] == None or self.sorted == ["meno",DESC] or self.sorted[0] != "meno":
+                self.table.update_values(sorted(visitors, key=lambda x: x[0]))
+                self.name_sort.configure(text="Meno " + ASC)
+                self.sorted = ["meno", ASC]
+            elif self.sorted == ["meno", ASC] :
+                self.table.update_values(sorted(visitors, key=lambda x: x[0], reverse=True))
+                self.name_sort.configure(text="Meno " + DESC)
+                self.sorted = ["meno", DESC]
+
+        elif sort == "surname":
+            if self.sorted[1] == None or self.sorted == ["priezvisko",DESC] or self.sorted[0] != "priezvisko":
+                self.table.update_values(sorted(visitors, key=lambda x: x[1]))
+                self.surname_sort.configure(text="Priezvisko " + ASC)
+                self.sorted = ["priezvisko", ASC]
+            elif self.sorted == ["priezvisko", ASC]:
+                self.table.update_values(sorted(visitors, key=lambda x: x[1], reverse=True))
+                self.surname_sort.configure(text="Priezvisko " + DESC)
+                self.sorted = ["priezvisko", DESC]
+
+        elif sort == "company":
+            if self.sorted[1] == None or self.sorted == ["firma", DESC] or self.sorted[0] != "firma":
+                self.table.update_values(sorted(visitors, key=lambda x: x[2]))
+                self.company_sort.configure(text="Firma " + ASC)
+                self.sorted = ["firma", ASC]
+            elif self.sorted == ["firma", ASC]:
+                self.table.update_values(sorted(visitors, key=lambda x: x[2], reverse=True))
+                self.company_sort.configure(text="Firma " + DESC)
+                self.sorted = ["firma", DESC]
+
+        elif sort == "arrival":
+            if self.sorted[1] == None or self.sorted == ["prichod", DESC] or self.sorted[0] != "prichod":
+                self.table.update_values(sorted(visitors, key=lambda x: x[3]))
+                self.arrival_sort.configure(text="Príchod " + ASC)
+                self.sorted = ["prichod", ASC]
+            elif self.sorted == ["prichod", ASC]:
+                self.table.update_values(sorted(visitors, key=lambda x: x[3], reverse=True))
+                self.arrival_sort.configure(text="Príchod " + DESC)
+                self.sorted = ["prichod", DESC]
+
+        elif sort == "departure":
+            if self.sorted[1] == None or self.sorted == ["odchod", DESC] or self.sorted[0] != "odchod":
+                self.table.update_values(sorted(visitors, key=lambda x: x[4]))
+                self.departure_sort.configure(text="Odchod " + ASC)
+                self.sorted = ["odchod", ASC]
+            elif self.sorted == ["odchod", ASC]:
+                self.table.update_values(sorted(visitors, key=lambda x: x[4], reverse=True))
+                self.departure_sort.configure(text="Odchod " + ASC)
+                self.sorted = ["odchod", DESC]
+
+       
+
+    def show_connection_status(self):
+        if not self.controller.mediator.communication.is_device_connected:
+            self.error_cable.configure(True, image=self.error_cable_image)
+        else:
+            self.error_cable.configure(True, image=self.no_error_image)
+
+        if not self.controller.mediator.communication.is_application_running:
+            self.error_application.configure(True, image=self.error_application_image)
+        else:
+            self.error_application.configure(True, image=self.no_error_image)
+        self.after(1000, self.show_connection_status)
+
+
+    def clear_entry(self):
         self.name.delete(0, 'end')
         self.surname.delete(0, 'end')
         self.company.delete(0, 'end')
         self.arrival.delete(0, 'end')
         self.departure.delete(0, 'end')
-        self.controller.visitors = self.controller.mediator.allVisitors
-        self.table.configure(rows=len(self.controller.visitors))
-        self.table.update_values(self.listVisitors())
+        if self.sorted[0] != None:
+            self.clear_label(self.sorted[0])
+        self.table.update_values(self.list_visitors())
+        self.controller.update_tables()
+        self.filter_visitors()
 
-    def goBack(self):
+    def go_back(self):
         self.controller.show_frame(MainMenu)
 
 
-    def filterVisitors(self):
-        self.controller.visitors = m.filter(name=self.name.get(), surname=self.surname.get(), company=self.company.get(),
+    def filter_visitors(self):
+        visitors = self.controller.mediator.filter(name=self.name.get(), surname=self.surname.get(), company=self.company.get(),
                  dateFrom=self.arrival.get(), dateTo=self.departure.get())
-
-        visitors = self.listVisitors()
+    
+        visitors = self.list_visitors(visitors)
+        self.filtered_visitors = visitors
         self.table.configure(rows=len(visitors))
         self.table.update_values(visitors)
-        self.controller.show_frame(Visit_History)
-    def isGood(self,string):
+    def set_default(self, row):
+        if row % 2 == 0:
+            self.table.edit_row(row, fg_color='gray21')
+        else:
+            self.table.edit_row(row, fg_color='gray17')
+
+    def restore_table(self):
+        for row in range(self.table.rows):
+            self.set_default(row)
+    def update_table(self):
+        visitors = self.list_visitors()
+        self.table.rows = len(visitors)
+        self.table.update_values(visitors)
+        self.restore_table()
+    def is_good(self, string):
         if string:
              return string
         else:
             return ''
 
-    def listVisitors(self):
-        visitors = self.controller.visitors
+    def list_visitors(self, filtered=None):
+        visitors = self.controller.mediator.allVisitors
+        if filtered:
+            visitors = filtered
+        
         listofvisitors = []
         for v in visitors:
 
-            name = self.isGood(v.name)
-            surname = self.isGood(v.surname)
-            cardId = self.isGood(v.cardId)
-            review = self.isGood(v.review)
-            company = self.isGood(v.company)
-            carTag = self.isGood(v.carTag)
-            count = self.isGood(v.count)
-            reasonOfVisit = self.isGood(v.reasonOfVisit)
-            arrival = self.isGood(v.arrival)
-            departure = self.isGood(v.departure)
+            name = self.is_good(v.name)
+            surname = self.is_good(v.surname)
+            company = self.is_good(v.company)
+            arrival = self.is_good(v.arrival)
+            departure = self.is_good(v.departure)
             listofvisitors.append(
 
-                [name, surname, company, cardId, carTag, count, reasonOfVisit, arrival, departure,
-                 review])
+                [name, surname, company,  arrival, departure])
+    
         return listofvisitors
 
+#todo dorobit to ako ENTRY
 class Edit(ctk.CTkFrame):
     def __init__(self, parent, controller):
         self.controller = controller
-        self.parent = parent
         ctk.CTkFrame.__init__(self, parent)
 
         self.chosenVisitor = None
@@ -466,35 +752,63 @@ class Edit(ctk.CTkFrame):
         self.lgroup_size = ctk.CTkLabel(self, text="pocet ludi v skupine")
         self.lgroup_size.pack()
 
-        self.name = ctk.CTkEntry(self, placeholder_text="meno")
-        self.name.pack()
-        self.surname = ctk.CTkEntry(self, placeholder_text="priezvisko")
-        self.surname.pack()
-        self.card_id = ctk.CTkEntry(self, placeholder_text="id")
-        self.card_id.pack()
-        self.car_num = ctk.CTkEntry(self, placeholder_text="spz")
-        self.car_num.pack()
-        self.company = ctk.CTkEntry(self, placeholder_text="firma")
-        self.company.pack()
-        self.group_size = ctk.CTkEntry(self, placeholder_text="pocet ludi v skupine")
-        self.group_size.pack()
+        lcompany = ctk.CTkLabel(frame, text="Firma:")
+        lcompany.place(x=160, y=215)
+        self.company = ctk.CTkEntry(frame, placeholder_text="firma")
+        self.company.place(x=200, y=215)
 
-        self.options = [
-            "navsteva manazera",
-            "audit",
-            "instalacia",
-            "oprava zariadeni"
-        ]
-        # TODO pridat moznost Pomocou popup / remove moznost
+        lgroup_size = ctk.CTkLabel(frame, text="Počet ľudí v skupine:")
+        lgroup_size.place(x=80, y=250)
+        self.group_size = ctk.CTkEntry(frame, placeholder_text="počet ľudí v skupine")
+        self.group_size.place(x=200, y=250)
 
-        self.visit_reason = ctk.CTkOptionMenu(master=self, values=self.options)
-        self.visit_reason.pack()
+        lvisit_reason = ctk.CTkLabel(frame, text="Dôvod návštevy:")
+        lvisit_reason.place(x=103, y=285)
+        self.visit_reason = ctk.CTkOptionMenu(frame, values=self.controller.options)
+        self.visit_reason.place(x=200, y=285)
 
-    def goBack(self):
-        self.clearEntry()
+        back = ctk.CTkButton(frame, text="Naspäť", height=40, command=lambda: self.go_back())
+        back.place(x=250, y=350)
+
+        submit = ctk.CTkButton(frame, text="Uložiť zmeny", height=40, command=lambda: self.save_info())
+        submit.place(x=75, y=350)
+
+        ## nacitaj obrazky ikoniek
+        self.error_application_image = ctk.CTkImage(Image.open(ICONS_PATH + "tablet_error.png"), None, (50, 50))
+        self.error_cable_image = ctk.CTkImage(Image.open(ICONS_PATH + "connection_error.png"),  None, (50, 50))
+        self.no_error_image = ctk.CTkImage(Image.new("RGBA", (50, 50), (0, 0, 0, 0)), None, (50, 50))
+
+        self.error_cable = ctk.CTkLabel(self, text="", font=LARGE_FONT, image=self.error_cable_image)
+        self.error_cable.place(relx=0, rely=0.8)
+
+        self.error_application = ctk.CTkLabel(self, text="", font=LARGE_FONT, image=self.error_application_image)
+        self.error_application.place(relx=0, rely=0.9)
+
+        frame.grid(padx=10, pady=10)
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+
+        self.show_connection_status()
+
+       
+
+    def show_connection_status(self):
+        if not self.controller.mediator.communication.is_device_connected:
+            self.error_cable.configure(True, image=self.error_cable_image)
+        else:
+            self.error_cable.configure(True, image=self.no_error_image)
+
+        if not self.controller.mediator.communication.is_application_running:
+            self.error_application.configure(True, image=self.error_application_image)
+        else:
+            self.error_application.configure(True, image=self.no_error_image)
+        self.after(1000, self.show_connection_status)
+
+    def go_back(self):
+        self.clear_entry()
         self.controller.show_frame(Ongoing)
 
-    def clearEntry(self):
+    def clear_entry(self):
         self.name.delete(0, 'end')
         self.name.configure(fg_color='#343638')
         self.surname.delete(0, 'end')
@@ -509,7 +823,7 @@ class Edit(ctk.CTkFrame):
         self.group_size.configure(fg_color='#343638')
         self.visit_reason.set(self.options[0])
 
-    def saveInfo(self):
+    def save_info(self):
         if self.checkInfo():
             name = self.name.get()
             surname = self.surname.get()
@@ -519,16 +833,25 @@ class Edit(ctk.CTkFrame):
             group_size = int(self.group_size.get())
             visit_reason = self.visit_reason.get()
             self.controller.mediator.editVisitor(int(self.chosenVisitor[0].id),name, surname, card_id, car_num, company, group_size, visit_reason)
-            #Todo urobit aby sa to ulozilo a zobrazilo
+            self.controller.update_tables()
+
+            popup = ctk.CTkToplevel(self.controller)
+            popup.geometry('300x200')
+            popup.attributes('-topmost', 'true')
+            label = ctk.CTkLabel(popup, text="Navsteva uspesne pridana", font=LARGE_FONT)
+            label.pack()
+            popup.mainloop()
+
+
 
             self.chosenVisitor = [None,None]
             self.controller.frames[Ongoing].chosenVisitor  = [None,None]
             self.controller.frames[Ongoing].restore_table()
 
             # temporary
-            self.goBack()
+            self.go_back()
 
-    def badEntry(self, entry):
+    def bad_entry(self, entry):
         entry.configure(fg_color='red')
 
     def goodEntry(self, entry):
@@ -546,43 +869,43 @@ class Edit(ctk.CTkFrame):
 
         if (self.name.get() == ''):
             flag = False
-            self.badEntry(self.name)
+            self.bad_entry(self.name)
         else:
             self.goodEntry(self.name)
 
         if (self.surname.get() == ''):
             flag = False
-            self.badEntry(self.surname)
+            self.bad_entry(self.surname)
         else:
             self.goodEntry(self.surname)
 
         if (self.card_id.get() == ''):
             flag = False
-            self.badEntry(self.card_id)
+            self.bad_entry(self.card_id)
         elif not (self.isInt(self.card_id)):
             flag = False
-            self.badEntry(self.card_id)
+            self.bad_entry(self.card_id)
         else:
             self.goodEntry(self.card_id)
 
         if (self.car_num.get() == ''):
             flag = False
-            self.badEntry(self.car_num)
+            self.bad_entry(self.car_num)
         else:
             self.goodEntry(self.car_num)
 
         if (self.company.get() == ''):
             flag = False
-            self.badEntry(self.company)
+            self.bad_entry(self.company)
         else:
             self.goodEntry(self.company)
 
         if (self.group_size.get() == ''):
             flag = False
-            self.badEntry(self.group_size)
+            self.bad_entry(self.group_size)
         elif not (self.isInt(self.group_size)):
             flag = False
-            self.badEntry(self.group_size)
+            self.bad_entry(self.group_size)
         else:
             self.goodEntry(self.group_size)
 
@@ -597,19 +920,130 @@ class Edit(ctk.CTkFrame):
         #self.visit_reason.set(0,self.chosenVisitor[0].reason)
 
 class Control(ctk.CTkFrame):
-    # TODO dorobit frame co sa deje po spusteni prezentacie
-    def init(self, parent, controller):
+    
+    def __init__(self, parent, controller):
         self.controller = controller
-        ctk.CTkFrame.init(self, parent)
-        label = ctk.CTkLabel(self, text="Prebieha kontrola zadaných údajov.", font=VERY_LARGE_FONT)
-        label.pack(expand=True, fill='both', anchor='center')
-        back = ctk.CTkButton(self, text="Naspäť", height=40, command=lambda: self.goBack())
-        back.pack()
+        ctk.CTkFrame.__init__(self, parent)
+        self.label = ctk.CTkLabel(self, text="Prebieha kontrola zadaných údajov.", font=VERY_LARGE_FONT)
+        self.label.pack(expand=True, fill='both', anchor='center')
+        
+        self.progressbar = ctk.CTkProgressBar(self)
+        self.progressbar.set(0)
 
-    def goBack(self):
+        end_presentation = ctk.CTkButton(self, text="Ukonči prezentáciu", height=40, command=lambda: self.send_end_presentation())
+        end_presentation.pack(pady=20)
+
+        back = ctk.CTkButton(self, text="Naspäť", height=40, command=lambda: self.go_back())
+        back.pack(pady=20)
+
+        ## nacitaj obrazky ikoniek
+        self.error_application_image = ctk.CTkImage(Image.open(ICONS_PATH + "tablet_error.png"), None, (50, 50))
+        self.error_cable_image = ctk.CTkImage(Image.open(ICONS_PATH + "connection_error.png"),  None, (50, 50))
+        self.no_error_image = ctk.CTkImage(Image.new("RGBA", (50, 50), (0, 0, 0, 0)), None, (50, 50))
+
+        self.error_cable = ctk.CTkLabel(self, text="", font=LARGE_FONT, image=self.error_cable_image)
+        self.error_cable.place(relx=0, rely=0.8)
+
+        self.error_application = ctk.CTkLabel(self, text="", font=LARGE_FONT, image=self.error_application_image)
+        self.error_application.place(relx=0, rely=0.9)
+
+        self.show_connection_status()
+
+    def send_end_presentation(self):
+        self.label.configure(True, text="Prezentácia bola ukončená")
+        self.controller.mediator.endPresentation()
+       
+
+    def show_connection_status(self):
+        if not self.controller.mediator.communication.is_device_connected:
+            self.error_cable.configure(True, image=self.error_cable_image)
+        else:
+            self.error_cable.configure(True, image=self.no_error_image)
+
+        if not self.controller.mediator.communication.is_application_running:
+            self.error_application.configure(True, image=self.error_application_image)
+        else:
+            self.error_application.configure(True, image=self.no_error_image)
+        self.after(1000, self.show_connection_status)
+
+    def go_back(self):
         self.controller.show_frame(MainMenu)
 
+    def showProgress(self, percentage):
+        self.label.configure(text="Návšteva sa zoznamje s pravidlami prevádzky")
+        self.progressbar.place(rely=0.7, relx=0.5, anchor="center")
+        value = percentage / 100
+        self.progressbar.set(value)
+        self.progressbar.update()
 
-m = med.Mediator()
-app = MainScreen(m)
+
+    def waitForPresentation(self, name, surname, card_id, car_num, company, group_size, visit_reason):
+        state, data = self.controller.mediator.addVisitor(self, name, surname, card_id, car_num, company, group_size, visit_reason)
+        self.progressbar.set(0)
+
+        # visitor je úspešne pridaný
+        if state == Communication.message_code["signature"]:
+            self.controller.show_frame(MainMenu)
+            self.controller.update_tables()
+            self.controller.frames[Entry].clear_entry()
+            self.go_back()
+
+            signature: Image = data
+            width, height = signature.size
+            
+            popup = ctk.CTkToplevel(self.controller)
+            popup.geometry(f'{width}x{height + 100}')
+            popup.attributes('-topmost', 'true')
+            
+            label = ctk.CTkLabel(popup, text="Navsteva bola zapisana", font=LARGE_FONT)
+            label.pack()
+
+            signature_image = ctk.CTkImage(signature, None, signature.size)
+            image_label = ctk.CTkLabel(popup, image=signature_image, text="")
+            image_label.pack(expand=True, fill="both")
+            
+            popup.mainloop()
+
+        # visitor sa nepridal
+        elif state == Communication.message_code["wrong_data"]:
+            self.controller.show_frame(Entry)
+            popup = ctk.CTkToplevel(self.controller)
+            popup.geometry('300x200')
+            popup.attributes('-topmost', 'true')
+            label = ctk.CTkLabel(popup, text="Udaje boli zadane zle", font=LARGE_FONT)
+            label.pack()
+            popup.mainloop()
+
+        elif state == Communication.message_code["presentation_end"]:
+            self.controller.show_frame(Entry)
+            ## self.controller.frames[Entry].clear_entry()
+            popup = ctk.CTkToplevel(self.controller)
+            popup.geometry('300x200')
+            popup.attributes('-topmost', 'true')
+            label = ctk.CTkLabel(popup, text="Prezentácia bola ukončená", font=LARGE_FONT)
+            label.pack()
+            popup.mainloop()
+
+        
+        else:
+            ## elif state == Communication.message_code["error"]:
+            # data je dôvod chyby, ktorý stačí niekde vypísať
+            # Bud chyba spojenia
+            # alebo timout 60s
+            self.controller.show_frame(Entry)
+            popup = ctk.CTkToplevel(self.controller)
+            popup.geometry('300x200')
+            popup.attributes('-topmost', 'true')
+            label = ctk.CTkLabel(popup, text="Nastala chyba skuste znova a skontrolujte zariadenie", font=LARGE_FONT)
+            label.pack()
+            popup.mainloop()
+
+
+
+
+
+
+ctk.set_appearance_mode('dark')
+mediator = med.Mediator()
+app = MainScreen(mediator)
 app.mainloop()
