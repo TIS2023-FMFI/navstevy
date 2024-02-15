@@ -238,7 +238,7 @@ class Entry(ctk.CTkFrame):
 
     def is_int(self, entry):
         try:
-            int(self.group_size.get())
+            int(entry.get())
             return True
         except ValueError:
             return False
@@ -261,11 +261,11 @@ class Entry(ctk.CTkFrame):
         if (self.card_id.get() == ''):
             flag = False
             self.bad_entry(self.card_id)
-        elif not (self.is_int(self.card_id)):
+        if self.is_int(self.card_id):
+            self.good_entry(self.card_id)
+        else:
             flag = False
             self.bad_entry(self.card_id)
-        else:
-            self.good_entry(self.card_id)
 
         if (self.car_num.get() == ''):
             flag = False
