@@ -301,12 +301,14 @@ class Entry(ctk.CTkFrame):
             self.controller.options.remove(visitReasonPop.get())
             visitReasonPop.set(self.controller.options[0])
             visitReasonPop.configure(values=self.controller.options)
+            self.controller.mediator.saveOptions(self.controller.options)
         def add_option():
             if entry.get() not in self.controller.options:
                 self.controller.options.append(entry.get())
                 visitReasonPop.configure(values=self.controller.options)
                 self.controller.frames[Entry].visit_reason.configure(values=self.controller.options)
-                #todo zapisat do suboru
+                self.controller.mediator.saveOptions(self.controller.options)
+                entry.delete(0, "end")
                 
 
         popup = ctk.CTkToplevel(self.controller)
@@ -318,6 +320,7 @@ class Entry(ctk.CTkFrame):
         entry = ctk.CTkEntry(popup,placeholder_text="Dôvod")
         entry.place(x=60, y=100)
         add = ctk.CTkButton(popup, text="Pridaj",command=lambda : add_option())
+        add.place(x=215, y=100)
 
         visitReasonPop = ctk.CTkOptionMenu(popup, values=self.controller.options)
         visitReasonPop.place(x=60,y=50)
