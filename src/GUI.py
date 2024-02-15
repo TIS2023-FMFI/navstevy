@@ -300,7 +300,6 @@ class Entry(ctk.CTkFrame):
         visitReasonPop = ctk.CTkOptionMenu(popup, values=self.controller.options)
         visitReasonPop.place(x=60,y=50)
         
-        print(visitReasonPop.get()) 
 
         for x in self.controller.options:
             print(x)
