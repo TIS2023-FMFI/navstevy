@@ -557,8 +557,10 @@ class Visit_History(ctk.CTkFrame):
         label3.pack()
         label4 = ctk.CTkLabel(popup, text="Príchod: " +visitor.arrival, font=LARGE_FONT)
         label4.pack()
-        label5 = ctk.CTkLabel(popup, text="Odchod: " +visitor.departure, font=LARGE_FONT)
+        label5 = ctk.CTkLabel(popup, text="Odchod: " , font=LARGE_FONT)
         label5.pack()
+        if visitor.departure:
+            label5.configure(text="Odchod: " +visitor.departure)
         label6 = ctk.CTkLabel(popup, text="Id karty: " +visitor.cardId, font=LARGE_FONT)
         label6.pack()
         label7 = ctk.CTkLabel(popup, text="EČV: " +visitor.carTag, font=LARGE_FONT)
