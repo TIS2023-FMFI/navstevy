@@ -8,6 +8,8 @@ BASE_FG_COLOR = '#343638'
 LARGE_FONT = ("times new roman", 18)
 VERY_LARGE_FONT = ("times new roman", 32)
 ICONS_PATH = 'files/icons/'
+ASC = "\u25B3"
+DESC = "\u25BD"
 
 class MainScreen(ctk.CTk):
 
@@ -450,6 +452,7 @@ class Visit_History(ctk.CTkFrame):
         ctk.CTkFrame.__init__(self, parent)
 
         self.filtered_visitors = None
+        self.sorted = [None,None]
 
         frame = ctk.CTkFrame(self, width=800,height=600)
 
@@ -493,25 +496,25 @@ class Visit_History(ctk.CTkFrame):
         filter.place(x=620, y=150)
 
         #todo relativne vzdialenosti
-        name_sort = ctk.CTkLabel(frame, text="Meno")
-        name_sort.place(x=112, y=200)
-        name_sort.bind("<Button-1>", lambda event: self.sort_by("name"))
+        self.name_sort = ctk.CTkLabel(frame, text="Meno")
+        self.name_sort.place(x=112, y=200)
+        self.name_sort.bind("<Button-1>", lambda event: self.sort_by("name"))
 
-        surname_sort = ctk.CTkLabel(frame, text="Priezvisko")
-        surname_sort.place(x=232, y=200)
-        surname_sort.bind("<Button-1>", lambda event: self.sort_by("surname"))
+        self.surname_sort = ctk.CTkLabel(frame, text="Priezvisko")
+        self.surname_sort.place(x=232, y=200)
+        self.surname_sort.bind("<Button-1>", lambda event: self.sort_by("surname"))
 
-        company_sort = ctk.CTkLabel(frame, text="Firma")
-        company_sort.place(x=382, y=200)
-        company_sort.bind("<Button-1>", lambda event: self.sort_by("company"))
+        self.company_sort = ctk.CTkLabel(frame, text="Firma")
+        self.company_sort.place(x=382, y=200)
+        self.company_sort.bind("<Button-1>", lambda event: self.sort_by("company"))
 
-        arrival_sort = ctk.CTkLabel(frame, text="Príchod")
-        arrival_sort.place(x=512, y=200)
-        arrival_sort.bind("<Button-1>",lambda event:  self.sort_by("arrival"))
+        self.arrival_sort = ctk.CTkLabel(frame, text="Príchod")
+        self.arrival_sort.place(x=512, y=200)
+        self.arrival_sort.bind("<Button-1>",lambda event:  self.sort_by("arrival"))
 
-        departure_sort = ctk.CTkLabel(frame, text="Odchod")
-        departure_sort.place(x=652, y=200)
-        departure_sort.bind("<Button-1>",lambda event:  self.sort_by("departure"))
+        self.departure_sort = ctk.CTkLabel(frame, text="Odchod")
+        self.departure_sort.place(x=652, y=200)
+        self.departure_sort.bind("<Button-1>",lambda event:  self.sort_by("departure"))
 
 
 
@@ -573,6 +576,17 @@ class Visit_History(ctk.CTkFrame):
 
         popup.mainloop()
 
+    def clear_label(self,label):
+        if label == "meno":
+            self.name_sort.configure(text="Meno")
+        if label == "priezvisko":
+            self.surname_sort.configure(text="Priezvisko")
+        if label == "firma":
+            self.company_sort.configure(text="Firma")
+        if label == "prichod":
+            self.arrival_sort.configure(text="Príchod")
+        if label == "odchod":
+            self.departure_sort.configure(text="Odchod")
     #todo dorobit na opakovane kliknutie
     def sort_by(self,sort):
         if self.filtered_visitors:
@@ -580,16 +594,57 @@ class Visit_History(ctk.CTkFrame):
         else:
             visitors = self.list_visitors(self.controller.mediator.allVisitors)
 
+        if self.sorted[0] != None:
+            self.clear_label(self.sorted[0])
         if sort == "name":
-            self.table.update_values(sorted(visitors, key=lambda x: x[0]))
+            if self.sorted[1] == None or self.sorted == ["meno",DESC] or self.sorted[0] != "meno":
+                self.table.update_values(sorted(visitors, key=lambda x: x[0]))
+                self.name_sort.configure(text="Meno " + ASC)
+                self.sorted = ["meno", ASC]
+            elif self.sorted == ["meno", ASC] :
+                self.table.update_values(sorted(visitors, key=lambda x: x[0], reverse=True))
+                self.name_sort.configure(text="Meno " + DESC)
+                self.sorted = ["meno", DESC]
+
         elif sort == "surname":
-            self.table.update_values(sorted(visitors, key=lambda x: x[1]))
+            if self.sorted[1] == None or self.sorted == ["priezvisko",DESC] or self.sorted[0] != "priezvisko":
+                self.table.update_values(sorted(visitors, key=lambda x: x[1]))
+                self.surname_sort.configure(text="Priezvisko " + ASC)
+                self.sorted = ["priezvisko", ASC]
+            elif self.sorted == ["priezvisko", ASC]:
+                self.table.update_values(sorted(visitors, key=lambda x: x[1], reverse=True))
+                self.surname_sort.configure(text="Priezvisko " + DESC)
+                self.sorted = ["priezvisko", DESC]
+
         elif sort == "company":
-            self.table.update_values(sorted(visitors, key=lambda x: x[2]))
+            if self.sorted[1] == None or self.sorted == ["firma", DESC] or self.sorted[0] != "firma":
+                self.table.update_values(sorted(visitors, key=lambda x: x[2]))
+                self.company_sort.configure(text="Firma " + ASC)
+                self.sorted = ["firma", ASC]
+            elif self.sorted == ["firma", ASC]:
+                self.table.update_values(sorted(visitors, key=lambda x: x[2], reverse=True))
+                self.company_sort.configure(text="Firma " + DESC)
+                self.sorted = ["firma", DESC]
+
         elif sort == "arrival":
-            self.table.update_values(sorted(visitors, key=lambda x: x[3]))
+            if self.sorted[1] == None or self.sorted == ["prichod", DESC] or self.sorted[0] != "prichod":
+                self.table.update_values(sorted(visitors, key=lambda x: x[3]))
+                self.arrival_sort.configure(text="Príchod " + ASC)
+                self.sorted = ["prichod", ASC]
+            elif self.sorted == ["prichod", ASC]:
+                self.table.update_values(sorted(visitors, key=lambda x: x[3], reverse=True))
+                self.arrival_sort.configure(text="Príchod " + DESC)
+                self.sorted = ["prichod", DESC]
+
         elif sort == "departure":
-            self.table.update_values(sorted(visitors, key=lambda x: x[4]))
+            if self.sorted[1] == None or self.sorted == ["odchod", DESC] or self.sorted[0] != "odchod":
+                self.table.update_values(sorted(visitors, key=lambda x: x[4]))
+                self.departure_sort.configure(text="Odchod " + ASC)
+                self.sorted = ["odchod", ASC]
+            elif self.sorted == ["odchod", ASC]:
+                self.table.update_values(sorted(visitors, key=lambda x: x[4], reverse=True))
+                self.departure_sort.configure(text="Odchod " + ASC)
+                self.sorted = ["odchod", DESC]
 
        
 
@@ -612,6 +667,8 @@ class Visit_History(ctk.CTkFrame):
         self.company.delete(0, 'end')
         self.arrival.delete(0, 'end')
         self.departure.delete(0, 'end')
+        if self.sorted[0] != None:
+            self.clear_label(self.sorted[0])
         self.table.update_values(self.list_visitors())
         self.controller.update_tables()
         self.filter_visitors()
