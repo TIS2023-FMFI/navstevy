@@ -9,6 +9,7 @@ from PIL import Image
 
 OUTPUT_PATH = 'files/signatures/' # TODO nastavnie správnej cesty pre ich potreby
 FILE_PATH = 'files/testFile.csv'
+OPTIONS_FILE_PATH = 'files/options.txt'
 
 class Mediator:
     def __init__(self):
@@ -144,6 +145,26 @@ class Mediator:
     def endPresentation(self):
         self.communication.send_end_presentation()
 
+    def saveOptions(self, options):
+        with open(OPTIONS_FILE_PATH, "w",encoding="utf-8") as file:
+            for option in options:
+                file.write(option + "\n")
+        file.close()
+    
+    def loadOptions(self):
+        options = []
+        dataInStrings = []
+        try:
+            with open(OPTIONS_FILE_PATH, "r",encoding="utf-8") as file:
+                file.seek(0)  # dôležité dať pointer na začiatok ak cheme čiťať celý súbor
+                dataInStrings = file.readlines()
+        except OSError as e:
+            print(f"Error opening file {OPTIONS_FILE_PATH}: {e}. Could not load options.")
+        file.close()
+        for option in dataInStrings:
+            options.append(option.strip())
+        return options
+    
 if __name__ == "__main__": 
     m = Mediator()
     m.addVisitor('Lara', 'Taka', 1, 'BL000BS', 'Nic', 2, 2)

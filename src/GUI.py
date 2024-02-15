@@ -30,13 +30,7 @@ class MainScreen(ctk.CTk):
         self.container.grid_rowconfigure(0, weight=1)
         self.container.grid_columnconfigure(0, weight=1)
 
-        #todo dorobit moznosti vyberu pre reason of visit
-        self.options = [
-            "návšteva manažéra",
-            "audit",
-            "inštalácia",
-            "oprava zariadení"
-        ]
+        self.options = self.mediator.loadOptions()
 
         self.frames = {}
 
@@ -169,7 +163,6 @@ class Entry(ctk.CTkFrame):
         submit = ctk.CTkButton(frame, text="Spustiť prezentáciu",height=40, command=lambda: self.save_info())
         submit.place(x=75,y=350)
 
-        #TODO Lubos
         addOption = ctk.CTkButton(frame, text="Upraviť dôvody", command=lambda: self.changeOptions())
         addOption.place(x=355,y=285)
 
