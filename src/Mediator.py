@@ -1,11 +1,9 @@
 import Visitor as vis
 import CustomFile as cf
-import difflib
 import string
 import unidecode
 from Communication import Communication
 from threading import Thread
-from PIL import Image
 
 OUTPUT_PATH = 'files/signatures/' # TODO nastavnie správnej cesty pre ich potreby
 FILE_PATH = 'files/testFile.csv'
@@ -16,7 +14,8 @@ class Mediator:
         self.visitors = []      # TODO pridávanie neodhlásených z predošlého dňa
         self.file = cf.CustomFile(FILE_PATH)
         self.allVisitors = []
-        self.saveAllVisits()
+        if self.file.fileLoaded:
+            self.saveAllVisits()
         self.communication = Communication()
 
         
@@ -55,7 +54,6 @@ class Mediator:
                     vis.addReview(data)
                 self.file.edit(vis.getId(), vis)
                 break
-
 
     def getVisitors(self):
         return self.visitors
@@ -155,12 +153,13 @@ class Mediator:
         options = []
         dataInStrings = []
         try:
-            with open(OPTIONS_FILE_PATH, "r",encoding="utf-8") as file:
-                file.seek(0)  # dôležité dať pointer na začiatok ak cheme čiťať celý súbor
-                dataInStrings = file.readlines()
+            file = open(OPTIONS_FILE_PATH, "r",encoding="utf-8")
+            file.seek(0)  # dôležité dať pointer na začiatok ak cheme čiťať celý súbor
+            dataInStrings = file.readlines()
+            file.close()
         except OSError as e:
-            print(f"Error opening file {OPTIONS_FILE_PATH}: {e}. Could not load options.")
-        file.close()
+            file = open(OPTIONS_FILE_PATH, "w",encoding="utf-8")
+            file.close()
         for option in dataInStrings:
             options.append(option.strip())
         return options

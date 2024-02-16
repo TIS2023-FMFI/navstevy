@@ -12,16 +12,16 @@ ASC = "\u25B3"
 DESC = "\u25BD"
 
 class MainScreen(ctk.CTk):
-
     def __init__(self, mediator):
         ctk.CTk.__init__(self)
-
         self.iconbitmap(ICONS_PATH + "icon.ico")
         self.title("Evidencia návštev")
         self.protocol("WM_DELETE_WINDOW", self.close_app)
 
         self.geometry("1200x620")
         self.mediator = mediator
+        
+
         self.minsize(620, 620)
 
         self.container = ctk.CTkFrame(self)
@@ -42,10 +42,20 @@ class MainScreen(ctk.CTk):
             frame.grid(row=0, column=0, sticky="nsew")
 
         self.show_frame(MainMenu)
+        if self.mediator.file.fileLoaded == False:
+            popup = ctk.CTkToplevel(self)
+            popup.protocol("WM_DELETE_WINDOW", self.close_app)
+            popup.title("Nastal problém!")
+            popup.geometry("500x300")
+            popup.grab_set()
+            label = ctk.CTkLabel(popup, text="Nepodarilo sa načítať súbor s návštevami.\nPri obnove súboru postupejte prosím podľa manuálu.", font=LARGE_FONT, text_color="red")
+            label.place(relx=0.13, rely=0.40)
 
     def close_app(self):
         self.destroy()
         self.mediator.communication.close()
+        exit()
+
     def show_frame(self, cont):
         if cont == Edit:
             self.frames[Edit].enterVisitor()
@@ -109,54 +119,54 @@ class Entry(ctk.CTkFrame):
         self.controller = controller
         ctk.CTkFrame.__init__(self, parent)
 
-        frame = ctk.CTkFrame(self,width=500,height=600)
+        frame = ctk.CTkFrame(self,width=600,height=600)
 
-        title = ctk.CTkLabel(frame, text="Zápis Návštevy", font=VERY_LARGE_FONT)
-        title.place(relx=0.3,y=10)
+        title = ctk.CTkLabel(frame, text="Zápis návštevy", font=VERY_LARGE_FONT)
+        title.place(relx=0.37,y=10)
 
         name_label = ctk.CTkLabel(frame, text="Meno:")
-        name_label.place(x=160,y=75)
-        self.name = ctk.CTkEntry(frame, placeholder_text="meno")
-        self.name.place(x=200,y=75)
+        name_label.place(x=210.5,y=75)
+        self.name = ctk.CTkEntry(frame, placeholder_text="meno", width=150)
+        self.name.place(x=260,y=75)
 
         lsurname = ctk.CTkLabel(frame, text="Priezvisko:")
-        lsurname.place(x=135,y=110)
-        self.surname = ctk.CTkEntry(frame, placeholder_text="priezvisko")
-        self.surname.place(x=200,y=110)
+        lsurname.place(x=185,y=110)
+        self.surname = ctk.CTkEntry(frame, placeholder_text="priezvisko", width=150)
+        self.surname.place(x=260,y=110)
 
         lcard_id = ctk.CTkLabel(frame, text="Id karty:")
-        lcard_id.place(x=150,y=145)
-        self.card_id = ctk.CTkEntry(frame, placeholder_text="id karty")
-        self.card_id.place(x=200,y=145)
+        lcard_id.place(x=201.3,y=145)
+        self.card_id = ctk.CTkEntry(frame, placeholder_text="id karty", width=150)
+        self.card_id.place(x=260,y=145)
 
         lcar_num = ctk.CTkLabel(frame, text="Spz:")
-        lcar_num.place(x=170,y=180)
-        self.car_num = ctk.CTkEntry(frame, placeholder_text="spz")
-        self.car_num.place(x=200,y=180)
+        lcar_num.place(x=222,y=180)
+        self.car_num = ctk.CTkEntry(frame, placeholder_text="spz", width=150)
+        self.car_num.place(x=260,y=180)
 
         lcompany = ctk.CTkLabel(frame, text="Firma:")
-        lcompany.place(x=160,y=215)
-        self.company = ctk.CTkEntry(frame, placeholder_text="firma")
-        self.company.place(x=200,y=215)
+        lcompany.place(x=210.5,y=215)
+        self.company = ctk.CTkEntry(frame, placeholder_text="firma", width=150)
+        self.company.place(x=260,y=215)
 
-        lgroup_size = ctk.CTkLabel(frame, text="Počet ľudí v skupine:")
-        lgroup_size.place(x=80,y=250)
-        self.group_size = ctk.CTkEntry(frame, placeholder_text="počet ľudí v skupine")
-        self.group_size.place(x=200,y=250)
+        lgroup_size = ctk.CTkLabel(frame, text="Počet ľudí:")
+        lgroup_size.place(x=186.4,y=250)
+        self.group_size = ctk.CTkEntry(frame, placeholder_text="počet ľudí v skupine", width=150)
+        self.group_size.place(x=260,y=250)
 
         lvisit_reason = ctk.CTkLabel(frame, text="Dôvod návštevy:")
-        lvisit_reason.place(x=103, y=285)
-        self.visit_reason = ctk.CTkOptionMenu(frame, values=self.controller.options)
-        self.visit_reason.place(x=200,y=285)
+        lvisit_reason.place(x=154, y=285)
+        self.visit_reason = ctk.CTkOptionMenu(frame, values=self.controller.options, width=150)
+        self.visit_reason.place(x=260,y=285)
 
-        back = ctk.CTkButton(frame, text="Naspäť",height=40, command=lambda: self.go_back())
-        back.place(x=250,y=350)
+        addOption = ctk.CTkButton(frame, text="Upraviť dôvody", command=lambda: self.changeOptions(), width=150)
+        addOption.place(x=425,y=285)
 
-        submit = ctk.CTkButton(frame, text="Spustiť prezentáciu",height=40, command=lambda: self.save_info())
-        submit.place(x=75,y=350)
+        submit = ctk.CTkButton(frame, text="Spustiť prezentáciu",height=40, command=lambda: self.save_info(), width=150)
+        submit.place(x=130,y=500)
 
-        addOption = ctk.CTkButton(frame, text="Upraviť dôvody", command=lambda: self.changeOptions())
-        addOption.place(x=355,y=285)
+        back = ctk.CTkButton(frame, text="Naspäť",height=40, command=lambda: self.go_back(), width=150, fg_color="red", hover_color="darkred")
+        back.place(x=320,y=500)
 
         self.error_application_image = ctk.CTkImage(Image.open(ICONS_PATH + "tablet_error.png"), None, (50, 50))
         self.error_cable_image = ctk.CTkImage(Image.open(ICONS_PATH + "connection_error.png"),  None, (50, 50))
@@ -302,28 +312,30 @@ class Entry(ctk.CTkFrame):
                 
 
         popup = ctk.CTkToplevel(self.controller)
+        popup.title("Úprava dôvodov návštevy")
         popup.geometry('400x200')
         popup.attributes('-topmost', 'true')
         popup.grab_set()
         label = ctk.CTkLabel(popup, text="Pridajte alebo odstránte dôvody návštevy", font=LARGE_FONT)
         label.pack()
-        entry = ctk.CTkEntry(popup,placeholder_text="Dôvod")
-        entry.place(x=60, y=100)
-        add = ctk.CTkButton(popup, text="Pridaj",command=lambda : add_option())
-        add.place(x=215, y=100)
+        
+        entry = ctk.CTkEntry(popup,placeholder_text="Dôvod", width=150)
+        entry.place(x=40, y=100)
+        add = ctk.CTkButton(popup, text="Pridaj",command=lambda : add_option(), width=150)
+        add.place(x=210, y=100)
 
-        visitReasonPop = ctk.CTkOptionMenu(popup, values=self.controller.options)
-        visitReasonPop.place(x=60,y=50)
+        visitReasonPop = ctk.CTkOptionMenu(popup, values=self.controller.options, width=150)
+        visitReasonPop.place(x=40,y=50)
         
 
         for x in self.controller.options:
             print(x)
         
-        addOptionPop = ctk.CTkButton(popup, text="Odstráň", command=lambda: delete_option())
-        addOptionPop.place(x=215,y=50)
+        remove = ctk.CTkButton(popup, text="Odstráň", command=lambda: delete_option(), width=150)
+        remove.place(x=210,y=50)
 
-        back = ctk.CTkButton(popup, text="Naspäť",command=lambda: go_back())
-        back.place(y = 150,x = 215)
+        back = ctk.CTkButton(popup, text="Naspäť",command=lambda: go_back(), fg_color="red", hover_color="darkred", width=150)
+        back.place(y = 150,x = 210)
 
         popup.mainloop()
 
@@ -347,12 +359,12 @@ class Ongoing(ctk.CTkFrame):
         review = ctk.CTkLabel(frame, text="Číslo karty")
         review.place(x=485, y=85)
 
-        submit = ctk.CTkButton(frame, text="Odchod", command=lambda: self.submit())
-        submit.place(x=50,y=500)
-        edit = ctk.CTkButton(frame, text="Úprava", command=lambda: self.edit_chosen_visitor())
-        edit.place(x=200,y=500)
-        button = ctk.CTkButton(frame, text="Naspäť", command=lambda: self.go_back())
-        button.place(x=350,y=500)
+        submit = ctk.CTkButton(frame, text="Odchod", command=lambda: self.submit(), width=150, height=40)
+        submit.place(x=40,y=500)
+        edit = ctk.CTkButton(frame, text="Úprava", command=lambda: self.edit_chosen_visitor(), width=150, height=40)
+        edit.place(x=225,y=500)
+        button = ctk.CTkButton(frame, text="Naspäť", command=lambda: self.go_back(), width=150, height=40, fg_color="red", hover_color="darkred")
+        button.place(x=410,y=500)
 
         scrollable_frame = ctk.CTkScrollableFrame(frame, width=600,fg_color="gray17")
         scrollable_frame.place(relx=0,rely=0.2)
@@ -460,10 +472,10 @@ class Ongoing(ctk.CTkFrame):
     def notify(self):
         popup = ctk.CTkToplevel(self.controller)
         popup.geometry('300x200')
-
+        popup.title("Upozornenie")
         popup.grab_set()
-        label = ctk.CTkLabel(popup, text="Vyberte navstevu", font=LARGE_FONT)
-        label.pack()
+        label = ctk.CTkLabel(popup, text="Vyberte návštevu ktorú chcete upraviť.", font=LARGE_FONT)
+        label.place(x=12, y=75)
         popup.mainloop()
 
     def update_table(self):
@@ -493,32 +505,32 @@ class Visit_History(ctk.CTkFrame):
         self.restore_table()
 
         name_label = ctk.CTkLabel(frame, text="Meno:")
-        name_label.place(x=112,y=100)
-        self.name = ctk.CTkEntry(frame, placeholder_text="meno")
-        self.name.place(x=150,y=100)
+        name_label.place(x=82,y=100)
+        self.name = ctk.CTkEntry(frame, placeholder_text="meno", width=150)
+        self.name.place(x=120,y=100)
 
         surname_label = ctk.CTkLabel(frame, text="Priezvisko:")
-        surname_label.place(x=335,y=100)
-        self.surname = ctk.CTkEntry(frame, placeholder_text="priezvisko")
-        self.surname.place(x=400,y=100)
+        surname_label.place(x=305,y=100)
+        self.surname = ctk.CTkEntry(frame, placeholder_text="priezvisko", width=150)
+        self.surname.place(x=370,y=100)
 
         company_label = ctk.CTkLabel(frame, text="Firma:")
-        company_label.place(x=580,y=100)
-        self.company = ctk.CTkEntry(frame, placeholder_text="firma")
-        self.company.place(x=620,y=100)
+        company_label.place(x=550,y=100)
+        self.company = ctk.CTkEntry(frame, placeholder_text="firma", width=150)
+        self.company.place(x=590,y=100)
 
         arrival_label = ctk.CTkLabel(frame, text="Príchod:")
-        arrival_label.place(x=100,y=150)
-        self.arrival = ctk.CTkEntry(frame, placeholder_text="dd.mm.rrrr")
-        self.arrival.place(x=150,y=150)
+        arrival_label.place(x=70,y=150)
+        self.arrival = ctk.CTkEntry(frame, placeholder_text="dd.mm.rrrr", width=150)
+        self.arrival.place(x=120,y=150)
 
         departure_label = ctk.CTkLabel(frame, text="Odchod:")
-        departure_label.place(x=348,y=150)
-        self.departure = ctk.CTkEntry(frame, placeholder_text="dd.mm.rrrr")
-        self.departure.place(x=400,y=150)
+        departure_label.place(x=318,y=150)
+        self.departure = ctk.CTkEntry(frame, placeholder_text="dd.mm.rrrr", width=150)
+        self.departure.place(x=370,y=150)
 
-        filter = ctk.CTkButton(frame, text="Filter", command=lambda: self.filter_visitors())
-        filter.place(x=620, y=150)
+        filter = ctk.CTkButton(frame, text="Filter", command=lambda: self.filter_visitors(), width=150)
+        filter.place(x=590, y=150)
 
         self.name_sort = ctk.CTkLabel(frame, text="Meno")
         self.name_sort.place(x=112, y=200)
@@ -540,11 +552,11 @@ class Visit_History(ctk.CTkFrame):
         self.departure_sort.place(x=652, y=200)
         self.departure_sort.bind("<Button-1>",lambda event:  self.sort_by("departure"))
 
-        refresh = ctk.CTkButton(frame, text="Vyčistiť filter", command=lambda: self.clear_entry())
-        refresh.place(relx=0.4,rely=0.9)
+        refresh = ctk.CTkButton(frame, text="Vyčistiť filter", command=lambda: self.clear_entry(), width=150, height=40)
+        refresh.place(x=230,y=500)
 
-        button = ctk.CTkButton(frame, text="Naspäť", command=lambda: self.go_back())
-        button.place(relx=0.7,rely=0.9)
+        button = ctk.CTkButton(frame, text="Naspäť", command=lambda: self.go_back(), width=150, height=40, fg_color="red", hover_color="darkred")
+        button.place(x=420,y=500)
 
         self.error_application_image = ctk.CTkImage(Image.open(ICONS_PATH + "tablet_error.png"), None, (50, 50))
         self.error_cable_image = ctk.CTkImage(Image.open(ICONS_PATH + "connection_error.png"),  None, (50, 50))
@@ -1033,10 +1045,11 @@ class Control(ctk.CTkFrame):
         else:
             self.controller.show_frame(Entry)
             popup = ctk.CTkToplevel(self.controller)
-            popup.geometry('300x200')
+            popup.geometry('420x200')
+            popup.title("Upozornenie")
             popup.attributes('-topmost', 'true')
-            label = ctk.CTkLabel(popup, text="Nastala chyba skuste znova a skontrolujte zariadenie", font=LARGE_FONT)
-            label.pack()
+            label = ctk.CTkLabel(popup, text="Nastala chyba, skontrolujte stav pripojeného zariadenia.", font=LARGE_FONT, text_color="red")
+            label.place(x=12, y=75)
             popup.mainloop()
 
 ctk.set_appearance_mode('dark')
