@@ -6,7 +6,7 @@ from Communication import Communication
 from threading import Thread
 
 OUTPUT_PATH = 'files/signatures/' # TODO nastavnie správnej cesty pre ich potreby
-FILE_PATH = 'files/testFile.csv'
+FILE_PATH = 'files/visitorsData.csv'
 OPTIONS_FILE_PATH = 'files/options.txt'
 
 class Mediator:
@@ -25,6 +25,7 @@ class Mediator:
 
         if state == Communication.message_code["signature"]:
             ## data je PIL image
+            print(data)
             data.save(OUTPUT_PATH + visitor.getSignatureFileName())  
             self.file.writeVisitor(visitor.getDataToWrite())  # zapíše visitora do súboru
             self.allVisitors.append(visitor)

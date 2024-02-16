@@ -31,4 +31,10 @@ def atributes_to_dictionary(atributes: list[str]):
     return output_dictionary
 
 if __name__ == "__main__":
-    ipconfig_all()
+    response = ipconfig_all()
+
+    for device, atributes in response.items():
+        print(f"======= {device} ==========\n")
+        for atribute, value in atributes.items():
+            print(f"{atribute}:       {value}")
+        print()

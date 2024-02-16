@@ -7,7 +7,8 @@ pip install CTkTable
 '''
 
 Installation:
-From root, run in cmd:
+From root navstavy, run in cmd:
 '''
 pyinstaller --onefile --windowed --noconsole --icon=src/files/icons/icon.ico src/GUI.py
 '''
+This will create .exe file in /dist
