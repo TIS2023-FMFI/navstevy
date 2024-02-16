@@ -1,21 +1,21 @@
 import Visitor as vis
 import CustomFile as cf
-import difflib
 import string
 import unidecode
 from Communication import Communication
 from threading import Thread
-from PIL import Image
 
 OUTPUT_PATH = 'files/signatures/' # TODO nastavnie správnej cesty pre ich potreby
-FILE_PATH = 'files/testFile.csv'
+FILE_PATH = 'files/visitorsData.csv'
+OPTIONS_FILE_PATH = 'files/options.txt'
 
 class Mediator:
     def __init__(self):
         self.visitors = []      # TODO pridávanie neodhlásených z predošlého dňa
         self.file = cf.CustomFile(FILE_PATH)
         self.allVisitors = []
-        self.saveAllVisits()
+        if self.file.fileLoaded:
+            self.saveAllVisits()
         self.communication = Communication()
 
         
@@ -25,6 +25,7 @@ class Mediator:
 
         if state == Communication.message_code["signature"]:
             ## data je PIL image
+            print(data)
             data.save(OUTPUT_PATH + visitor.getSignatureFileName())  
             self.file.writeVisitor(visitor.getDataToWrite())  # zapíše visitora do súboru
             self.allVisitors.append(visitor)
@@ -54,7 +55,6 @@ class Mediator:
                     vis.addReview(data)
                 self.file.edit(vis.getId(), vis)
                 break
-
 
     def getVisitors(self):
         return self.visitors
@@ -144,6 +144,27 @@ class Mediator:
     def endPresentation(self):
         self.communication.send_end_presentation()
 
+    def saveOptions(self, options):
+        with open(OPTIONS_FILE_PATH, "w",encoding="utf-8") as file:
+            for option in options:
+                file.write(option + "\n")
+        file.close()
+    
+    def loadOptions(self):
+        options = []
+        dataInStrings = []
+        try:
+            file = open(OPTIONS_FILE_PATH, "r",encoding="utf-8")
+            file.seek(0)  # dôležité dať pointer na začiatok ak cheme čiťať celý súbor
+            dataInStrings = file.readlines()
+            file.close()
+        except OSError as e:
+            file = open(OPTIONS_FILE_PATH, "w",encoding="utf-8")
+            file.close()
+        for option in dataInStrings:
+            options.append(option.strip())
+        return options
+    
 if __name__ == "__main__": 
     m = Mediator()
     m.addVisitor('Lara', 'Taka', 1, 'BL000BS', 'Nic', 2, 2)

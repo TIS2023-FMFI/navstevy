@@ -1,12 +1,15 @@
 class CustomFile:   
     def __init__(self, path):   
         self.path = path
+        self.fileLoaded = True
         try:
-            file = open(path, "r", encoding="utf-8")  # Use "a+" to open the file for both reading and appending
+            self.file = open(path, "r", encoding="utf-8")  # Use "a+" to open the file for both reading and appending
+            self.file.close()
+
         except OSError as e:
             print(f"Error opening file {path}: {e}")
-        file.close()
-
+            self.fileLoaded = False
+            
     def writeVisitor(self, data):
         with open(self.path, "a+",encoding="utf-8") as file:
             file.write(data)
